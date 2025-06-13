@@ -1,25 +1,27 @@
-import  { useAppContext } from '../context/AppContext';
+import { useAppContext } from '../context/AppContext';
 import EnergyUsageChart from '../components/EnergyUsageChart';
 import { Lightbulb, AlertCircle } from 'lucide-react';
-import EnergyTip from '../components/EnergyTip';
+import { useMemo } from 'react';
+
 export default function Insights() {
   const { appliances, totalDailyUsage, totalDailyCost, settings } = useAppContext();
   
-  // Sort appliances by energy usage
-  const appliancesByUsage = [...appliances]
-    .map(appliance => ({
-      name: appliance.name,
-      usage: (appliance.wattage * appliance.hoursPerDay * appliance.daysPerWeek / 7) / 1000,
-      appliance
-    }))
-    .sort((a, b) => b.usage - a.usage);
-  
-  // Get top energy consumers
-  const topConsumers = appliancesByUsage.slice(0, 5);
-  
-  // Calculate energy distribution
+  const CO2_EMISSIONS_FACTOR = 0.92;
   const totalYearlyUsage = totalDailyUsage * 365;
   const totalYearlyCost = totalDailyCost * 365;
+  const totalCarbonFootprint = totalYearlyUsage * CO2_EMISSIONS_FACTOR;
+
+  const appliancesByUsage = useMemo(() => {
+    return [...appliances]
+      .map(appliance => ({
+        name: appliance.name,
+        usage: (appliance.wattage * appliance.hoursPerDay * appliance.daysPerWeek / 7) / 1000,
+        appliance
+      }))
+      .sort((a, b) => b.usage - a.usage);
+  }, [appliances]);
+
+  const topConsumers = appliancesByUsage.slice(0, 5);
 
   const tips = [
     {
@@ -71,7 +73,7 @@ export default function Insights() {
         <div className="card">
           <h2 className="text-sm text-gray-500 dark:text-gray-400">Carbon Footprint</h2>
           <p className="text-2xl font-semibold mt-1">
-            {(totalYearlyUsage * 0.85).toFixed(2)} kg CO₂
+            {totalCarbonFootprint.toFixed(2)} kg CO₂
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Estimated annual emissions from your electricity use
@@ -85,11 +87,7 @@ export default function Insights() {
         {appliances.length > 0 ? (
           <>
             <div className="mb-6">
-              <EnergyUsageChart 
-                type="bar" 
-                appliances={topConsumers}
-                height={250}
-              />
+              <EnergyUsageChart height={250} useEstimate={false} />
             </div>
             <div className="space-y-4">
               {topConsumers.map((item, index) => (
@@ -106,7 +104,7 @@ export default function Insights() {
                       <p className="font-medium">{item.usage.toFixed(2)} kWh/day</p>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {item.appliance.wattage} watts, {item.appliance.hoursPerDay} hours/day
+                      {item.appliance.wattage} watts, {item.appliance.hoursPerDay} hrs/day
                     </p>
                     {index === 0 && (
                       <div className="mt-2 text-sm bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 p-2 rounded-lg">
@@ -115,7 +113,7 @@ export default function Insights() {
                           <div>
                             <span className="font-medium">Energy hog alert: </span>
                             Consider replacing with an energy-efficient model to save approximately 
-                            {settings.currency === 'USD' ? '$' : '€'}{(item.usage * 365 * settings.electricityRate * 0.3).toFixed(2)} per year.
+                            {settings.currency === 'USD' ? '$' : '€'}{((Number(item.usage) * 365 * Number(settings.electricityRate) * 0.3).toFixed(2))} per year.
                           </div>
                         </div>
                       </div>
@@ -154,9 +152,8 @@ export default function Insights() {
       {/* Energy Use Over Time */}
       <div className="card">
         <h2 className="text-lg font-medium mb-4">Your Energy Trends</h2>
-        <EnergyUsageChart />
+        <EnergyUsageChart useEstimate={false} />
       </div>
     </div>
   );
 }
- 

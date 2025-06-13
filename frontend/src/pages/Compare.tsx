@@ -231,7 +231,7 @@ export default function Compare() {
             This chart shows your historical usage compared to average usage in your area.
           </p>
         </div>
-        <EnergyUsageChart />
+        <EnergyUsageChart useEstimate={true} />
       </div>
       
       {/* Efficiency Score */}

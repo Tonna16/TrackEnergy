@@ -1,0 +1,5 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './stackbuilder.app/Contents/Frameworks/libssl.3.dylib'
+relocations:     []
+...

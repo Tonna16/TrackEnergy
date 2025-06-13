@@ -1,0 +1,48 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/uuid-ossp.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x33A4, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x33A4, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x958, symBinAddr: 0x3DD4, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_nil, symObjAddr: 0xC, symBinAddr: 0x33B0, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_nil.my_finfo, symObjAddr: 0x990, symBinAddr: 0x3E0C, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_dns, symObjAddr: 0x18, symBinAddr: 0x33BC, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_dns.my_finfo, symObjAddr: 0x994, symBinAddr: 0x3E10, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_url, symObjAddr: 0x24, symBinAddr: 0x33C8, symSize: 0xC }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_url.my_finfo, symObjAddr: 0x998, symBinAddr: 0x3E14, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_oid, symObjAddr: 0x30, symBinAddr: 0x33D4, symSize: 0xC }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_oid.my_finfo, symObjAddr: 0x99C, symBinAddr: 0x3E18, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_x500, symObjAddr: 0x3C, symBinAddr: 0x33E0, symSize: 0xC }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_ns_x500.my_finfo, symObjAddr: 0x9A0, symBinAddr: 0x3E1C, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v1, symObjAddr: 0x48, symBinAddr: 0x33EC, symSize: 0xC }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v1.my_finfo, symObjAddr: 0x9A4, symBinAddr: 0x3E20, symSize: 0x0 }
+  - { offset: 0x233, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v1mc, symObjAddr: 0x54, symBinAddr: 0x33F8, symSize: 0xC }
+  - { offset: 0x258, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v1mc.my_finfo, symObjAddr: 0x9A8, symBinAddr: 0x3E24, symSize: 0x0 }
+  - { offset: 0x262, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v3, symObjAddr: 0x60, symBinAddr: 0x3404, symSize: 0xC }
+  - { offset: 0x287, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v3.my_finfo, symObjAddr: 0x9AC, symBinAddr: 0x3E28, symSize: 0x0 }
+  - { offset: 0x291, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v4, symObjAddr: 0x6C, symBinAddr: 0x3410, symSize: 0xC }
+  - { offset: 0x2B6, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v4.my_finfo, symObjAddr: 0x9B0, symBinAddr: 0x3E2C, symSize: 0x0 }
+  - { offset: 0x2C0, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v5, symObjAddr: 0x78, symBinAddr: 0x341C, symSize: 0xC }
+  - { offset: 0x2E5, size: 0x8, addend: 0x0, symName: _pg_finfo_uuid_generate_v5.my_finfo, symObjAddr: 0x9B4, symBinAddr: 0x3E30, symSize: 0x0 }
+  - { offset: 0x122C, size: 0x8, addend: 0x0, symName: _uuid_nil, symObjAddr: 0x84, symBinAddr: 0x3428, symSize: 0x70 }
+  - { offset: 0x149E, size: 0x8, addend: 0x0, symName: _uuid_generate_internal, symObjAddr: 0xF4, symBinAddr: 0x3498, symSize: 0x224 }
+  - { offset: 0x17CA, size: 0x8, addend: 0x0, symName: _uuid_ns_dns, symObjAddr: 0x318, symBinAddr: 0x36BC, symSize: 0x70 }
+  - { offset: 0x18A6, size: 0x8, addend: 0x0, symName: _uuid_generate_internal.cold.2, symObjAddr: 0x7BC, symBinAddr: 0x3B78, symSize: 0x4C }
+  - { offset: 0x18BD, size: 0x8, addend: 0x0, symName: _uuid_generate_internal.cold.5, symObjAddr: 0x8A0, symBinAddr: 0x3C5C, symSize: 0x4C }
+  - { offset: 0x18D4, size: 0x8, addend: 0x0, symName: _uuid_generate_internal.cold.1, symObjAddr: 0x770, symBinAddr: 0x3B2C, symSize: 0x4C }
+  - { offset: 0x18EB, size: 0x8, addend: 0x0, symName: _uuid_generate_internal.cold.3, symObjAddr: 0x808, symBinAddr: 0x3BC4, symSize: 0x4C }
+  - { offset: 0x1902, size: 0x8, addend: 0x0, symName: _uuid_generate_internal.cold.4, symObjAddr: 0x854, symBinAddr: 0x3C10, symSize: 0x4C }
+  - { offset: 0x1919, size: 0x8, addend: 0x0, symName: _uuid_generate_internal.cold.6, symObjAddr: 0x8EC, symBinAddr: 0x3CA8, symSize: 0x4C }
+  - { offset: 0x1930, size: 0x8, addend: 0x0, symName: _uuid_ns_dns, symObjAddr: 0x318, symBinAddr: 0x36BC, symSize: 0x70 }
+  - { offset: 0x19CD, size: 0x8, addend: 0x0, symName: _uuid_ns_url, symObjAddr: 0x388, symBinAddr: 0x372C, symSize: 0x70 }
+  - { offset: 0x1A6A, size: 0x8, addend: 0x0, symName: _uuid_ns_oid, symObjAddr: 0x3F8, symBinAddr: 0x379C, symSize: 0x70 }
+  - { offset: 0x1B07, size: 0x8, addend: 0x0, symName: _uuid_ns_x500, symObjAddr: 0x468, symBinAddr: 0x380C, symSize: 0x70 }
+  - { offset: 0x1BA4, size: 0x8, addend: 0x0, symName: _uuid_generate_v1, symObjAddr: 0x4D8, symBinAddr: 0x387C, symSize: 0x6C }
+  - { offset: 0x1C62, size: 0x8, addend: 0x0, symName: _uuid_generate_v1mc, symObjAddr: 0x544, symBinAddr: 0x38E8, symSize: 0xB0 }
+  - { offset: 0x1DBB, size: 0x8, addend: 0x0, symName: _uuid_generate_v3, symObjAddr: 0x5F4, symBinAddr: 0x3998, symSize: 0x88 }
+  - { offset: 0x1E37, size: 0x8, addend: 0x0, symName: _uuid_generate_v4, symObjAddr: 0x67C, symBinAddr: 0x3A20, symSize: 0x6C }
+  - { offset: 0x1EF5, size: 0x8, addend: 0x0, symName: _uuid_generate_v5, symObjAddr: 0x6E8, symBinAddr: 0x3A8C, symSize: 0x88 }
+  - { offset: 0x1F60, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x938, symBinAddr: 0x3B14, symSize: 0x10 }
+  - { offset: 0x1F77, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0x948, symBinAddr: 0x3B24, symSize: 0x8 }
+...

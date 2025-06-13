@@ -1,0 +1,14 @@
+prefix=/opt/pginstaller_17.auto/server/staging_cache/osx.build
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libecpg
+Description: PostgreSQL libecpg library
+URL: https://www.postgresql.org/
+Version: 17.5
+Requires: 
+Requires.private: libpq, libpgtypes
+Cflags: -I/Users/adannaa/Downloads/EnergyTracker/includedir}
+Libs: -L/Users/adannaa/Downloads/EnergyTracker/libdir} -lecpg
+Libs.private: -L/opt/local/20240903/lib -L/opt/local/Current_v15/lib -lpgcommon -lpgport -lpq -lm

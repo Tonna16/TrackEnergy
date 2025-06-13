@@ -1,0 +1,50 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/refint.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x24E4, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x24E4, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x134C, symBinAddr: 0x3998, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_check_primary_key, symObjAddr: 0xC, symBinAddr: 0x24F0, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_check_primary_key.my_finfo, symObjAddr: 0x1384, symBinAddr: 0x39D0, symSize: 0x0 }
+  - { offset: 0x159, size: 0x8, addend: 0x0, symName: _pg_finfo_check_foreign_key, symObjAddr: 0x4A8, symBinAddr: 0x298C, symSize: 0xC }
+  - { offset: 0x17E, size: 0x8, addend: 0x0, symName: _pg_finfo_check_foreign_key.my_finfo, symObjAddr: 0x1388, symBinAddr: 0x39D4, symSize: 0x0 }
+  - { offset: 0x194, size: 0x8, addend: 0x0, symName: _PPlans, symObjAddr: 0x13FC8, symBinAddr: 0x8000, symSize: 0x0 }
+  - { offset: 0x201, size: 0x8, addend: 0x0, symName: _nPPlans, symObjAddr: 0x13FD0, symBinAddr: 0x8008, symSize: 0x0 }
+  - { offset: 0x216, size: 0x8, addend: 0x0, symName: _FPlans, symObjAddr: 0x13FD8, symBinAddr: 0x8010, symSize: 0x0 }
+  - { offset: 0x22B, size: 0x8, addend: 0x0, symName: _nFPlans, symObjAddr: 0x13FE0, symBinAddr: 0x8018, symSize: 0x0 }
+  - { offset: 0x5888, size: 0x8, addend: 0x0, symName: _check_primary_key, symObjAddr: 0x18, symBinAddr: 0x24FC, symSize: 0x388 }
+  - { offset: 0x5CDC, size: 0x8, addend: 0x0, symName: _find_plan, symObjAddr: 0x3A0, symBinAddr: 0x2884, symSize: 0x108 }
+  - { offset: 0x5D1E, size: 0x8, addend: 0x0, symName: _find_plan, symObjAddr: 0x3A0, symBinAddr: 0x2884, symSize: 0x108 }
+  - { offset: 0x5F12, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.8, symObjAddr: 0xE64, symBinAddr: 0x3374, symSize: 0x58 }
+  - { offset: 0x5F29, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.1, symObjAddr: 0xC98, symBinAddr: 0x31A8, symSize: 0x34 }
+  - { offset: 0x5F40, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.2, symObjAddr: 0xCCC, symBinAddr: 0x31DC, symSize: 0x34 }
+  - { offset: 0x5F57, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.9, symObjAddr: 0xEBC, symBinAddr: 0x33CC, symSize: 0x34 }
+  - { offset: 0x5F6E, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.3, symObjAddr: 0xD00, symBinAddr: 0x3210, symSize: 0x44 }
+  - { offset: 0x5F85, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.5, symObjAddr: 0xD90, symBinAddr: 0x32A0, symSize: 0x44 }
+  - { offset: 0x5F9C, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.6, symObjAddr: 0xDD4, symBinAddr: 0x32E4, symSize: 0x5C }
+  - { offset: 0x5FB3, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.10, symObjAddr: 0xEF0, symBinAddr: 0x3400, symSize: 0x34 }
+  - { offset: 0x5FCA, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.4, symObjAddr: 0xD44, symBinAddr: 0x3254, symSize: 0x4C }
+  - { offset: 0x5FE1, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.7, symObjAddr: 0xE30, symBinAddr: 0x3340, symSize: 0x34 }
+  - { offset: 0x6072, size: 0x8, addend: 0x0, symName: _check_foreign_key, symObjAddr: 0x4B4, symBinAddr: 0x2998, symSize: 0x7E4 }
+  - { offset: 0x694A, size: 0x8, addend: 0x0, symName: _check_primary_key.cold.1, symObjAddr: 0xC98, symBinAddr: 0x31A8, symSize: 0x34 }
+  - { offset: 0x6A14, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.9, symObjAddr: 0x111C, symBinAddr: 0x362C, symSize: 0x58 }
+  - { offset: 0x6A2B, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.14, symObjAddr: 0x128C, symBinAddr: 0x379C, symSize: 0x4C }
+  - { offset: 0x6A42, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.11, symObjAddr: 0x11C0, symBinAddr: 0x36D0, symSize: 0x48 }
+  - { offset: 0x6A59, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.10, symObjAddr: 0x1174, symBinAddr: 0x3684, symSize: 0x4C }
+  - { offset: 0x6A70, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.13, symObjAddr: 0x1258, symBinAddr: 0x3768, symSize: 0x34 }
+  - { offset: 0x6A87, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.12, symObjAddr: 0x1208, symBinAddr: 0x3718, symSize: 0x50 }
+  - { offset: 0x6A9E, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.1, symObjAddr: 0xF24, symBinAddr: 0x3434, symSize: 0x34 }
+  - { offset: 0x6AB5, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.7, symObjAddr: 0x1090, symBinAddr: 0x35A0, symSize: 0x48 }
+  - { offset: 0x6ACC, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.2, symObjAddr: 0xF58, symBinAddr: 0x3468, symSize: 0x34 }
+  - { offset: 0x6AE3, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.3, symObjAddr: 0xF8C, symBinAddr: 0x349C, symSize: 0x34 }
+  - { offset: 0x6AFA, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.4, symObjAddr: 0xFC0, symBinAddr: 0x34D0, symSize: 0x44 }
+  - { offset: 0x6B11, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.5, symObjAddr: 0x1004, symBinAddr: 0x3514, symSize: 0x44 }
+  - { offset: 0x6B28, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.6, symObjAddr: 0x1048, symBinAddr: 0x3558, symSize: 0x48 }
+  - { offset: 0x6B3F, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.8, symObjAddr: 0x10D8, symBinAddr: 0x35E8, symSize: 0x44 }
+  - { offset: 0x6B56, size: 0x8, addend: 0x0, symName: _check_foreign_key.cold.15, symObjAddr: 0x12D8, symBinAddr: 0x37E8, symSize: 0x48 }
+  - { offset: 0x6B6D, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x1320, symBinAddr: 0x317C, symSize: 0xC }
+  - { offset: 0x6B84, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0x132C, symBinAddr: 0x3188, symSize: 0xC }
+  - { offset: 0x6B9B, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_2, symObjAddr: 0x1338, symBinAddr: 0x3194, symSize: 0xC }
+  - { offset: 0x6BB2, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_3, symObjAddr: 0x1344, symBinAddr: 0x31A0, symSize: 0x8 }
+...

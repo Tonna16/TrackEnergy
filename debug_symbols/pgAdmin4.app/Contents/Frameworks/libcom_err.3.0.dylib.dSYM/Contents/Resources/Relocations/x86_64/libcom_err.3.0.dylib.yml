@@ -1,0 +1,5 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './pgAdmin4.app/Contents/Frameworks/libcom_err.3.0.dylib'
+relocations:     []
+...

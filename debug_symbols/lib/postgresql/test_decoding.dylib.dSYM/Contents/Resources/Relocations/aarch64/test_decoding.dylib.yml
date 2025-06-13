@@ -1,0 +1,46 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/test_decoding.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1DC8, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1DC8, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x1A98, symBinAddr: 0x39EC, symSize: 0x0 }
+  - { offset: 0x1074, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0xC, symBinAddr: 0x1DD4, symSize: 0x4 }
+  - { offset: 0x1089, size: 0x8, addend: 0x0, symName: __PG_output_plugin_init, symObjAddr: 0x10, symBinAddr: 0x1DD8, symSize: 0xD8 }
+  - { offset: 0x10AC, size: 0x8, addend: 0x0, symName: _pg_decode_startup, symObjAddr: 0xE8, symBinAddr: 0x1EB0, symSize: 0x2D0 }
+  - { offset: 0x140E, size: 0x8, addend: 0x0, symName: _pg_decode_begin_txn, symObjAddr: 0x3B8, symBinAddr: 0x2180, symSize: 0xA8 }
+  - { offset: 0x173A, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.1, symObjAddr: 0x17B8, symBinAddr: 0x359C, symSize: 0x4C }
+  - { offset: 0x1751, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.2, symObjAddr: 0x1804, symBinAddr: 0x35E8, symSize: 0x4C }
+  - { offset: 0x1768, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.3, symObjAddr: 0x1850, symBinAddr: 0x3634, symSize: 0x4C }
+  - { offset: 0x177F, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.8, symObjAddr: 0x19CC, symBinAddr: 0x37B0, symSize: 0x5C }
+  - { offset: 0x1796, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.4, symObjAddr: 0x189C, symBinAddr: 0x3680, symSize: 0x4C }
+  - { offset: 0x17AD, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.7, symObjAddr: 0x1980, symBinAddr: 0x3764, symSize: 0x4C }
+  - { offset: 0x17C4, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.5, symObjAddr: 0x18E8, symBinAddr: 0x36CC, symSize: 0x4C }
+  - { offset: 0x17DB, size: 0x8, addend: 0x0, symName: _pg_decode_startup.cold.6, symObjAddr: 0x1934, symBinAddr: 0x3718, symSize: 0x4C }
+  - { offset: 0x43C2, size: 0x8, addend: 0x0, symName: _pg_decode_begin_txn, symObjAddr: 0x3B8, symBinAddr: 0x2180, symSize: 0xA8 }
+  - { offset: 0x452D, size: 0x8, addend: 0x0, symName: _pg_decode_change, symObjAddr: 0x460, symBinAddr: 0x2228, symSize: 0x210 }
+  - { offset: 0x4801, size: 0x8, addend: 0x0, symName: _tuple_to_stringinfo, symObjAddr: 0x1400, symBinAddr: 0x31C8, symSize: 0x270 }
+  - { offset: 0x4AE7, size: 0x8, addend: 0x0, symName: _print_literal, symObjAddr: 0x1670, symBinAddr: 0x3438, symSize: 0x148 }
+  - { offset: 0x4AFE, size: 0x8, addend: 0x0, symName: _pg_decode_truncate, symObjAddr: 0x670, symBinAddr: 0x2438, symSize: 0x1F8 }
+  - { offset: 0x4D44, size: 0x8, addend: 0x0, symName: _pg_decode_commit_txn, symObjAddr: 0x868, symBinAddr: 0x2630, symSize: 0xDC }
+  - { offset: 0x4E49, size: 0x8, addend: 0x0, symName: _pg_decode_filter, symObjAddr: 0x944, symBinAddr: 0x270C, symSize: 0x18 }
+  - { offset: 0x4E92, size: 0x8, addend: 0x0, symName: _pg_decode_shutdown, symObjAddr: 0x95C, symBinAddr: 0x2724, symSize: 0xC }
+  - { offset: 0x4EE3, size: 0x8, addend: 0x0, symName: _pg_decode_message, symObjAddr: 0x968, symBinAddr: 0x2730, symSize: 0xFC }
+  - { offset: 0x5075, size: 0x8, addend: 0x0, symName: _pg_decode_filter_prepare, symObjAddr: 0xA64, symBinAddr: 0x282C, symSize: 0x28 }
+  - { offset: 0x50E3, size: 0x8, addend: 0x0, symName: _pg_decode_begin_prepare_txn, symObjAddr: 0xA8C, symBinAddr: 0x2854, symSize: 0xA8 }
+  - { offset: 0x51CC, size: 0x8, addend: 0x0, symName: _pg_decode_prepare_txn, symObjAddr: 0xB34, symBinAddr: 0x28FC, symSize: 0xD8 }
+  - { offset: 0x52BB, size: 0x8, addend: 0x0, symName: _pg_decode_commit_prepared_txn, symObjAddr: 0xC0C, symBinAddr: 0x29D4, symSize: 0xAC }
+  - { offset: 0x538A, size: 0x8, addend: 0x0, symName: _pg_decode_rollback_prepared_txn, symObjAddr: 0xCB8, symBinAddr: 0x2A80, symSize: 0xAC }
+  - { offset: 0x549F, size: 0x8, addend: 0x0, symName: _pg_decode_stream_start, symObjAddr: 0xD64, symBinAddr: 0x2B2C, symSize: 0xB4 }
+  - { offset: 0x5588, size: 0x8, addend: 0x0, symName: _pg_decode_stream_stop, symObjAddr: 0xE18, symBinAddr: 0x2BE0, symSize: 0xA0 }
+  - { offset: 0x5625, size: 0x8, addend: 0x0, symName: _pg_decode_stream_abort, symObjAddr: 0xEB8, symBinAddr: 0x2C80, symSize: 0xBC }
+  - { offset: 0x56F7, size: 0x8, addend: 0x0, symName: _pg_decode_stream_prepare, symObjAddr: 0xF74, symBinAddr: 0x2D3C, symSize: 0xE0 }
+  - { offset: 0x57C8, size: 0x8, addend: 0x0, symName: _pg_decode_stream_commit, symObjAddr: 0x1054, symBinAddr: 0x2E1C, symSize: 0xDC }
+  - { offset: 0x58AF, size: 0x8, addend: 0x0, symName: _pg_decode_stream_change, symObjAddr: 0x1130, symBinAddr: 0x2EF8, symSize: 0xDC }
+  - { offset: 0x59E3, size: 0x8, addend: 0x0, symName: _pg_decode_stream_message, symObjAddr: 0x120C, symBinAddr: 0x2FD4, symSize: 0x118 }
+  - { offset: 0x5B83, size: 0x8, addend: 0x0, symName: _pg_decode_stream_truncate, symObjAddr: 0x1324, symBinAddr: 0x30EC, symSize: 0xDC }
+  - { offset: 0x5DED, size: 0x8, addend: 0x0, symName: _print_literal, symObjAddr: 0x1670, symBinAddr: 0x3438, symSize: 0x148 }
+  - { offset: 0x5F60, size: 0x8, addend: 0x0, symName: _tuple_to_stringinfo.cold.1, symObjAddr: 0x1A28, symBinAddr: 0x380C, symSize: 0x4C }
+  - { offset: 0x5FB9, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x1A74, symBinAddr: 0x3580, symSize: 0x10 }
+  - { offset: 0x5FD0, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0x1A84, symBinAddr: 0x3590, symSize: 0xC }
+...

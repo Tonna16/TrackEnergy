@@ -1,0 +1,19 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/dict_xsyn.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3824, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3824, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x580, symBinAddr: 0x3EA8, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_dxsyn_init, symObjAddr: 0xC, symBinAddr: 0x3830, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_dxsyn_init.my_finfo, symObjAddr: 0x5B8, symBinAddr: 0x3EE0, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_dxsyn_lexize, symObjAddr: 0x18, symBinAddr: 0x383C, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_dxsyn_lexize.my_finfo, symObjAddr: 0x5BC, symBinAddr: 0x3EE4, symSize: 0x0 }
+  - { offset: 0x13F0, size: 0x8, addend: 0x0, symName: _dxsyn_init, symObjAddr: 0x24, symBinAddr: 0x3848, symSize: 0x324 }
+  - { offset: 0x17A5, size: 0x8, addend: 0x0, symName: _dxsyn_lexize, symObjAddr: 0x348, symBinAddr: 0x3B6C, symSize: 0x178 }
+  - { offset: 0x1937, size: 0x8, addend: 0x0, symName: _dxsyn_init.cold.2, symObjAddr: 0x514, symBinAddr: 0x3D48, symSize: 0x50 }
+  - { offset: 0x194E, size: 0x8, addend: 0x0, symName: _dxsyn_init.cold.1, symObjAddr: 0x4CC, symBinAddr: 0x3D00, symSize: 0x48 }
+  - { offset: 0x197A, size: 0x8, addend: 0x0, symName: _dxsyn_lexize, symObjAddr: 0x348, symBinAddr: 0x3B6C, symSize: 0x178 }
+  - { offset: 0x1B94, size: 0x8, addend: 0x0, symName: _compare_syn, symObjAddr: 0x4C0, symBinAddr: 0x3CE4, symSize: 0xC }
+  - { offset: 0x1BD9, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x564, symBinAddr: 0x3CF0, symSize: 0x10 }
+...

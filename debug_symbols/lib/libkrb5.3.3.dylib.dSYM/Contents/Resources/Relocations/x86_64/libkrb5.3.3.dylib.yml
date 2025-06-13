@@ -1,0 +1,5 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/libkrb5.3.3.dylib'
+relocations:     []
+...

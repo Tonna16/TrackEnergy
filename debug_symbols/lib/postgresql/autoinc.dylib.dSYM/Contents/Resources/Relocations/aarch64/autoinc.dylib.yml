@@ -1,0 +1,20 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/autoinc.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x394C, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x394C, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x448, symBinAddr: 0x3E48, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_autoinc, symObjAddr: 0xC, symBinAddr: 0x3958, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_autoinc.my_finfo, symObjAddr: 0x480, symBinAddr: 0x3E80, symSize: 0x0 }
+  - { offset: 0x64C0, size: 0x8, addend: 0x0, symName: _autoinc, symObjAddr: 0x18, symBinAddr: 0x3964, symSize: 0x258 }
+  - { offset: 0x68D7, size: 0x8, addend: 0x0, symName: _autoinc.cold.1, symObjAddr: 0x270, symBinAddr: 0x3BC8, symSize: 0x34 }
+  - { offset: 0x69E3, size: 0x8, addend: 0x0, symName: _autoinc.cold.4, symObjAddr: 0x30C, symBinAddr: 0x3C64, symSize: 0x5C }
+  - { offset: 0x69FA, size: 0x8, addend: 0x0, symName: _autoinc.cold.5, symObjAddr: 0x368, symBinAddr: 0x3CC0, symSize: 0x5C }
+  - { offset: 0x6A11, size: 0x8, addend: 0x0, symName: _autoinc.cold.1, symObjAddr: 0x270, symBinAddr: 0x3BC8, symSize: 0x34 }
+  - { offset: 0x6A28, size: 0x8, addend: 0x0, symName: _autoinc.cold.2, symObjAddr: 0x2A4, symBinAddr: 0x3BFC, symSize: 0x34 }
+  - { offset: 0x6A3F, size: 0x8, addend: 0x0, symName: _autoinc.cold.7, symObjAddr: 0x408, symBinAddr: 0x3D60, symSize: 0x34 }
+  - { offset: 0x6A56, size: 0x8, addend: 0x0, symName: _autoinc.cold.6, symObjAddr: 0x3C4, symBinAddr: 0x3D1C, symSize: 0x44 }
+  - { offset: 0x6A6D, size: 0x8, addend: 0x0, symName: _autoinc.cold.3, symObjAddr: 0x2D8, symBinAddr: 0x3C30, symSize: 0x34 }
+  - { offset: 0x6A84, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x43C, symBinAddr: 0x3BBC, symSize: 0xC }
+...

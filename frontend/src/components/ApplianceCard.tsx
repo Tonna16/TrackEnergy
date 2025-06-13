@@ -1,32 +1,32 @@
-import  { Trash, Edit, Zap } from 'lucide-react';
+import { Trash, Edit, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Appliance, useAppContext } from '../context/AppContext';
-
+import { useAppContext } from '../context/AppContext';
+import type { Appliance } from '../context/AppContext';
 interface ApplianceCardProps {
   appliance: Appliance;
 }
 
 export default function ApplianceCard({ appliance }: ApplianceCardProps) {
   const { deleteAppliance, settings } = useAppContext();
-  
+
   const dailyUsage = (appliance.wattage * appliance.hoursPerDay * appliance.daysPerWeek / 7) / 1000;
-  const dailyCost = dailyUsage * settings.electricityRate;
+  const dailyCost = dailyUsage * Number(settings.electricityRate);
   const monthlyCost = dailyCost * 30;
-  
+
   const efficiencyClass = appliance.isHighEfficiency
     ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
     : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
-  
+
   return (
-    <div className="card hover:shadow-md transition-shadow">
+    <div className="card hover:shadow-md transition-shadow dark:bg-black dark:border-dark-border">
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="font-semibold">{appliance.name}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-emerald-400">
             {appliance.brand && appliance.model ? `${appliance.brand} ${appliance.model}` : appliance.type}
           </p>
           <div className="flex space-x-2 mt-2">
-            <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+            <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-dark-input dark:text-dark-text">
               {appliance.location}
             </span>
             <span className={`px-2 py-0.5 text-xs rounded-full ${efficiencyClass}`}>
@@ -37,22 +37,24 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
         <div className="flex">
           <Link
             to={`/edit-appliance/${appliance.id}`}
-            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="p-1 text-gray-500 hover:text-gray-700 dark:text-emerald-500 dark:hover:text-emerald-400"
+            aria-label="Edit appliance"
           >
             <Edit className="h-5 w-5" />
           </Link>
           <button
             onClick={() => deleteAppliance(appliance.id)}
-            className="p-1 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+            className="p-1 text-gray-500 hover:text-red-600 dark:text-emerald-500 dark:hover:text-red-400"
+            aria-label="Delete appliance"
           >
             <Trash className="h-5 w-5" />
           </button>
         </div>
       </div>
-      
-      <div className="mt-4 pt-4 border-t dark:border-gray-700">
+
+      <div className="mt-4 pt-4 border-t dark:border-dark-border">
         <div className="flex justify-between items-center">
-          <div className="flex items-center text-gray-700 dark:text-gray-300">
+          <div className="flex items-center text-gray-700 dark:text-dark-text">
             <Zap className="h-5 w-5 text-amber-500 mr-1.5" />
             <span>{appliance.wattage} W • {appliance.hoursPerDay} hrs/day</span>
           </div>
@@ -67,4 +69,3 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
     </div>
   );
 }
- 

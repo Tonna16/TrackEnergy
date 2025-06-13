@@ -1,0 +1,23 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/hstore_plperl.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3670, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3670, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x6D0, symBinAddr: 0x3E90, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_hstore_to_plperl, symObjAddr: 0xCC, symBinAddr: 0x373C, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_hstore_to_plperl.my_finfo, symObjAddr: 0x708, symBinAddr: 0x3EC8, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_plperl_to_hstore, symObjAddr: 0x354, symBinAddr: 0x39C4, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_plperl_to_hstore.my_finfo, symObjAddr: 0x70C, symBinAddr: 0x3ECC, symSize: 0x0 }
+  - { offset: 0x188, size: 0x8, addend: 0x0, symName: _hstoreUpgrade_p, symObjAddr: 0xDB18, symBinAddr: 0x8000, symSize: 0x0 }
+  - { offset: 0x221, size: 0x8, addend: 0x0, symName: _hstoreUniquePairs_p, symObjAddr: 0xDB20, symBinAddr: 0x8008, symSize: 0x0 }
+  - { offset: 0x2DF, size: 0x8, addend: 0x0, symName: _hstorePairs_p, symObjAddr: 0xDB28, symBinAddr: 0x8010, symSize: 0x0 }
+  - { offset: 0x319, size: 0x8, addend: 0x0, symName: _hstoreCheckKeyLen_p, symObjAddr: 0xDB30, symBinAddr: 0x8018, symSize: 0x0 }
+  - { offset: 0x349, size: 0x8, addend: 0x0, symName: _hstoreCheckValLen_p, symObjAddr: 0xDB38, symBinAddr: 0x8020, symSize: 0x0 }
+  - { offset: 0x4FC5, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0xC, symBinAddr: 0x367C, symSize: 0xC0 }
+  - { offset: 0x524E, size: 0x8, addend: 0x0, symName: _hstore_to_plperl, symObjAddr: 0xD8, symBinAddr: 0x3748, symSize: 0x27C }
+  - { offset: 0x56DD, size: 0x8, addend: 0x0, symName: _plperl_to_hstore, symObjAddr: 0x360, symBinAddr: 0x39D0, symSize: 0x1C4 }
+  - { offset: 0x58F0, size: 0x8, addend: 0x0, symName: _sv2cstr, symObjAddr: 0x524, symBinAddr: 0x3B94, symSize: 0x160 }
+  - { offset: 0x593E, size: 0x8, addend: 0x0, symName: _sv2cstr, symObjAddr: 0x524, symBinAddr: 0x3B94, symSize: 0x160 }
+  - { offset: 0x5B4D, size: 0x8, addend: 0x0, symName: _plperl_to_hstore.cold.1, symObjAddr: 0x684, symBinAddr: 0x3CF4, symSize: 0x44 }
+...

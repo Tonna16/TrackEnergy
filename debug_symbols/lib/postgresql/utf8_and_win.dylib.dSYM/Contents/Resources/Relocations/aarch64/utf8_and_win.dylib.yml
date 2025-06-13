@@ -1,0 +1,64 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_win.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x21A0, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x21A0, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x260, symBinAddr: 0x2450, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_win_to_utf8, symObjAddr: 0xC, symBinAddr: 0x21AC, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_win_to_utf8.my_finfo, symObjAddr: 0x298, symBinAddr: 0x2488, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_win, symObjAddr: 0x18, symBinAddr: 0x21B8, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_win.my_finfo, symObjAddr: 0x29C, symBinAddr: 0x248C, symSize: 0x0 }
+  - { offset: 0x183, size: 0x8, addend: 0x0, symName: _maps, symObjAddr: 0x5D50, symBinAddr: 0x8038, symSize: 0x0 }
+  - { offset: 0x4B3, size: 0x8, addend: 0x0, symName: _win866_to_unicode_tree, symObjAddr: 0x5E58, symBinAddr: 0x8140, symSize: 0x0 }
+  - { offset: 0x4C8, size: 0x8, addend: 0x0, symName: _win866_to_unicode_tree_table, symObjAddr: 0x2A0, symBinAddr: 0x2490, symSize: 0x0 }
+  - { offset: 0x4EA, size: 0x8, addend: 0x0, symName: _win866_from_unicode_tree, symObjAddr: 0x5E90, symBinAddr: 0x8178, symSize: 0x0 }
+  - { offset: 0x4FF, size: 0x8, addend: 0x0, symName: _win866_from_unicode_tree_table, symObjAddr: 0x6A0, symBinAddr: 0x2890, symSize: 0x0 }
+  - { offset: 0x521, size: 0x8, addend: 0x0, symName: _win874_to_unicode_tree, symObjAddr: 0x5EC8, symBinAddr: 0x81B0, symSize: 0x0 }
+  - { offset: 0x536, size: 0x8, addend: 0x0, symName: _win874_to_unicode_tree_table, symObjAddr: 0xB18, symBinAddr: 0x2D08, symSize: 0x0 }
+  - { offset: 0x557, size: 0x8, addend: 0x0, symName: _win874_from_unicode_tree, symObjAddr: 0x5F00, symBinAddr: 0x81E8, symSize: 0x0 }
+  - { offset: 0x56C, size: 0x8, addend: 0x0, symName: _win874_from_unicode_tree_table, symObjAddr: 0xEF8, symBinAddr: 0x30E8, symSize: 0x0 }
+  - { offset: 0x58E, size: 0x8, addend: 0x0, symName: _win1250_to_unicode_tree, symObjAddr: 0x5F38, symBinAddr: 0x8220, symSize: 0x0 }
+  - { offset: 0x5A3, size: 0x8, addend: 0x0, symName: _win1250_to_unicode_tree_table, symObjAddr: 0x1244, symBinAddr: 0x3434, symSize: 0x0 }
+  - { offset: 0x5B8, size: 0x8, addend: 0x0, symName: _win1250_from_unicode_tree, symObjAddr: 0x5F70, symBinAddr: 0x8258, symSize: 0x0 }
+  - { offset: 0x5CD, size: 0x8, addend: 0x0, symName: _win1250_from_unicode_tree_table, symObjAddr: 0x1644, symBinAddr: 0x3834, symSize: 0x0 }
+  - { offset: 0x5EF, size: 0x8, addend: 0x0, symName: _win1251_to_unicode_tree, symObjAddr: 0x5FA8, symBinAddr: 0x8290, symSize: 0x0 }
+  - { offset: 0x604, size: 0x8, addend: 0x0, symName: _win1251_to_unicode_tree_table, symObjAddr: 0x1A3C, symBinAddr: 0x3C2C, symSize: 0x0 }
+  - { offset: 0x619, size: 0x8, addend: 0x0, symName: _win1251_from_unicode_tree, symObjAddr: 0x5FE0, symBinAddr: 0x82C8, symSize: 0x0 }
+  - { offset: 0x62E, size: 0x8, addend: 0x0, symName: _win1251_from_unicode_tree_table, symObjAddr: 0x1E3C, symBinAddr: 0x402C, symSize: 0x0 }
+  - { offset: 0x650, size: 0x8, addend: 0x0, symName: _win1252_to_unicode_tree, symObjAddr: 0x6018, symBinAddr: 0x8300, symSize: 0x0 }
+  - { offset: 0x665, size: 0x8, addend: 0x0, symName: _win1252_to_unicode_tree_table, symObjAddr: 0x21B8, symBinAddr: 0x43A8, symSize: 0x0 }
+  - { offset: 0x67A, size: 0x8, addend: 0x0, symName: _win1252_from_unicode_tree, symObjAddr: 0x6050, symBinAddr: 0x8338, symSize: 0x0 }
+  - { offset: 0x68F, size: 0x8, addend: 0x0, symName: _win1252_from_unicode_tree_table, symObjAddr: 0x25B8, symBinAddr: 0x47A8, symSize: 0x0 }
+  - { offset: 0x6B1, size: 0x8, addend: 0x0, symName: _win1253_to_unicode_tree, symObjAddr: 0x6088, symBinAddr: 0x8370, symSize: 0x0 }
+  - { offset: 0x6C6, size: 0x8, addend: 0x0, symName: _win1253_to_unicode_tree_table, symObjAddr: 0x29BC, symBinAddr: 0x4BAC, symSize: 0x0 }
+  - { offset: 0x6E7, size: 0x8, addend: 0x0, symName: _win1253_from_unicode_tree, symObjAddr: 0x60C0, symBinAddr: 0x83A8, symSize: 0x0 }
+  - { offset: 0x6FC, size: 0x8, addend: 0x0, symName: _win1253_from_unicode_tree_table, symObjAddr: 0x2DB4, symBinAddr: 0x4FA4, symSize: 0x0 }
+  - { offset: 0x71E, size: 0x8, addend: 0x0, symName: _win1254_to_unicode_tree, symObjAddr: 0x60F8, symBinAddr: 0x83E0, symSize: 0x0 }
+  - { offset: 0x733, size: 0x8, addend: 0x0, symName: _win1254_to_unicode_tree_table, symObjAddr: 0x3140, symBinAddr: 0x5330, symSize: 0x0 }
+  - { offset: 0x748, size: 0x8, addend: 0x0, symName: _win1254_from_unicode_tree, symObjAddr: 0x6130, symBinAddr: 0x8418, symSize: 0x0 }
+  - { offset: 0x75D, size: 0x8, addend: 0x0, symName: _win1254_from_unicode_tree_table, symObjAddr: 0x3540, symBinAddr: 0x5730, symSize: 0x0 }
+  - { offset: 0x77F, size: 0x8, addend: 0x0, symName: _win1255_to_unicode_tree, symObjAddr: 0x6168, symBinAddr: 0x8450, symSize: 0x0 }
+  - { offset: 0x794, size: 0x8, addend: 0x0, symName: _win1255_to_unicode_tree_table, symObjAddr: 0x399C, symBinAddr: 0x5B8C, symSize: 0x0 }
+  - { offset: 0x7A9, size: 0x8, addend: 0x0, symName: _win1255_from_unicode_tree, symObjAddr: 0x61A0, symBinAddr: 0x8488, symSize: 0x0 }
+  - { offset: 0x7BE, size: 0x8, addend: 0x0, symName: _win1255_from_unicode_tree_table, symObjAddr: 0x3D94, symBinAddr: 0x5F84, symSize: 0x0 }
+  - { offset: 0x7E0, size: 0x8, addend: 0x0, symName: _win1256_to_unicode_tree, symObjAddr: 0x61D8, symBinAddr: 0x84C0, symSize: 0x0 }
+  - { offset: 0x7F5, size: 0x8, addend: 0x0, symName: _win1256_to_unicode_tree_table, symObjAddr: 0x41F8, symBinAddr: 0x63E8, symSize: 0x0 }
+  - { offset: 0x80A, size: 0x8, addend: 0x0, symName: _win1256_from_unicode_tree, symObjAddr: 0x6210, symBinAddr: 0x84F8, symSize: 0x0 }
+  - { offset: 0x81F, size: 0x8, addend: 0x0, symName: _win1256_from_unicode_tree_table, symObjAddr: 0x45F8, symBinAddr: 0x67E8, symSize: 0x0 }
+  - { offset: 0x841, size: 0x8, addend: 0x0, symName: _win1257_to_unicode_tree, symObjAddr: 0x6248, symBinAddr: 0x8530, symSize: 0x0 }
+  - { offset: 0x856, size: 0x8, addend: 0x0, symName: _win1257_to_unicode_tree_table, symObjAddr: 0x4BF4, symBinAddr: 0x6DE4, symSize: 0x0 }
+  - { offset: 0x86B, size: 0x8, addend: 0x0, symName: _win1257_from_unicode_tree, symObjAddr: 0x6280, symBinAddr: 0x8568, symSize: 0x0 }
+  - { offset: 0x880, size: 0x8, addend: 0x0, symName: _win1257_from_unicode_tree_table, symObjAddr: 0x4FF4, symBinAddr: 0x71E4, symSize: 0x0 }
+  - { offset: 0x895, size: 0x8, addend: 0x0, symName: _win1258_to_unicode_tree, symObjAddr: 0x62B8, symBinAddr: 0x85A0, symSize: 0x0 }
+  - { offset: 0x8AA, size: 0x8, addend: 0x0, symName: _win1258_to_unicode_tree_table, symObjAddr: 0x53F8, symBinAddr: 0x75E8, symSize: 0x0 }
+  - { offset: 0x8BF, size: 0x8, addend: 0x0, symName: _win1258_from_unicode_tree, symObjAddr: 0x62F0, symBinAddr: 0x85D8, symSize: 0x0 }
+  - { offset: 0x8D4, size: 0x8, addend: 0x0, symName: _win1258_from_unicode_tree_table, symObjAddr: 0x57F8, symBinAddr: 0x79E8, symSize: 0x0 }
+  - { offset: 0x94F, size: 0x8, addend: 0x0, symName: _win_to_utf8, symObjAddr: 0x24, symBinAddr: 0x21C4, symSize: 0xCC }
+  - { offset: 0xA76, size: 0x8, addend: 0x0, symName: _utf8_to_win, symObjAddr: 0xF0, symBinAddr: 0x2290, symSize: 0xCC }
+  - { offset: 0xB4C, size: 0x8, addend: 0x0, symName: _win_to_utf8.cold.1, symObjAddr: 0x1BC, symBinAddr: 0x236C, symSize: 0x48 }
+  - { offset: 0xB63, size: 0x8, addend: 0x0, symName: _utf8_to_win, symObjAddr: 0xF0, symBinAddr: 0x2290, symSize: 0xCC }
+  - { offset: 0xC8A, size: 0x8, addend: 0x0, symName: _win_to_utf8.cold.1, symObjAddr: 0x1BC, symBinAddr: 0x236C, symSize: 0x48 }
+  - { offset: 0xD18, size: 0x8, addend: 0x0, symName: _utf8_to_win.cold.1, symObjAddr: 0x204, symBinAddr: 0x23B4, symSize: 0x48 }
+  - { offset: 0xD2F, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x24C, symBinAddr: 0x235C, symSize: 0x10 }
+...

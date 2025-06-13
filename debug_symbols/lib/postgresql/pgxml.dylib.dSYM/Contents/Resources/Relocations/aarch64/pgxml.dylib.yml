@@ -1,0 +1,43 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/pgxml.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2240, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2240, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x1160, symBinAddr: 0x3C94, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_xml_encode_special_chars, symObjAddr: 0x34, symBinAddr: 0x2274, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_xml_encode_special_chars.my_finfo, symObjAddr: 0x1198, symBinAddr: 0x3CCC, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_nodeset, symObjAddr: 0xA4, symBinAddr: 0x22E4, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_nodeset.my_finfo, symObjAddr: 0x119C, symBinAddr: 0x3CD0, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_list, symObjAddr: 0x698, symBinAddr: 0x28D8, symSize: 0xC }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_list.my_finfo, symObjAddr: 0x11A0, symBinAddr: 0x3CD4, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_string, symObjAddr: 0x764, symBinAddr: 0x29A4, symSize: 0xC }
+  - { offset: 0x1CD, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_string.my_finfo, symObjAddr: 0x11A4, symBinAddr: 0x3CD8, symSize: 0x0 }
+  - { offset: 0x1D7, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_number, symObjAddr: 0x8C0, symBinAddr: 0x2B00, symSize: 0xC }
+  - { offset: 0x1FE, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_number.my_finfo, symObjAddr: 0x11A8, symBinAddr: 0x3CDC, symSize: 0x0 }
+  - { offset: 0x208, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_bool, symObjAddr: 0x994, symBinAddr: 0x2BD4, symSize: 0xC }
+  - { offset: 0x22F, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_bool.my_finfo, symObjAddr: 0x11AC, symBinAddr: 0x3CE0, symSize: 0x0 }
+  - { offset: 0x239, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_table, symObjAddr: 0xA48, symBinAddr: 0x2C88, symSize: 0xC }
+  - { offset: 0x260, size: 0x8, addend: 0x0, symName: _pg_finfo_xpath_table.my_finfo, symObjAddr: 0x11B0, symBinAddr: 0x3CE4, symSize: 0x0 }
+  - { offset: 0x5A8D, size: 0x8, addend: 0x0, symName: _pgxml_parser_init, symObjAddr: 0xC, symBinAddr: 0x224C, symSize: 0x28 }
+  - { offset: 0x5B26, size: 0x8, addend: 0x0, symName: _xml_encode_special_chars, symObjAddr: 0x40, symBinAddr: 0x2280, symSize: 0x64 }
+  - { offset: 0x6846, size: 0x8, addend: 0x0, symName: _xpath_nodeset, symObjAddr: 0xB0, symBinAddr: 0x22F0, symSize: 0xD8 }
+  - { offset: 0x6A38, size: 0x8, addend: 0x0, symName: _pgxml_xpath, symObjAddr: 0x188, symBinAddr: 0x23C8, symSize: 0x21C }
+  - { offset: 0x6C71, size: 0x8, addend: 0x0, symName: _pgxml_result_to_text, symObjAddr: 0x3A4, symBinAddr: 0x25E4, symSize: 0x2A8 }
+  - { offset: 0x70F1, size: 0x8, addend: 0x0, symName: _cleanup_workspace, symObjAddr: 0x64C, symBinAddr: 0x288C, symSize: 0x4C }
+  - { offset: 0x72DB, size: 0x8, addend: 0x0, symName: _xpath_list, symObjAddr: 0x6A4, symBinAddr: 0x28E4, symSize: 0xC0 }
+  - { offset: 0x7485, size: 0x8, addend: 0x0, symName: _xpath_string, symObjAddr: 0x770, symBinAddr: 0x29B0, symSize: 0x150 }
+  - { offset: 0x764C, size: 0x8, addend: 0x0, symName: _xpath_number, symObjAddr: 0x8CC, symBinAddr: 0x2B0C, symSize: 0xC8 }
+  - { offset: 0x7818, size: 0x8, addend: 0x0, symName: _xpath_bool, symObjAddr: 0x9A0, symBinAddr: 0x2BE0, symSize: 0xA8 }
+  - { offset: 0x7988, size: 0x8, addend: 0x0, symName: _xpath_table, symObjAddr: 0xA54, symBinAddr: 0x2C94, symSize: 0x5D4 }
+  - { offset: 0x8223, size: 0x8, addend: 0x0, symName: _xpath_table.cold.1, symObjAddr: 0x1028, symBinAddr: 0x3808, symSize: 0x40 }
+  - { offset: 0x823A, size: 0x8, addend: 0x0, symName: _xpath_table.cold.2, symObjAddr: 0x1068, symBinAddr: 0x3848, symSize: 0x44 }
+  - { offset: 0x8251, size: 0x8, addend: 0x0, symName: _xpath_table.cold.4, symObjAddr: 0x110C, symBinAddr: 0x38EC, symSize: 0x48 }
+  - { offset: 0x8268, size: 0x8, addend: 0x0, symName: _xpath_table.cold.3, symObjAddr: 0x10AC, symBinAddr: 0x388C, symSize: 0x60 }
+  - { offset: 0x827F, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x1154, symBinAddr: 0x3268, symSize: 0xC }
+  - { offset: 0x83C5, size: 0x8, addend: 0x0, symName: _pg_finfo_xslt_process, symObjAddr: 0x0, symBinAddr: 0x3274, symSize: 0xC }
+  - { offset: 0x83D2, size: 0x8, addend: 0x0, symName: _pg_finfo_xslt_process, symObjAddr: 0x0, symBinAddr: 0x3274, symSize: 0xC }
+  - { offset: 0x83F7, size: 0x8, addend: 0x0, symName: _pg_finfo_xslt_process.my_finfo, symObjAddr: 0x5D0, symBinAddr: 0x3CE8, symSize: 0x0 }
+  - { offset: 0x93DC, size: 0x8, addend: 0x0, symName: _xslt_process, symObjAddr: 0xC, symBinAddr: 0x3280, symSize: 0x588 }
+  - { offset: 0xB84B, size: 0x8, addend: 0x0, symName: _xslt_process.cold.1, symObjAddr: 0x594, symBinAddr: 0x3934, symSize: 0x3C }
+...

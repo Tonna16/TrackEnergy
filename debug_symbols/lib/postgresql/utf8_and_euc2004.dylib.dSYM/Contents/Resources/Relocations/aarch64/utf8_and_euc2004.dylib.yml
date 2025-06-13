@@ -1,0 +1,20 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_euc2004.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2078, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2078, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x144, symBinAddr: 0x21E0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jis_2004_to_utf8, symObjAddr: 0xC, symBinAddr: 0x2084, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jis_2004_to_utf8.my_finfo, symObjAddr: 0x17C, symBinAddr: 0x2218, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_euc_jis_2004, symObjAddr: 0x18, symBinAddr: 0x2090, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_euc_jis_2004.my_finfo, symObjAddr: 0x180, symBinAddr: 0x221C, symSize: 0x0 }
+  - { offset: 0x183, size: 0x8, addend: 0x0, symName: _euc_jis_2004_to_unicode_tree, symObjAddr: 0x31F08, symBinAddr: 0x34018, symSize: 0x0 }
+  - { offset: 0x34E, size: 0x8, addend: 0x0, symName: _euc_jis_2004_to_unicode_tree_table, symObjAddr: 0x3DC, symBinAddr: 0x2478, symSize: 0x0 }
+  - { offset: 0x371, size: 0x8, addend: 0x0, symName: _LUmapEUC_JIS_2004_combined, symObjAddr: 0x184, symBinAddr: 0x2220, symSize: 0x0 }
+  - { offset: 0x3D0, size: 0x8, addend: 0x0, symName: _euc_jis_2004_from_unicode_tree, symObjAddr: 0x31F40, symBinAddr: 0x34050, symSize: 0x0 }
+  - { offset: 0x3E5, size: 0x8, addend: 0x0, symName: _euc_jis_2004_from_unicode_tree_table, symObjAddr: 0xBB18, symBinAddr: 0xDBB4, symSize: 0x0 }
+  - { offset: 0x408, size: 0x8, addend: 0x0, symName: _ULmapEUC_JIS_2004_combined, symObjAddr: 0x2B0, symBinAddr: 0x234C, symSize: 0x0 }
+  - { offset: 0x4C0, size: 0x8, addend: 0x0, symName: _euc_jis_2004_to_utf8, symObjAddr: 0x24, symBinAddr: 0x209C, symSize: 0x90 }
+  - { offset: 0x645, size: 0x8, addend: 0x0, symName: _utf8_to_euc_jis_2004, symObjAddr: 0xB4, symBinAddr: 0x212C, symSize: 0x90 }
+...

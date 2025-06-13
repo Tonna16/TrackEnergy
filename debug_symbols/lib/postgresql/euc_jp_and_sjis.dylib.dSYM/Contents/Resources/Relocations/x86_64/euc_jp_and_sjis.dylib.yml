@@ -1,0 +1,28 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/euc_jp_and_sjis.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x530, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x530, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xDE0, symBinAddr: 0x1320, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jp_to_sjis, symObjAddr: 0x10, symBinAddr: 0x540, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jp_to_sjis.my_finfo, symObjAddr: 0xE18, symBinAddr: 0x1358, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_sjis_to_euc_jp, symObjAddr: 0x20, symBinAddr: 0x550, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_sjis_to_euc_jp.my_finfo, symObjAddr: 0xE1C, symBinAddr: 0x135C, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jp_to_mic, symObjAddr: 0x30, symBinAddr: 0x560, symSize: 0x10 }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jp_to_mic.my_finfo, symObjAddr: 0xE20, symBinAddr: 0x1360, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_euc_jp, symObjAddr: 0x40, symBinAddr: 0x570, symSize: 0x10 }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_euc_jp.my_finfo, symObjAddr: 0xE24, symBinAddr: 0x1364, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_sjis_to_mic, symObjAddr: 0x50, symBinAddr: 0x580, symSize: 0x10 }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_sjis_to_mic.my_finfo, symObjAddr: 0xE28, symBinAddr: 0x1368, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_sjis, symObjAddr: 0x60, symBinAddr: 0x590, symSize: 0x10 }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_sjis.my_finfo, symObjAddr: 0xE2C, symBinAddr: 0x136C, symSize: 0x0 }
+  - { offset: 0x23F, size: 0x8, addend: 0x0, symName: _ibmkanji, symObjAddr: 0xE30, symBinAddr: 0x1370, symSize: 0x0 }
+  - { offset: 0x3A5, size: 0x8, addend: 0x0, symName: _euc_jp_to_sjis, symObjAddr: 0x70, symBinAddr: 0x5A0, symSize: 0x260 }
+  - { offset: 0x5FE, size: 0x8, addend: 0x0, symName: _sjis_to_euc_jp, symObjAddr: 0x2D0, symBinAddr: 0x800, symSize: 0x300 }
+  - { offset: 0x7BA, size: 0x8, addend: 0x0, symName: _euc_jp_to_mic, symObjAddr: 0x5D0, symBinAddr: 0xB00, symSize: 0x130 }
+  - { offset: 0x8D1, size: 0x8, addend: 0x0, symName: _mic_to_euc_jp, symObjAddr: 0x700, symBinAddr: 0xC30, symSize: 0x170 }
+  - { offset: 0x94F, size: 0x8, addend: 0x0, symName: _mic_to_euc_jp, symObjAddr: 0x700, symBinAddr: 0xC30, symSize: 0x170 }
+  - { offset: 0xB36, size: 0x8, addend: 0x0, symName: _sjis_to_mic, symObjAddr: 0x870, symBinAddr: 0xDA0, symSize: 0x2F0 }
+  - { offset: 0xCF5, size: 0x8, addend: 0x0, symName: _mic_to_sjis, symObjAddr: 0xB60, symBinAddr: 0x1090, symSize: 0x272 }
+...

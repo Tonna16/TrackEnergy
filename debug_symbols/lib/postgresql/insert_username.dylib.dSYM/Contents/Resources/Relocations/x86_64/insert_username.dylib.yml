@@ -1,0 +1,18 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/insert_username.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xA70, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xA70, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x344, symBinAddr: 0xE04, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_insert_username, symObjAddr: 0x10, symBinAddr: 0xA80, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_insert_username.my_finfo, symObjAddr: 0x37C, symBinAddr: 0xE3C, symSize: 0x0 }
+  - { offset: 0x5548, size: 0x8, addend: 0x0, symName: _insert_username, symObjAddr: 0x20, symBinAddr: 0xA90, symSize: 0x150 }
+  - { offset: 0x58C3, size: 0x8, addend: 0x0, symName: _insert_username.cold.1, symObjAddr: 0x170, symBinAddr: 0xBE0, symSize: 0x40 }
+  - { offset: 0x58DA, size: 0x8, addend: 0x0, symName: _insert_username.cold.2, symObjAddr: 0x1B0, symBinAddr: 0xC20, symSize: 0x40 }
+  - { offset: 0x58F1, size: 0x8, addend: 0x0, symName: _insert_username.cold.7, symObjAddr: 0x310, symBinAddr: 0xD80, symSize: 0x34 }
+  - { offset: 0x5908, size: 0x8, addend: 0x0, symName: _insert_username.cold.6, symObjAddr: 0x2D0, symBinAddr: 0xD40, symSize: 0x40 }
+  - { offset: 0x591F, size: 0x8, addend: 0x0, symName: _insert_username.cold.4, symObjAddr: 0x230, symBinAddr: 0xCA0, symSize: 0x50 }
+  - { offset: 0x5936, size: 0x8, addend: 0x0, symName: _insert_username.cold.5, symObjAddr: 0x280, symBinAddr: 0xCF0, symSize: 0x50 }
+  - { offset: 0x594D, size: 0x8, addend: 0x0, symName: _insert_username.cold.3, symObjAddr: 0x1F0, symBinAddr: 0xC60, symSize: 0x40 }
+...

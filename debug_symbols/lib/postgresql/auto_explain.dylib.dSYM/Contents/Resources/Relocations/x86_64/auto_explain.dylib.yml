@@ -1,0 +1,34 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/auto_explain.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1030, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1030, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xA00, symBinAddr: 0x1AD0, symSize: 0x0 }
+  - { offset: 0x10D, size: 0x8, addend: 0x0, symName: _auto_explain_log_min_duration, symObjAddr: 0xEC0, symBinAddr: 0x3000, symSize: 0x0 }
+  - { offset: 0x122, size: 0x8, addend: 0x0, symName: _auto_explain_log_parameter_max_length, symObjAddr: 0xEC4, symBinAddr: 0x3004, symSize: 0x0 }
+  - { offset: 0x137, size: 0x8, addend: 0x0, symName: _auto_explain_log_analyze, symObjAddr: 0xFB90, symBinAddr: 0x3018, symSize: 0x0 }
+  - { offset: 0x153, size: 0x8, addend: 0x0, symName: _auto_explain_log_settings, symObjAddr: 0xFB91, symBinAddr: 0x3019, symSize: 0x0 }
+  - { offset: 0x168, size: 0x8, addend: 0x0, symName: _auto_explain_log_verbose, symObjAddr: 0xFB92, symBinAddr: 0x301A, symSize: 0x0 }
+  - { offset: 0x17D, size: 0x8, addend: 0x0, symName: _auto_explain_log_buffers, symObjAddr: 0xFB93, symBinAddr: 0x301B, symSize: 0x0 }
+  - { offset: 0x192, size: 0x8, addend: 0x0, symName: _auto_explain_log_wal, symObjAddr: 0xFB94, symBinAddr: 0x301C, symSize: 0x0 }
+  - { offset: 0x1A7, size: 0x8, addend: 0x0, symName: _auto_explain_log_triggers, symObjAddr: 0xFB95, symBinAddr: 0x301D, symSize: 0x0 }
+  - { offset: 0x1BC, size: 0x8, addend: 0x0, symName: _auto_explain_log_format, symObjAddr: 0xFB98, symBinAddr: 0x3020, symSize: 0x0 }
+  - { offset: 0x1D1, size: 0x8, addend: 0x0, symName: _format_options, symObjAddr: 0xEE0, symBinAddr: 0x2130, symSize: 0x0 }
+  - { offset: 0x22E, size: 0x8, addend: 0x0, symName: _auto_explain_log_level, symObjAddr: 0xEC8, symBinAddr: 0x3008, symSize: 0x0 }
+  - { offset: 0x24F, size: 0x8, addend: 0x0, symName: _loglevel_options, symObjAddr: 0xF30, symBinAddr: 0x2180, symSize: 0x0 }
+  - { offset: 0x270, size: 0x8, addend: 0x0, symName: _auto_explain_log_nested_statements, symObjAddr: 0xFB9C, symBinAddr: 0x3024, symSize: 0x0 }
+  - { offset: 0x285, size: 0x8, addend: 0x0, symName: _auto_explain_log_timing, symObjAddr: 0xECC, symBinAddr: 0x300C, symSize: 0x0 }
+  - { offset: 0x29A, size: 0x8, addend: 0x0, symName: _auto_explain_sample_rate, symObjAddr: 0xED0, symBinAddr: 0x3010, symSize: 0x0 }
+  - { offset: 0x2B6, size: 0x8, addend: 0x0, symName: _prev_ExecutorStart, symObjAddr: 0xFBA0, symBinAddr: 0x3028, symSize: 0x0 }
+  - { offset: 0x4A1A, size: 0x8, addend: 0x0, symName: _prev_ExecutorRun, symObjAddr: 0xFBA8, symBinAddr: 0x3030, symSize: 0x0 }
+  - { offset: 0x4A55, size: 0x8, addend: 0x0, symName: _prev_ExecutorFinish, symObjAddr: 0xFBB0, symBinAddr: 0x3038, symSize: 0x0 }
+  - { offset: 0x4A81, size: 0x8, addend: 0x0, symName: _prev_ExecutorEnd, symObjAddr: 0xFBB8, symBinAddr: 0x3040, symSize: 0x0 }
+  - { offset: 0x4AA1, size: 0x8, addend: 0x0, symName: _nesting_level, symObjAddr: 0xFBC0, symBinAddr: 0x3048, symSize: 0x0 }
+  - { offset: 0x4AB6, size: 0x8, addend: 0x0, symName: _current_query_sampled, symObjAddr: 0xFBC4, symBinAddr: 0x304C, symSize: 0x0 }
+  - { offset: 0x4B93, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x10, symBinAddr: 0x1040, symSize: 0x400 }
+  - { offset: 0x4F68, size: 0x8, addend: 0x0, symName: _explain_ExecutorStart, symObjAddr: 0x410, symBinAddr: 0x1440, symSize: 0x170 }
+  - { offset: 0x50B6, size: 0x8, addend: 0x0, symName: _explain_ExecutorRun, symObjAddr: 0x580, symBinAddr: 0x15B0, symSize: 0x120 }
+  - { offset: 0x51DF, size: 0x8, addend: 0x0, symName: _explain_ExecutorFinish, symObjAddr: 0x6A0, symBinAddr: 0x16D0, symSize: 0xD0 }
+  - { offset: 0x5297, size: 0x8, addend: 0x0, symName: _explain_ExecutorEnd, symObjAddr: 0x770, symBinAddr: 0x17A0, symSize: 0x254 }
+...

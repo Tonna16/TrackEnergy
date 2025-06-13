@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './stackbuilder.app/Contents/Frameworks/libexpat.1.10.2.dylib'
+relocations:     []
+...

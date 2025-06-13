@@ -1,0 +1,16 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/dict_int.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xC40, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xC40, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x258, symBinAddr: 0xEDC, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_dintdict_init, symObjAddr: 0x10, symBinAddr: 0xC50, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_dintdict_init.my_finfo, symObjAddr: 0x290, symBinAddr: 0xF14, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_dintdict_lexize, symObjAddr: 0x20, symBinAddr: 0xC60, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_dintdict_lexize.my_finfo, symObjAddr: 0x294, symBinAddr: 0xF18, symSize: 0x0 }
+  - { offset: 0x1012, size: 0x8, addend: 0x0, symName: _dintdict_init, symObjAddr: 0x30, symBinAddr: 0xC70, symSize: 0x110 }
+  - { offset: 0x11E8, size: 0x8, addend: 0x0, symName: _dintdict_init.cold.1, symObjAddr: 0x1D0, symBinAddr: 0xE10, symSize: 0x40 }
+  - { offset: 0x11FF, size: 0x8, addend: 0x0, symName: _dintdict_init.cold.2, symObjAddr: 0x210, symBinAddr: 0xE50, symSize: 0x47 }
+  - { offset: 0x1216, size: 0x8, addend: 0x0, symName: _dintdict_lexize, symObjAddr: 0x140, symBinAddr: 0xD80, symSize: 0x90 }
+...

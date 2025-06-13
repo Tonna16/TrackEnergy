@@ -1,0 +1,27 @@
+{
+    "name": "@types/react-csv",
+    "version": "1.1.10",
+    "description": "TypeScript definitions for react-csv",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-csv",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Vincent Pizzo",
+            "githubUsername": "vincentjames501",
+            "url": "https://github.com/vincentjames501"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/react-csv"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/react": "*"
+    },
+    "typesPublisherContentHash": "bab4c4b2da5c8f143113a384503b1d603c8200727cc8ac8cb9f0ec25297f1250",
+    "typeScriptVersion": "4.6"
+}

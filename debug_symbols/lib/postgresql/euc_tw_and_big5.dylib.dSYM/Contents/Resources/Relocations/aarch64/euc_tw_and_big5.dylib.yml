@@ -1,0 +1,42 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/euc_tw_and_big5.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _BIG5toCNS, symObjAddr: 0x0, symBinAddr: 0x2F40, symSize: 0x178 }
+  - { offset: 0x3F, size: 0x8, addend: 0x0, symName: _b1c4, symObjAddr: 0x47C, symBinAddr: 0x3CC4, symSize: 0x0 }
+  - { offset: 0x79, size: 0x8, addend: 0x0, symName: _big5Level1ToCnsPlane1, symObjAddr: 0x48C, symBinAddr: 0x3CD4, symSize: 0x0 }
+  - { offset: 0xC7, size: 0x8, addend: 0x0, symName: _b2c3, symObjAddr: 0x4F0, symBinAddr: 0x3D38, symSize: 0x0 }
+  - { offset: 0xEE, size: 0x8, addend: 0x0, symName: _big5Level2ToCnsPlane2, symObjAddr: 0x50C, symBinAddr: 0x3D54, symSize: 0x0 }
+  - { offset: 0x10F, size: 0x8, addend: 0x0, symName: _cnsPlane1ToBig5Level1, symObjAddr: 0x5CC, symBinAddr: 0x3E14, symSize: 0x0 }
+  - { offset: 0x130, size: 0x8, addend: 0x0, symName: _cnsPlane2ToBig5Level2, symObjAddr: 0x634, symBinAddr: 0x3E7C, symSize: 0x0 }
+  - { offset: 0x153, size: 0x8, addend: 0x0, symName: _BIG5toCNS, symObjAddr: 0x0, symBinAddr: 0x2F40, symSize: 0x178 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _BinarySearchRange, symObjAddr: 0x178, symBinAddr: 0x30B8, symSize: 0x174 }
+  - { offset: 0x252, size: 0x8, addend: 0x0, symName: _CNStoBIG5, symObjAddr: 0x2EC, symBinAddr: 0x322C, symSize: 0x188 }
+  - { offset: 0x308, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x33B4, symSize: 0xC }
+  - { offset: 0x315, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x33B4, symSize: 0xC }
+  - { offset: 0x33A, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x8D8, symBinAddr: 0x3F40, symSize: 0x0 }
+  - { offset: 0x3D7, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_tw_to_big5, symObjAddr: 0xC, symBinAddr: 0x33C0, symSize: 0xC }
+  - { offset: 0x3FC, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_tw_to_big5.my_finfo, symObjAddr: 0x910, symBinAddr: 0x3F78, symSize: 0x0 }
+  - { offset: 0x42A, size: 0x8, addend: 0x0, symName: _pg_finfo_big5_to_euc_tw, symObjAddr: 0x18, symBinAddr: 0x33CC, symSize: 0xC }
+  - { offset: 0x44F, size: 0x8, addend: 0x0, symName: _pg_finfo_big5_to_euc_tw.my_finfo, symObjAddr: 0x914, symBinAddr: 0x3F7C, symSize: 0x0 }
+  - { offset: 0x459, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_tw_to_mic, symObjAddr: 0x24, symBinAddr: 0x33D8, symSize: 0xC }
+  - { offset: 0x47E, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_tw_to_mic.my_finfo, symObjAddr: 0x918, symBinAddr: 0x3F80, symSize: 0x0 }
+  - { offset: 0x488, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_euc_tw, symObjAddr: 0x30, symBinAddr: 0x33E4, symSize: 0xC }
+  - { offset: 0x4AD, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_euc_tw.my_finfo, symObjAddr: 0x91C, symBinAddr: 0x3F84, symSize: 0x0 }
+  - { offset: 0x4B7, size: 0x8, addend: 0x0, symName: _pg_finfo_big5_to_mic, symObjAddr: 0x3C, symBinAddr: 0x33F0, symSize: 0xC }
+  - { offset: 0x4DC, size: 0x8, addend: 0x0, symName: _pg_finfo_big5_to_mic.my_finfo, symObjAddr: 0x920, symBinAddr: 0x3F88, symSize: 0x0 }
+  - { offset: 0x4E6, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_big5, symObjAddr: 0x48, symBinAddr: 0x33FC, symSize: 0xC }
+  - { offset: 0x50B, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_big5.my_finfo, symObjAddr: 0x924, symBinAddr: 0x3F8C, symSize: 0x0 }
+  - { offset: 0x606, size: 0x8, addend: 0x0, symName: _euc_tw_to_big5, symObjAddr: 0x54, symBinAddr: 0x3408, symSize: 0x15C }
+  - { offset: 0x751, size: 0x8, addend: 0x0, symName: _big5_to_euc_tw, symObjAddr: 0x1B0, symBinAddr: 0x3564, symSize: 0x1A0 }
+  - { offset: 0x878, size: 0x8, addend: 0x0, symName: _big5_to_euc_tw, symObjAddr: 0x1B0, symBinAddr: 0x3564, symSize: 0x1A0 }
+  - { offset: 0x9C8, size: 0x8, addend: 0x0, symName: _euc_tw_to_mic, symObjAddr: 0x350, symBinAddr: 0x3704, symSize: 0x164 }
+  - { offset: 0xA5E, size: 0x8, addend: 0x0, symName: _euc_tw_to_mic, symObjAddr: 0x350, symBinAddr: 0x3704, symSize: 0x164 }
+  - { offset: 0xB61, size: 0x8, addend: 0x0, symName: _mic_to_euc_tw, symObjAddr: 0x4B4, symBinAddr: 0x3868, symSize: 0x194 }
+  - { offset: 0xBDF, size: 0x8, addend: 0x0, symName: _mic_to_euc_tw, symObjAddr: 0x4B4, symBinAddr: 0x3868, symSize: 0x194 }
+  - { offset: 0xD06, size: 0x8, addend: 0x0, symName: _big5_to_mic, symObjAddr: 0x648, symBinAddr: 0x39FC, symSize: 0x14C }
+  - { offset: 0xDA8, size: 0x8, addend: 0x0, symName: _big5_to_mic, symObjAddr: 0x648, symBinAddr: 0x39FC, symSize: 0x14C }
+  - { offset: 0xEF3, size: 0x8, addend: 0x0, symName: _mic_to_big5, symObjAddr: 0x794, symBinAddr: 0x3B48, symSize: 0x144 }
+  - { offset: 0xF8F, size: 0x8, addend: 0x0, symName: _mic_to_big5, symObjAddr: 0x794, symBinAddr: 0x3B48, symSize: 0x144 }
+  - { offset: 0x10D1, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x8D8, symBinAddr: 0x3F40, symSize: 0x0 }
+...

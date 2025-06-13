@@ -1,0 +1,16 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/euc_kr_and_mic.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D08, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D08, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x220, symBinAddr: 0x3F58, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_kr_to_mic, symObjAddr: 0xC, symBinAddr: 0x3D14, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_kr_to_mic.my_finfo, symObjAddr: 0x258, symBinAddr: 0x3F90, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_euc_kr, symObjAddr: 0x18, symBinAddr: 0x3D20, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_euc_kr.my_finfo, symObjAddr: 0x25C, symBinAddr: 0x3F94, symSize: 0x0 }
+  - { offset: 0x240, size: 0x8, addend: 0x0, symName: _euc_kr_to_mic, symObjAddr: 0x24, symBinAddr: 0x3D2C, symSize: 0xF8 }
+  - { offset: 0x343, size: 0x8, addend: 0x0, symName: _mic_to_euc_kr, symObjAddr: 0x11C, symBinAddr: 0x3E24, symSize: 0x104 }
+  - { offset: 0x40F, size: 0x8, addend: 0x0, symName: _mic_to_euc_kr, symObjAddr: 0x11C, symBinAddr: 0x3E24, symSize: 0x104 }
+  - { offset: 0x531, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x220, symBinAddr: 0x3F58, symSize: 0x0 }
+...

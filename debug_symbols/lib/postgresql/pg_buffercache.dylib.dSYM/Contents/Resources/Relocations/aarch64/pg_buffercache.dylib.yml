@@ -1,0 +1,28 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/pg_buffercache.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3344, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3344, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x994, symBinAddr: 0x3DE0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_pages, symObjAddr: 0xC, symBinAddr: 0x3350, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_pages.my_finfo, symObjAddr: 0x9CC, symBinAddr: 0x3E18, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_summary, symObjAddr: 0x18, symBinAddr: 0x335C, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_summary.my_finfo, symObjAddr: 0x9D0, symBinAddr: 0x3E1C, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_usage_counts, symObjAddr: 0x24, symBinAddr: 0x3368, symSize: 0xC }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_usage_counts.my_finfo, symObjAddr: 0x9D4, symBinAddr: 0x3E20, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_evict, symObjAddr: 0x30, symBinAddr: 0x3374, symSize: 0xC }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_buffercache_evict.my_finfo, symObjAddr: 0x9D8, symBinAddr: 0x3E24, symSize: 0x0 }
+  - { offset: 0x3C3A, size: 0x8, addend: 0x0, symName: _pg_buffercache_pages, symObjAddr: 0x3C, symBinAddr: 0x3380, symSize: 0x440 }
+  - { offset: 0x40D9, size: 0x8, addend: 0x0, symName: _pg_buffercache_summary, symObjAddr: 0x47C, symBinAddr: 0x37C0, symSize: 0x13C }
+  - { offset: 0x42B6, size: 0x8, addend: 0x0, symName: _pg_buffercache_pages.cold.2, symObjAddr: 0x89C, symBinAddr: 0x3BEC, symSize: 0x34 }
+  - { offset: 0x42CD, size: 0x8, addend: 0x0, symName: _pg_buffercache_pages.cold.1, symObjAddr: 0x868, symBinAddr: 0x3BB8, symSize: 0x34 }
+  - { offset: 0x432C, size: 0x8, addend: 0x0, symName: _pg_buffercache_summary, symObjAddr: 0x47C, symBinAddr: 0x37C0, symSize: 0x13C }
+  - { offset: 0x455B, size: 0x8, addend: 0x0, symName: _pg_buffercache_summary.cold.1, symObjAddr: 0x8D0, symBinAddr: 0x3C20, symSize: 0x34 }
+  - { offset: 0x4572, size: 0x8, addend: 0x0, symName: _pg_buffercache_usage_counts, symObjAddr: 0x5B8, symBinAddr: 0x38FC, symSize: 0x260 }
+  - { offset: 0x4762, size: 0x8, addend: 0x0, symName: _pg_buffercache_evict, symObjAddr: 0x818, symBinAddr: 0x3B5C, symSize: 0x50 }
+  - { offset: 0x47F3, size: 0x8, addend: 0x0, symName: _pg_buffercache_pages.cold.1, symObjAddr: 0x868, symBinAddr: 0x3BB8, symSize: 0x34 }
+  - { offset: 0x481B, size: 0x8, addend: 0x0, symName: _pg_buffercache_evict.cold.2, symObjAddr: 0x948, symBinAddr: 0x3C98, symSize: 0x40 }
+  - { offset: 0x4832, size: 0x8, addend: 0x0, symName: _pg_buffercache_evict.cold.1, symObjAddr: 0x904, symBinAddr: 0x3C54, symSize: 0x44 }
+  - { offset: 0x4849, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x988, symBinAddr: 0x3BAC, symSize: 0xC }
+...

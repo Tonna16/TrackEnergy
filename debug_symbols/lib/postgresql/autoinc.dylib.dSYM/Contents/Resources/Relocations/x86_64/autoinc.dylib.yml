@@ -1,0 +1,18 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/autoinc.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x960, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x960, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x494, symBinAddr: 0xE50, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_autoinc, symObjAddr: 0x10, symBinAddr: 0x970, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_autoinc.my_finfo, symObjAddr: 0x4CC, symBinAddr: 0xE88, symSize: 0x0 }
+  - { offset: 0x64C0, size: 0x8, addend: 0x0, symName: _autoinc, symObjAddr: 0x20, symBinAddr: 0x980, symSize: 0x280 }
+  - { offset: 0x69DA, size: 0x8, addend: 0x0, symName: _autoinc.cold.1, symObjAddr: 0x2A0, symBinAddr: 0xC00, symSize: 0x40 }
+  - { offset: 0x69F1, size: 0x8, addend: 0x0, symName: _autoinc.cold.2, symObjAddr: 0x2E0, symBinAddr: 0xC40, symSize: 0x40 }
+  - { offset: 0x6A08, size: 0x8, addend: 0x0, symName: _autoinc.cold.7, symObjAddr: 0x460, symBinAddr: 0xDC0, symSize: 0x34 }
+  - { offset: 0x6A1F, size: 0x8, addend: 0x0, symName: _autoinc.cold.6, symObjAddr: 0x420, symBinAddr: 0xD80, symSize: 0x40 }
+  - { offset: 0x6A36, size: 0x8, addend: 0x0, symName: _autoinc.cold.4, symObjAddr: 0x360, symBinAddr: 0xCC0, symSize: 0x60 }
+  - { offset: 0x6A4D, size: 0x8, addend: 0x0, symName: _autoinc.cold.5, symObjAddr: 0x3C0, symBinAddr: 0xD20, symSize: 0x60 }
+  - { offset: 0x6A64, size: 0x8, addend: 0x0, symName: _autoinc.cold.3, symObjAddr: 0x320, symBinAddr: 0xC80, symSize: 0x40 }
+...

@@ -1,0 +1,20 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/insert_username.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3A50, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3A50, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x318, symBinAddr: 0x3E04, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_insert_username, symObjAddr: 0xC, symBinAddr: 0x3A5C, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_insert_username.my_finfo, symObjAddr: 0x350, symBinAddr: 0x3E3C, symSize: 0x0 }
+  - { offset: 0x5548, size: 0x8, addend: 0x0, symName: _insert_username, symObjAddr: 0x18, symBinAddr: 0x3A68, symSize: 0x138 }
+  - { offset: 0x57E5, size: 0x8, addend: 0x0, symName: _insert_username.cold.1, symObjAddr: 0x150, symBinAddr: 0x3BAC, symSize: 0x34 }
+  - { offset: 0x58C7, size: 0x8, addend: 0x0, symName: _insert_username.cold.1, symObjAddr: 0x150, symBinAddr: 0x3BAC, symSize: 0x34 }
+  - { offset: 0x58DE, size: 0x8, addend: 0x0, symName: _insert_username.cold.2, symObjAddr: 0x184, symBinAddr: 0x3BE0, symSize: 0x34 }
+  - { offset: 0x58F5, size: 0x8, addend: 0x0, symName: _insert_username.cold.7, symObjAddr: 0x2D8, symBinAddr: 0x3D34, symSize: 0x34 }
+  - { offset: 0x590C, size: 0x8, addend: 0x0, symName: _insert_username.cold.6, symObjAddr: 0x294, symBinAddr: 0x3CF0, symSize: 0x44 }
+  - { offset: 0x5923, size: 0x8, addend: 0x0, symName: _insert_username.cold.4, symObjAddr: 0x1EC, symBinAddr: 0x3C48, symSize: 0x54 }
+  - { offset: 0x593A, size: 0x8, addend: 0x0, symName: _insert_username.cold.5, symObjAddr: 0x240, symBinAddr: 0x3C9C, symSize: 0x54 }
+  - { offset: 0x5951, size: 0x8, addend: 0x0, symName: _insert_username.cold.3, symObjAddr: 0x1B8, symBinAddr: 0x3C14, symSize: 0x34 }
+  - { offset: 0x5968, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x30C, symBinAddr: 0x3BA0, symSize: 0xC }
+...

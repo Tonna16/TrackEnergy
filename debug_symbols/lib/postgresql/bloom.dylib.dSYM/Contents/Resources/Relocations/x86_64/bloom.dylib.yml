@@ -1,0 +1,48 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/bloom.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _blcostestimate, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x8D }
+  - { offset: 0xEC5, size: 0x8, addend: 0x0, symName: _blcostestimate, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x8D }
+  - { offset: 0x2CC0, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xA80, symSize: 0x10 }
+  - { offset: 0x2CCD, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xA80, symSize: 0x10 }
+  - { offset: 0x2CF2, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x758, symBinAddr: 0x2B50, symSize: 0x0 }
+  - { offset: 0x9D95, size: 0x8, addend: 0x0, symName: _blbuild, symObjAddr: 0x10, symBinAddr: 0xA90, symSize: 0x1C0 }
+  - { offset: 0xA113, size: 0x8, addend: 0x0, symName: _blbuild.cold.1, symObjAddr: 0x690, symBinAddr: 0x2810, symSize: 0x50 }
+  - { offset: 0xA14D, size: 0x8, addend: 0x0, symName: _bloomBuildCallback, symObjAddr: 0x1D0, symBinAddr: 0xC50, symSize: 0x120 }
+  - { offset: 0xA439, size: 0x8, addend: 0x0, symName: _bloomBuildCallback.cold.1, symObjAddr: 0x6E0, symBinAddr: 0x2860, symSize: 0x40 }
+  - { offset: 0xA457, size: 0x8, addend: 0x0, symName: _blbuildempty, symObjAddr: 0x2F0, symBinAddr: 0xD70, symSize: 0x10 }
+  - { offset: 0xA4FA, size: 0x8, addend: 0x0, symName: _blinsert, symObjAddr: 0x300, symBinAddr: 0xD80, symSize: 0x390 }
+  - { offset: 0xAB4C, size: 0x8, addend: 0x0, symName: _blinsert.cold.1, symObjAddr: 0x720, symBinAddr: 0x28A0, symSize: 0x36 }
+  - { offset: 0xAB8E, size: 0x8, addend: 0x0, symName: _blbeginscan, symObjAddr: 0x0, symBinAddr: 0x1110, symSize: 0x40 }
+  - { offset: 0xC1F3, size: 0x8, addend: 0x0, symName: _blbeginscan, symObjAddr: 0x0, symBinAddr: 0x1110, symSize: 0x40 }
+  - { offset: 0xF968, size: 0x8, addend: 0x0, symName: _blrescan, symObjAddr: 0x40, symBinAddr: 0x1150, symSize: 0x60 }
+  - { offset: 0xF9F2, size: 0x8, addend: 0x0, symName: _blendscan, symObjAddr: 0xA0, symBinAddr: 0x11B0, symSize: 0x30 }
+  - { offset: 0xFAA4, size: 0x8, addend: 0x0, symName: _blgetbitmap, symObjAddr: 0xD0, symBinAddr: 0x11E0, symSize: 0x28C }
+  - { offset: 0xFE3D, size: 0x8, addend: 0x0, symName: _pg_finfo_blhandler, symObjAddr: 0x0, symBinAddr: 0x1470, symSize: 0x10 }
+  - { offset: 0xFE4A, size: 0x8, addend: 0x0, symName: _pg_finfo_blhandler, symObjAddr: 0x0, symBinAddr: 0x1470, symSize: 0x10 }
+  - { offset: 0xFE6F, size: 0x8, addend: 0x0, symName: _pg_finfo_blhandler.my_finfo, symObjAddr: 0xA38, symBinAddr: 0x2B88, symSize: 0x0 }
+  - { offset: 0xFECF, size: 0x8, addend: 0x0, symName: _bl_relopt_kind, symObjAddr: 0x14B40, symBinAddr: 0x4000, symSize: 0x0 }
+  - { offset: 0xFF67, size: 0x8, addend: 0x0, symName: _bl_relopt_tab, symObjAddr: 0x14B50, symBinAddr: 0x4010, symSize: 0x0 }
+  - { offset: 0xFFF7, size: 0x8, addend: 0x0, symName: _next, symObjAddr: 0x14D60, symBinAddr: 0x4220, symSize: 0x0 }
+  - { offset: 0x168AA, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x10, symBinAddr: 0x1480, symSize: 0x130 }
+  - { offset: 0x16A15, size: 0x8, addend: 0x0, symName: _blhandler, symObjAddr: 0x140, symBinAddr: 0x15B0, symSize: 0x120 }
+  - { offset: 0x16A9F, size: 0x8, addend: 0x0, symName: _bloptions, symObjAddr: 0x260, symBinAddr: 0x16D0, symSize: 0x40 }
+  - { offset: 0x16BA0, size: 0x8, addend: 0x0, symName: _initBloomState, symObjAddr: 0x2A0, symBinAddr: 0x1710, symSize: 0x1B0 }
+  - { offset: 0x16DB0, size: 0x8, addend: 0x0, symName: _initBloomState.cold.1, symObjAddr: 0x9C0, symBinAddr: 0x28E0, symSize: 0x40 }
+  - { offset: 0x16DC7, size: 0x8, addend: 0x0, symName: _initBloomState.cold.2, symObjAddr: 0xA00, symBinAddr: 0x2920, symSize: 0x36 }
+  - { offset: 0x16E20, size: 0x8, addend: 0x0, symName: _signValue, symObjAddr: 0x450, symBinAddr: 0x18C0, symSize: 0x170 }
+  - { offset: 0x16F6E, size: 0x8, addend: 0x0, symName: _BloomFormTuple, symObjAddr: 0x5C0, symBinAddr: 0x1A30, symSize: 0xA0 }
+  - { offset: 0x1702E, size: 0x8, addend: 0x0, symName: _BloomPageAddItem, symObjAddr: 0x660, symBinAddr: 0x1AD0, symSize: 0x90 }
+  - { offset: 0x170F3, size: 0x8, addend: 0x0, symName: _BloomNewBuffer, symObjAddr: 0x6F0, symBinAddr: 0x1B60, symSize: 0xF0 }
+  - { offset: 0x172EC, size: 0x8, addend: 0x0, symName: _BloomInitPage, symObjAddr: 0x7E0, symBinAddr: 0x1C50, symSize: 0x40 }
+  - { offset: 0x173BE, size: 0x8, addend: 0x0, symName: _BloomFillMetapage, symObjAddr: 0x820, symBinAddr: 0x1C90, symSize: 0xA0 }
+  - { offset: 0x174EA, size: 0x8, addend: 0x0, symName: _BloomInitMetapage, symObjAddr: 0x8C0, symBinAddr: 0x1D30, symSize: 0x100 }
+  - { offset: 0x177FB, size: 0x8, addend: 0x0, symName: _blbulkdelete, symObjAddr: 0x0, symBinAddr: 0x1E30, symSize: 0x350 }
+  - { offset: 0x18B9A, size: 0x8, addend: 0x0, symName: _blbulkdelete, symObjAddr: 0x0, symBinAddr: 0x1E30, symSize: 0x350 }
+  - { offset: 0x1C8F1, size: 0x8, addend: 0x0, symName: _blvacuumcleanup, symObjAddr: 0x350, symBinAddr: 0x2180, symSize: 0x151 }
+  - { offset: 0x1CAC6, size: 0x8, addend: 0x0, symName: _blvalidate, symObjAddr: 0x0, symBinAddr: 0x22E0, symSize: 0x530 }
+  - { offset: 0x1DB26, size: 0x8, addend: 0x0, symName: _blvalidate, symObjAddr: 0x0, symBinAddr: 0x22E0, symSize: 0x530 }
+  - { offset: 0x1EC8D, size: 0x8, addend: 0x0, symName: _blvalidate.cold.1, symObjAddr: 0x530, symBinAddr: 0x2960, symSize: 0x40 }
+  - { offset: 0x1ECA4, size: 0x8, addend: 0x0, symName: _blvalidate.cold.2, symObjAddr: 0x570, symBinAddr: 0x29A0, symSize: 0x3A }
+...

@@ -1,0 +1,17 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/pgrowlocks.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3580, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3580, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x6E4, symBinAddr: 0x3DF0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_pgrowlocks, symObjAddr: 0xC, symBinAddr: 0x358C, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_pgrowlocks.my_finfo, symObjAddr: 0x71C, symBinAddr: 0x3E28, symSize: 0x0 }
+  - { offset: 0x6A80, size: 0x8, addend: 0x0, symName: _pgrowlocks, symObjAddr: 0x18, symBinAddr: 0x3598, symSize: 0x5CC }
+  - { offset: 0x70A3, size: 0x8, addend: 0x0, symName: _pgrowlocks.cold.1, symObjAddr: 0x5E4, symBinAddr: 0x3B7C, symSize: 0x50 }
+  - { offset: 0x73EE, size: 0x8, addend: 0x0, symName: _pgrowlocks.cold.2, symObjAddr: 0x634, symBinAddr: 0x3BCC, symSize: 0x5C }
+  - { offset: 0x7405, size: 0x8, addend: 0x0, symName: _pgrowlocks.cold.3, symObjAddr: 0x690, symBinAddr: 0x3C28, symSize: 0x3C }
+  - { offset: 0x741C, size: 0x8, addend: 0x0, symName: _pgrowlocks.cold.1, symObjAddr: 0x5E4, symBinAddr: 0x3B7C, symSize: 0x50 }
+  - { offset: 0x7433, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x6CC, symBinAddr: 0x3B64, symSize: 0xC }
+  - { offset: 0x744A, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0x6D8, symBinAddr: 0x3B70, symSize: 0xC }
+...

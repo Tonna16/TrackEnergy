@@ -1,0 +1,37 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/file_fdw.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x12E0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x12E0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x1758, symBinAddr: 0x2BA8, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_file_fdw_handler, symObjAddr: 0x10, symBinAddr: 0x12F0, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_file_fdw_handler.my_finfo, symObjAddr: 0x1790, symBinAddr: 0x2BE0, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_file_fdw_validator, symObjAddr: 0x20, symBinAddr: 0x1300, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_file_fdw_validator.my_finfo, symObjAddr: 0x1794, symBinAddr: 0x2BE4, symSize: 0x0 }
+  - { offset: 0x81EB, size: 0x8, addend: 0x0, symName: _file_fdw_handler, symObjAddr: 0x30, symBinAddr: 0x1310, symSize: 0x90 }
+  - { offset: 0x84FD, size: 0x8, addend: 0x0, symName: _fileGetForeignRelSize, symObjAddr: 0xC0, symBinAddr: 0x13A0, symSize: 0x140 }
+  - { offset: 0x865E, size: 0x8, addend: 0x0, symName: _fileGetOptions, symObjAddr: 0xCC0, symBinAddr: 0x1FA0, symSize: 0x340 }
+  - { offset: 0x8D04, size: 0x8, addend: 0x0, symName: _fileGetForeignPaths, symObjAddr: 0x200, symBinAddr: 0x14E0, symSize: 0x390 }
+  - { offset: 0x921B, size: 0x8, addend: 0x0, symName: _fileGetForeignPlan, symObjAddr: 0x590, symBinAddr: 0x1870, symSize: 0x50 }
+  - { offset: 0x9335, size: 0x8, addend: 0x0, symName: _fileExplainForeignScan, symObjAddr: 0x5E0, symBinAddr: 0x18C0, symSize: 0xA0 }
+  - { offset: 0x9480, size: 0x8, addend: 0x0, symName: _fileBeginForeignScan, symObjAddr: 0x680, symBinAddr: 0x1960, symSize: 0xB0 }
+  - { offset: 0x962E, size: 0x8, addend: 0x0, symName: _fileIterateForeignScan, symObjAddr: 0x730, symBinAddr: 0x1A10, symSize: 0xE0 }
+  - { offset: 0x97E3, size: 0x8, addend: 0x0, symName: _fileReScanForeignScan, symObjAddr: 0x810, symBinAddr: 0x1AF0, symSize: 0x50 }
+  - { offset: 0x9851, size: 0x8, addend: 0x0, symName: _fileEndForeignScan, symObjAddr: 0x860, symBinAddr: 0x1B40, symSize: 0x20 }
+  - { offset: 0x9895, size: 0x8, addend: 0x0, symName: _fileAnalyzeForeignTable, symObjAddr: 0x880, symBinAddr: 0x1B60, symSize: 0xB0 }
+  - { offset: 0x9989, size: 0x8, addend: 0x0, symName: _fileAnalyzeForeignTable.cold.1, symObjAddr: 0x1340, symBinAddr: 0x2620, symSize: 0x50 }
+  - { offset: 0x99A0, size: 0x8, addend: 0x0, symName: _fileIsForeignScanParallelSafe, symObjAddr: 0x930, symBinAddr: 0x1C10, symSize: 0x10 }
+  - { offset: 0x9A16, size: 0x8, addend: 0x0, symName: _file_fdw_validator, symObjAddr: 0x940, symBinAddr: 0x1C20, symSize: 0x380 }
+  - { offset: 0xA092, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.1, symObjAddr: 0x1390, symBinAddr: 0x2670, symSize: 0x40 }
+  - { offset: 0xA0A9, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.7, symObjAddr: 0x1610, symBinAddr: 0x28F0, symSize: 0x40 }
+  - { offset: 0xA120, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.6, symObjAddr: 0x15B0, symBinAddr: 0x2890, symSize: 0x60 }
+  - { offset: 0xA137, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.3, symObjAddr: 0x1480, symBinAddr: 0x2760, symSize: 0x40 }
+  - { offset: 0xA16C, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.4, symObjAddr: 0x14C0, symBinAddr: 0x27A0, symSize: 0x90 }
+  - { offset: 0xA1A1, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.5, symObjAddr: 0x1550, symBinAddr: 0x2830, symSize: 0x60 }
+  - { offset: 0xA1B8, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.8, symObjAddr: 0x1650, symBinAddr: 0x2930, symSize: 0x50 }
+  - { offset: 0xA1CF, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.9, symObjAddr: 0x16A0, symBinAddr: 0x2980, symSize: 0x50 }
+  - { offset: 0xA1E6, size: 0x8, addend: 0x0, symName: _file_fdw_validator.cold.2, symObjAddr: 0x13D0, symBinAddr: 0x26B0, symSize: 0xB0 }
+  - { offset: 0xA404, size: 0x8, addend: 0x0, symName: _fileGetOptions.cold.1, symObjAddr: 0x16F0, symBinAddr: 0x29D0, symSize: 0x36 }
+  - { offset: 0xA41B, size: 0x8, addend: 0x0, symName: _file_acquire_sample_rows, symObjAddr: 0x1000, symBinAddr: 0x22E0, symSize: 0x340 }
+...

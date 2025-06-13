@@ -1,0 +1,58 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/citext.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1200, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1200, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xC68, symBinAddr: 0x1EA0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_cmp, symObjAddr: 0x10, symBinAddr: 0x1210, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_cmp.my_finfo, symObjAddr: 0xCA0, symBinAddr: 0x1ED8, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_cmp, symObjAddr: 0x1B0, symBinAddr: 0x13B0, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_cmp.my_finfo, symObjAddr: 0xCA4, symBinAddr: 0x1EDC, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_hash, symObjAddr: 0x360, symBinAddr: 0x1560, symSize: 0x10 }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_hash.my_finfo, symObjAddr: 0xCA8, symBinAddr: 0x1EE0, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_hash_extended, symObjAddr: 0x430, symBinAddr: 0x1630, symSize: 0x10 }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_hash_extended.my_finfo, symObjAddr: 0xCAC, symBinAddr: 0x1EE4, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_eq, symObjAddr: 0x500, symBinAddr: 0x1700, symSize: 0x10 }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_eq.my_finfo, symObjAddr: 0xCB0, symBinAddr: 0x1EE8, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_ne, symObjAddr: 0x660, symBinAddr: 0x1860, symSize: 0x10 }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_ne.my_finfo, symObjAddr: 0xCB4, symBinAddr: 0x1EEC, symSize: 0x0 }
+  - { offset: 0x233, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_lt, symObjAddr: 0x7C0, symBinAddr: 0x19C0, symSize: 0x10 }
+  - { offset: 0x258, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_lt.my_finfo, symObjAddr: 0xCB8, symBinAddr: 0x1EF0, symSize: 0x0 }
+  - { offset: 0x262, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_le, symObjAddr: 0x840, symBinAddr: 0x1A40, symSize: 0x10 }
+  - { offset: 0x289, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_le.my_finfo, symObjAddr: 0xCBC, symBinAddr: 0x1EF4, symSize: 0x0 }
+  - { offset: 0x293, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_gt, symObjAddr: 0x8C0, symBinAddr: 0x1AC0, symSize: 0x10 }
+  - { offset: 0x2BA, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_gt.my_finfo, symObjAddr: 0xCC0, symBinAddr: 0x1EF8, symSize: 0x0 }
+  - { offset: 0x2C4, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_ge, symObjAddr: 0x940, symBinAddr: 0x1B40, symSize: 0x10 }
+  - { offset: 0x2EB, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_ge.my_finfo, symObjAddr: 0xCC4, symBinAddr: 0x1EFC, symSize: 0x0 }
+  - { offset: 0x2F5, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_lt, symObjAddr: 0x9C0, symBinAddr: 0x1BC0, symSize: 0x10 }
+  - { offset: 0x31C, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_lt.my_finfo, symObjAddr: 0xCC8, symBinAddr: 0x1F00, symSize: 0x0 }
+  - { offset: 0x326, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_le, symObjAddr: 0xA30, symBinAddr: 0x1C30, symSize: 0x10 }
+  - { offset: 0x34D, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_le.my_finfo, symObjAddr: 0xCCC, symBinAddr: 0x1F04, symSize: 0x0 }
+  - { offset: 0x357, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_gt, symObjAddr: 0xAB0, symBinAddr: 0x1CB0, symSize: 0x10 }
+  - { offset: 0x37E, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_gt.my_finfo, symObjAddr: 0xCD0, symBinAddr: 0x1F08, symSize: 0x0 }
+  - { offset: 0x388, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_ge, symObjAddr: 0xB30, symBinAddr: 0x1D30, symSize: 0x10 }
+  - { offset: 0x3AF, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_pattern_ge.my_finfo, symObjAddr: 0xCD4, symBinAddr: 0x1F0C, symSize: 0x0 }
+  - { offset: 0x3B9, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_smaller, symObjAddr: 0xBB0, symBinAddr: 0x1DB0, symSize: 0x10 }
+  - { offset: 0x3E0, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_smaller.my_finfo, symObjAddr: 0xCD8, symBinAddr: 0x1F10, symSize: 0x0 }
+  - { offset: 0x3EA, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_larger, symObjAddr: 0xC10, symBinAddr: 0x1E10, symSize: 0x10 }
+  - { offset: 0x411, size: 0x8, addend: 0x0, symName: _pg_finfo_citext_larger.my_finfo, symObjAddr: 0xCDC, symBinAddr: 0x1F14, symSize: 0x0 }
+  - { offset: 0x115D, size: 0x8, addend: 0x0, symName: _citext_cmp, symObjAddr: 0x20, symBinAddr: 0x1220, symSize: 0x60 }
+  - { offset: 0x1236, size: 0x8, addend: 0x0, symName: _citextcmp, symObjAddr: 0x80, symBinAddr: 0x1280, symSize: 0x130 }
+  - { offset: 0x13D2, size: 0x8, addend: 0x0, symName: _citext_pattern_cmp, symObjAddr: 0x1C0, symBinAddr: 0x13C0, symSize: 0x60 }
+  - { offset: 0x149A, size: 0x8, addend: 0x0, symName: _internal_citext_pattern_cmp, symObjAddr: 0x220, symBinAddr: 0x1420, symSize: 0x140 }
+  - { offset: 0x1621, size: 0x8, addend: 0x0, symName: _citext_hash, symObjAddr: 0x370, symBinAddr: 0x1570, symSize: 0xC0 }
+  - { offset: 0x1764, size: 0x8, addend: 0x0, symName: _citext_hash_extended, symObjAddr: 0x440, symBinAddr: 0x1640, symSize: 0xC0 }
+  - { offset: 0x1880, size: 0x8, addend: 0x0, symName: _citext_eq, symObjAddr: 0x510, symBinAddr: 0x1710, symSize: 0x150 }
+  - { offset: 0x19B0, size: 0x8, addend: 0x0, symName: _citext_ne, symObjAddr: 0x670, symBinAddr: 0x1870, symSize: 0x150 }
+  - { offset: 0x1ACA, size: 0x8, addend: 0x0, symName: _citext_lt, symObjAddr: 0x7D0, symBinAddr: 0x19D0, symSize: 0x70 }
+  - { offset: 0x1B76, size: 0x8, addend: 0x0, symName: _citext_le, symObjAddr: 0x850, symBinAddr: 0x1A50, symSize: 0x70 }
+  - { offset: 0x1C27, size: 0x8, addend: 0x0, symName: _citext_gt, symObjAddr: 0x8D0, symBinAddr: 0x1AD0, symSize: 0x70 }
+  - { offset: 0x1CD8, size: 0x8, addend: 0x0, symName: _citext_ge, symObjAddr: 0x950, symBinAddr: 0x1B50, symSize: 0x70 }
+  - { offset: 0x1D89, size: 0x8, addend: 0x0, symName: _citext_pattern_lt, symObjAddr: 0x9D0, symBinAddr: 0x1BD0, symSize: 0x60 }
+  - { offset: 0x1E3A, size: 0x8, addend: 0x0, symName: _citext_pattern_le, symObjAddr: 0xA40, symBinAddr: 0x1C40, symSize: 0x70 }
+  - { offset: 0x1EEB, size: 0x8, addend: 0x0, symName: _citext_pattern_gt, symObjAddr: 0xAC0, symBinAddr: 0x1CC0, symSize: 0x70 }
+  - { offset: 0x1F9C, size: 0x8, addend: 0x0, symName: _citext_pattern_ge, symObjAddr: 0xB40, symBinAddr: 0x1D40, symSize: 0x70 }
+  - { offset: 0x204D, size: 0x8, addend: 0x0, symName: _citext_smaller, symObjAddr: 0xBC0, symBinAddr: 0x1DC0, symSize: 0x50 }
+  - { offset: 0x20D6, size: 0x8, addend: 0x0, symName: _citext_larger, symObjAddr: 0xC20, symBinAddr: 0x1E20, symSize: 0x47 }
+...

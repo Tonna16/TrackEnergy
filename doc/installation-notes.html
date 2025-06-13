@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title>Welcome</title>
+</head>
+<body>
+
+<center>
+<h1>PostgreSQL 17</h1></p>
+<h2>Installation Notes</h2>
+</center>
+
+<p>Welcome to the PostgreSQL 17 Installation Wizard.</p>
+
+<h3>Legal Bits</h3>
+
+<p>First the boring legal stuff. The software bundled together in this package is released under a number of different Open Source licences. By using any component of this installation package, you agree to abide by the terms and conditions of it’s licence.</p>
+
+<p>The PostgreSQL Server, pgAdmin and the installer itself are released under the PostgreSQL License.</p>
+
+<p>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit. (http://www.openssl.org/)</p>
+
+<h3>Supported Operating Systems</h3>
+
+<p>The macOS build has been tested on 10.15 and above, including 11.x (BigSur) for x86_64 and ARM64 architectures. The Windows builds of this installer have been tested on variety of different versions of 64bit Windows platforms like Windows 2016 and above. Please let us know if the installer does not operate as expected on your operating system, and where possible, we will try to add support</p>
+
+<h3>Procedural Languages</h3>
+
+<p>The procedural languages pl/Perl, pl/Python and pl/Tcl are included in this distribution of PostgreSQL on Windows. The server has been built using the community upstream distributions of those language interpreters. To use any of the these languages from within PostgreSQL, download and install the appropriate interpreters and ensure they are included in the PATH variable under which the database server will be started. The versions used are shown below - newer minor (bugfix) releases may also work, but have not been tested:</p>
+
+<ul>
+  <li>Perl 5.40.0 : https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54001_64bit_UCRT/strawberry-perl-5.40.0.1-64bit.msi </li>
+  <li>Python 3.12.10 : https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe </li>
+  <li>Tcl 8.6.16 : https://sourceforge.net/projects/magicsplat/files/magicsplat-tcl/tcl-8.6.16-installer-1.16.0-x64.msi </li>
+</ul>
+
+<p>The current pl/Python is dynamically linked with Python's shared library in the LanguagePack v4.x installers. Some distributions of Python interpreters (including ActivePython) on Linux do not carry a dynamic library of Python. Such interpreters would no longer be functional with pl/Python.We strongly recommend the users to use LanguagePack installers for pl/Perl, pl/Python and pl/Tcl on macOS.</p>
+
+<h3>pl/pgsql Debugger</h3>
+
+<p>The package includes EnterpriseDB's pl/pgsql debugger plugin which may be used by the debugger UI in pgAdmin to help with development of your database functions.
+The debugger plugin is disabled by default for performance reasons. To enable it, follow the following steps:</p>
+
+<ol>
+  <li>Edit the postgresql.conf file in the data directory and modify the shared_preload_libraries config option to look like the following, if running on Linux or Mac:<br>&nbsp;<br>
+      <code>shared_preload_libraries = '$libdir/plugin_debugger.so'</code><br>&nbsp;<br>or if you are on Windows:<br>&nbsp;<br>
+      <code>shared_preload_libraries = '$libdir/plugin_debugger.dll'</code><br>&nbsp;</li>
+  <li>Restart the PostgreSQL server.<br>&nbsp;</li>
+  <li>Run <i>CREATE EXTENSION pldbgapi;</i> in the database you wish to debug using psql or the pgAdmin query tool.
+</ol>
+
+<p>For further information, please see the pgAdmin online help, and the debugger plugin <a href="README.pldebugger">README file</a>. 
+
+<h3>Important Note with regards to ICU</h3>
+
+<p>PostgreSQL Server 17 is compiled with ICU 67.x. The server versions upto v12 used either ICU 53.x or  57.x. Hence, if you use pg_upgrade for a major version upgrade and have ICU collated indexes, then you need to reindex the indexes.</p>
+
+<h3>Important Note with regards to locale names</h3>
+
+<p>A change was made in the Windows installers for PostgreSQL versions 17.4-1, 16.8-1, 15.12-1, 14.17-1, and 13.20-1, and in the fresh installation the chosen locale name would be converted to BCP-47 name and passed to initdb.exe run as --locale. This change made the pg_upgrade from the PostgreSQL cluster having old locale names to these versions fail.</p>
+
+<p>The change was again made in -2 releases for the same set of postgresql installers. See below section for details.</p>
+
+<p>Starting from PostgreSQL versions 17.4-2, 16.8-2, 15.12-2, 14.17-2, and 13.20-2, the Windows installers support specifying locale names in two formats:</p>
+
+<ul>
+  <li>Standard BCP-47 locale names (e.g., en-US, fr-FR). Recommended, if the locale name contains non-ASCII characters (such as accented characters or regional scripts) </li>
+  <li>Long English locale names containing only ASCII characters (e.g., English_United States, French_France). So, any non-ASCII character containing locale is not passed to the initdb. </li>
+</ul>
+
+<h3>Technical Support</h3>
+
+<p>Issues using the installer can be reported to installer GitHub page at <a href="https://github.com/EnterpriseDB/edb-installers/issues">https://github.com/EnterpriseDB/edb-installers/issues</a></p>  
+
+<p>For PostgreSQL support, please use the appropriate mailing list. A complete list may be found at <a href="http://www.postgresql.org/lists.html">http://www.postgresql.org/lists.html</a>.</p>
+
+<p>For pgAdmin support, please use the <a href="mailto:pgadmin-support@postgresql.org">pgadmin-support@postgresql.org</a> mailing list.</p>
+
+<center><a href="http://www.enterprisedb.com"><img border="0" src="edblogo.png" alt="This software was packaged by EnterpriseDB"></a></center>
+
+</body>
+</html>

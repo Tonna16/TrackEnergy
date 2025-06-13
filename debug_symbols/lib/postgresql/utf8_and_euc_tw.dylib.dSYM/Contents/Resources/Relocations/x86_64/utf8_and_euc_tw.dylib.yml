@@ -1,0 +1,18 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_euc_tw.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x570, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x570, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x130, symBinAddr: 0x6B0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_tw_to_utf8, symObjAddr: 0x10, symBinAddr: 0x580, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_tw_to_utf8.my_finfo, symObjAddr: 0x168, symBinAddr: 0x6E8, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_euc_tw, symObjAddr: 0x20, symBinAddr: 0x590, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_euc_tw.my_finfo, symObjAddr: 0x16C, symBinAddr: 0x6EC, symSize: 0x0 }
+  - { offset: 0x183, size: 0x8, addend: 0x0, symName: _euc_tw_to_unicode_tree, symObjAddr: 0x30A20, symBinAddr: 0x31018, symSize: 0x0 }
+  - { offset: 0x34E, size: 0x8, addend: 0x0, symName: _euc_tw_to_unicode_tree_table, symObjAddr: 0x170, symBinAddr: 0x6F0, symSize: 0x0 }
+  - { offset: 0x370, size: 0x8, addend: 0x0, symName: _euc_tw_from_unicode_tree, symObjAddr: 0x30A58, symBinAddr: 0x31050, symSize: 0x0 }
+  - { offset: 0x385, size: 0x8, addend: 0x0, symName: _euc_tw_from_unicode_tree_table, symObjAddr: 0x1A860, symBinAddr: 0x1ADE0, symSize: 0x0 }
+  - { offset: 0x400, size: 0x8, addend: 0x0, symName: _euc_tw_to_utf8, symObjAddr: 0x30, symBinAddr: 0x5A0, symSize: 0x80 }
+  - { offset: 0x5AE, size: 0x8, addend: 0x0, symName: _utf8_to_euc_tw, symObjAddr: 0xB0, symBinAddr: 0x620, symSize: 0x72 }
+...

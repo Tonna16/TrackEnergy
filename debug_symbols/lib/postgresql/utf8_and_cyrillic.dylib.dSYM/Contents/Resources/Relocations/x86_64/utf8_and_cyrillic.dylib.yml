@@ -1,0 +1,28 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_cyrillic.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x250, symBinAddr: 0xC50, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_koi8r, symObjAddr: 0x10, symBinAddr: 0xA00, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_koi8r.my_finfo, symObjAddr: 0x288, symBinAddr: 0xC88, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_koi8r_to_utf8, symObjAddr: 0x20, symBinAddr: 0xA10, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_koi8r_to_utf8.my_finfo, symObjAddr: 0x28C, symBinAddr: 0xC8C, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_koi8u, symObjAddr: 0x30, symBinAddr: 0xA20, symSize: 0x10 }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_koi8u.my_finfo, symObjAddr: 0x290, symBinAddr: 0xC90, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_koi8u_to_utf8, symObjAddr: 0x40, symBinAddr: 0xA30, symSize: 0x10 }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_koi8u_to_utf8.my_finfo, symObjAddr: 0x294, symBinAddr: 0xC94, symSize: 0x0 }
+  - { offset: 0x1E1, size: 0x8, addend: 0x0, symName: _koi8r_from_unicode_tree, symObjAddr: 0x15A0, symBinAddr: 0x2018, symSize: 0x0 }
+  - { offset: 0x3AC, size: 0x8, addend: 0x0, symName: _koi8r_from_unicode_tree_table, symObjAddr: 0x2A0, symBinAddr: 0xCA0, symSize: 0x0 }
+  - { offset: 0x3CE, size: 0x8, addend: 0x0, symName: _koi8r_to_unicode_tree, symObjAddr: 0x15D8, symBinAddr: 0x2050, symSize: 0x0 }
+  - { offset: 0x3E3, size: 0x8, addend: 0x0, symName: _koi8r_to_unicode_tree_table, symObjAddr: 0x7F0, symBinAddr: 0x11F0, symSize: 0x0 }
+  - { offset: 0x405, size: 0x8, addend: 0x0, symName: _koi8u_from_unicode_tree, symObjAddr: 0x1610, symBinAddr: 0x2088, symSize: 0x0 }
+  - { offset: 0x41A, size: 0x8, addend: 0x0, symName: _koi8u_from_unicode_tree_table, symObjAddr: 0xBF0, symBinAddr: 0x15F0, symSize: 0x0 }
+  - { offset: 0x43C, size: 0x8, addend: 0x0, symName: _koi8u_to_unicode_tree, symObjAddr: 0x1648, symBinAddr: 0x20C0, symSize: 0x0 }
+  - { offset: 0x451, size: 0x8, addend: 0x0, symName: _koi8u_to_unicode_tree_table, symObjAddr: 0x11A0, symBinAddr: 0x1BA0, symSize: 0x0 }
+  - { offset: 0x4BF, size: 0x8, addend: 0x0, symName: _utf8_to_koi8r, symObjAddr: 0x50, symBinAddr: 0xA40, symSize: 0x80 }
+  - { offset: 0x66D, size: 0x8, addend: 0x0, symName: _koi8r_to_utf8, symObjAddr: 0xD0, symBinAddr: 0xAC0, symSize: 0x80 }
+  - { offset: 0x7CE, size: 0x8, addend: 0x0, symName: _utf8_to_koi8u, symObjAddr: 0x150, symBinAddr: 0xB40, symSize: 0x80 }
+  - { offset: 0x8B3, size: 0x8, addend: 0x0, symName: _koi8u_to_utf8, symObjAddr: 0x1D0, symBinAddr: 0xBC0, symSize: 0x72 }
+...

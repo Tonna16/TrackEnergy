@@ -108,26 +108,27 @@ export const locationOptions = [
 ];
 
 export const nationalAverages = {
-  'daily': 30, // kWh per day
-  'monthly': 900, // kWh per month
-  'by_household_size': {
-    1: 20,  // kWh per day for 1 person
-    2: 30,  // kWh per day for 2 people
-    3: 40,  // kWh per day for 3 people
-    4: 45,  // kWh per day for 4 people
-    5: 50   // kWh per day for 5+ people
-  },
-  'by_appliance': {
-    'refrigerator': 1.5, // kWh per day
-    'air-conditioner': 15, // kWh per day (when in use)
-    'washing-machine': 1, // kWh per day (average)
-    'clothes-dryer': 3, // kWh per day (average)
-    'dishwasher': 1.5, // kWh per day (average)
-    'television': 0.5, // kWh per day
-    'computer': 1, // kWh per day
-    'lighting': 2, // kWh per day
-    'water-heater': 12, // kWh per day
-    'microwave': 0.3 // kWh per day
+  daily: 30, // kWh per day
+  monthly: 900, // kWh per month
+  by_household_size: {
+    1: 20,
+    2: 30,
+    3: 40,
+    4: 45,
+    5: 50
+  } as Record<number, number>, // <-- This fixes the typing issue
+  by_appliance: {
+    refrigerator: 1.5,
+    'air-conditioner': 15,
+    'washing-machine': 1,
+    'clothes-dryer': 3,
+    dishwasher: 1.5,
+    television: 0.5,
+    computer: 1,
+    lighting: 2,
+    'water-heater': 12,
+    microwave: 0.3
   }
 };
+
  

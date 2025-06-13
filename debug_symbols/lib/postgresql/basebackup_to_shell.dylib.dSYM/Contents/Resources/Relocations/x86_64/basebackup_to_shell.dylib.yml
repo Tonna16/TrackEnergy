@@ -1,0 +1,32 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/basebackup_to_shell.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1450, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1450, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x6D0, symBinAddr: 0x1BE0, symSize: 0x0 }
+  - { offset: 0x101, size: 0x8, addend: 0x0, symName: _shell_command, symObjAddr: 0xA58, symBinAddr: 0x3000, symSize: 0x0 }
+  - { offset: 0x11B, size: 0x8, addend: 0x0, symName: _shell_required_role, symObjAddr: 0xA60, symBinAddr: 0x3008, symSize: 0x0 }
+  - { offset: 0x135, size: 0x8, addend: 0x0, symName: _bbsink_shell_ops, symObjAddr: 0xA68, symBinAddr: 0x20F8, symSize: 0x0 }
+  - { offset: 0x134C, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x10, symBinAddr: 0x1460, symSize: 0xC0 }
+  - { offset: 0x14B8, size: 0x8, addend: 0x0, symName: _shell_check_detail, symObjAddr: 0xD0, symBinAddr: 0x1520, symSize: 0x60 }
+  - { offset: 0x15BD, size: 0x8, addend: 0x0, symName: _shell_check_detail.cold.1, symObjAddr: 0x410, symBinAddr: 0x1860, symSize: 0x40 }
+  - { offset: 0x15D4, size: 0x8, addend: 0x0, symName: _shell_get_sink, symObjAddr: 0x130, symBinAddr: 0x1580, symSize: 0xF0 }
+  - { offset: 0x172F, size: 0x8, addend: 0x0, symName: _shell_get_sink.cold.2, symObjAddr: 0x490, symBinAddr: 0x18E0, symSize: 0x40 }
+  - { offset: 0x1746, size: 0x8, addend: 0x0, symName: _shell_get_sink.cold.4, symObjAddr: 0x520, symBinAddr: 0x1970, symSize: 0x40 }
+  - { offset: 0x175D, size: 0x8, addend: 0x0, symName: _shell_get_sink.cold.1, symObjAddr: 0x450, symBinAddr: 0x18A0, symSize: 0x40 }
+  - { offset: 0x1774, size: 0x8, addend: 0x0, symName: _shell_get_sink.cold.3, symObjAddr: 0x4D0, symBinAddr: 0x1920, symSize: 0x50 }
+  - { offset: 0x178B, size: 0x8, addend: 0x0, symName: _bbsink_shell_begin_archive, symObjAddr: 0x220, symBinAddr: 0x1670, symSize: 0x30 }
+  - { offset: 0x17FB, size: 0x8, addend: 0x0, symName: _shell_run_command, symObjAddr: 0x320, symBinAddr: 0x1770, symSize: 0x60 }
+  - { offset: 0x18BD, size: 0x8, addend: 0x0, symName: _bbsink_shell_archive_contents, symObjAddr: 0x250, symBinAddr: 0x16A0, symSize: 0x30 }
+  - { offset: 0x192D, size: 0x8, addend: 0x0, symName: _shell_send_data, symObjAddr: 0x380, symBinAddr: 0x17D0, symSize: 0x40 }
+  - { offset: 0x19B2, size: 0x8, addend: 0x0, symName: _bbsink_shell_end_archive, symObjAddr: 0x280, symBinAddr: 0x16D0, symSize: 0x20 }
+  - { offset: 0x1A0B, size: 0x8, addend: 0x0, symName: _shell_finish_command, symObjAddr: 0x3C0, symBinAddr: 0x1810, symSize: 0x50 }
+  - { offset: 0x1ABA, size: 0x8, addend: 0x0, symName: _bbsink_shell_begin_manifest, symObjAddr: 0x2A0, symBinAddr: 0x16F0, symSize: 0x30 }
+  - { offset: 0x1B21, size: 0x8, addend: 0x0, symName: _bbsink_shell_manifest_contents, symObjAddr: 0x2D0, symBinAddr: 0x1720, symSize: 0x30 }
+  - { offset: 0x1BA4, size: 0x8, addend: 0x0, symName: _bbsink_shell_end_manifest, symObjAddr: 0x300, symBinAddr: 0x1750, symSize: 0x20 }
+  - { offset: 0x1C6B, size: 0x8, addend: 0x0, symName: _shell_run_command.cold.1, symObjAddr: 0x560, symBinAddr: 0x19B0, symSize: 0x50 }
+  - { offset: 0x1CC7, size: 0x8, addend: 0x0, symName: _shell_send_data.cold.1, symObjAddr: 0x5B0, symBinAddr: 0x1A00, symSize: 0x60 }
+  - { offset: 0x1CFC, size: 0x8, addend: 0x0, symName: _shell_finish_command.cold.2, symObjAddr: 0x680, symBinAddr: 0x1AD0, symSize: 0x3B }
+  - { offset: 0x1D13, size: 0x8, addend: 0x0, symName: _shell_finish_command.cold.1, symObjAddr: 0x610, symBinAddr: 0x1A60, symSize: 0x70 }
+...

@@ -1,0 +1,39 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/jsonb_plpython3.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2CB4, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2CB4, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xEB0, symBinAddr: 0x3D38, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_plpython_to_jsonb, symObjAddr: 0x8C, symBinAddr: 0x2D40, symSize: 0xC }
+  - { offset: 0x11C, size: 0x8, addend: 0x0, symName: _pg_finfo_plpython_to_jsonb.my_finfo, symObjAddr: 0xEE8, symBinAddr: 0x3D70, symSize: 0x0 }
+  - { offset: 0x14A, size: 0x8, addend: 0x0, symName: _pg_finfo_jsonb_to_plpython, symObjAddr: 0x234, symBinAddr: 0x2EE8, symSize: 0xC }
+  - { offset: 0x171, size: 0x8, addend: 0x0, symName: _pg_finfo_jsonb_to_plpython.my_finfo, symObjAddr: 0xEEC, symBinAddr: 0x3D74, symSize: 0x0 }
+  - { offset: 0x187, size: 0x8, addend: 0x0, symName: _PLyObject_AsString_p, symObjAddr: 0xB248, symBinAddr: 0x8000, symSize: 0x0 }
+  - { offset: 0xDAF, size: 0x8, addend: 0x0, symName: _PLy_elog_impl_p, symObjAddr: 0xB258, symBinAddr: 0x8010, symSize: 0x0 }
+  - { offset: 0xDE1, size: 0x8, addend: 0x0, symName: _decimal_constructor, symObjAddr: 0xB260, symBinAddr: 0x8018, symSize: 0x0 }
+  - { offset: 0xDF6, size: 0x8, addend: 0x0, symName: _PLyUnicode_FromStringAndSize_p, symObjAddr: 0xB250, symBinAddr: 0x8008, symSize: 0x0 }
+  - { offset: 0x1C44, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0xC, symBinAddr: 0x2CC0, symSize: 0x80 }
+  - { offset: 0x1CE1, size: 0x8, addend: 0x0, symName: _plpython_to_jsonb, symObjAddr: 0x98, symBinAddr: 0x2D4C, symSize: 0x30 }
+  - { offset: 0x1D62, size: 0x8, addend: 0x0, symName: _PLyObject_ToJsonbValue, symObjAddr: 0xC8, symBinAddr: 0x2D7C, symSize: 0x16C }
+  - { offset: 0x1F05, size: 0x8, addend: 0x0, symName: _pg_finfo_jsonb_to_plpython, symObjAddr: 0x234, symBinAddr: 0x2EE8, symSize: 0xC }
+  - { offset: 0x2134, size: 0x8, addend: 0x0, symName: _PLySequence_ToJsonbValue, symObjAddr: 0x670, symBinAddr: 0x3324, symSize: 0x164 }
+  - { offset: 0x2315, size: 0x8, addend: 0x0, symName: _PLyMapping_ToJsonbValue, symObjAddr: 0x7D4, symBinAddr: 0x3488, symSize: 0x224 }
+  - { offset: 0x2633, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue, symObjAddr: 0x9F8, symBinAddr: 0x36AC, symSize: 0x11C }
+  - { offset: 0x28AF, size: 0x8, addend: 0x0, symName: _PLyObject_ToJsonbValue.cold.1, symObjAddr: 0xC00, symBinAddr: 0x38C8, symSize: 0x64 }
+  - { offset: 0x28E0, size: 0x8, addend: 0x0, symName: _jsonb_to_plpython, symObjAddr: 0x240, symBinAddr: 0x2EF4, symSize: 0x8C }
+  - { offset: 0x2A0E, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer, symObjAddr: 0x2CC, symBinAddr: 0x2F80, symSize: 0x3A4 }
+  - { offset: 0x2FB3, size: 0x8, addend: 0x0, symName: _PLySequence_ToJsonbValue, symObjAddr: 0x670, symBinAddr: 0x3324, symSize: 0x164 }
+  - { offset: 0x30FF, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbValue, symObjAddr: 0xB34, symBinAddr: 0x37E8, symSize: 0xCC }
+  - { offset: 0x31C6, size: 0x8, addend: 0x0, symName: _PLyObject_ToJsonbValue.cold.1, symObjAddr: 0xC00, symBinAddr: 0x38C8, symSize: 0x64 }
+  - { offset: 0x3246, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer.cold.3, symObjAddr: 0xCFC, symBinAddr: 0x39C4, symSize: 0x4C }
+  - { offset: 0x325D, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer.cold.2, symObjAddr: 0xCB0, symBinAddr: 0x3978, symSize: 0x4C }
+  - { offset: 0x3274, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer.cold.1, symObjAddr: 0xC64, symBinAddr: 0x392C, symSize: 0x4C }
+  - { offset: 0x328B, size: 0x8, addend: 0x0, symName: _Py_XDECREF, symObjAddr: 0xB14, symBinAddr: 0x37C8, symSize: 0x20 }
+  - { offset: 0x3565, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue.cold.3, symObjAddr: 0xDC8, symBinAddr: 0x3A90, symSize: 0x70 }
+  - { offset: 0x357C, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue.cold.1, symObjAddr: 0xD48, symBinAddr: 0x3A10, symSize: 0x40 }
+  - { offset: 0x3593, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue.cold.2, symObjAddr: 0xD88, symBinAddr: 0x3A50, symSize: 0x40 }
+  - { offset: 0x35DD, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbValue.cold.1, symObjAddr: 0xE38, symBinAddr: 0x3B00, symSize: 0x50 }
+  - { offset: 0x35F4, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0xE88, symBinAddr: 0x38B4, symSize: 0x8 }
+  - { offset: 0x360B, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0xE90, symBinAddr: 0x38BC, symSize: 0xC }
+...

@@ -1,0 +1,18 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/tsm_system_time.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3A70, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3A70, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x3DC, symBinAddr: 0x3EE8, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_tsm_system_time_handler, symObjAddr: 0xC, symBinAddr: 0x3A7C, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_tsm_system_time_handler.my_finfo, symObjAddr: 0x414, symBinAddr: 0x3F20, symSize: 0x0 }
+  - { offset: 0x4E2E, size: 0x8, addend: 0x0, symName: _tsm_system_time_handler, symObjAddr: 0x18, symBinAddr: 0x3A88, symSize: 0x78 }
+  - { offset: 0x4F19, size: 0x8, addend: 0x0, symName: _system_time_samplescangetsamplesize, symObjAddr: 0x90, symBinAddr: 0x3B00, symSize: 0x100 }
+  - { offset: 0x509B, size: 0x8, addend: 0x0, symName: _system_time_initsamplescan, symObjAddr: 0x190, symBinAddr: 0x3C00, symSize: 0x28 }
+  - { offset: 0x50DF, size: 0x8, addend: 0x0, symName: _system_time_beginsamplescan, symObjAddr: 0x1B8, symBinAddr: 0x3C28, symSize: 0x34 }
+  - { offset: 0x5167, size: 0x8, addend: 0x0, symName: _system_time_nextsampleblock, symObjAddr: 0x1EC, symBinAddr: 0x3C5C, symSize: 0x188 }
+  - { offset: 0x5171, size: 0x8, addend: 0x0, symName: _system_time_beginsamplescan.cold.1, symObjAddr: 0x394, symBinAddr: 0x3E04, symSize: 0x48 }
+  - { offset: 0x526C, size: 0x8, addend: 0x0, symName: _system_time_nextsampleblock, symObjAddr: 0x1EC, symBinAddr: 0x3C5C, symSize: 0x188 }
+  - { offset: 0x5433, size: 0x8, addend: 0x0, symName: _system_time_nextsampletuple, symObjAddr: 0x374, symBinAddr: 0x3DE4, symSize: 0x20 }
+...

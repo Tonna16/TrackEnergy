@@ -1,0 +1,34 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/jsonb_plpython3.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xC80, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xC80, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xFE0, symBinAddr: 0x1D4C, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_plpython_to_jsonb, symObjAddr: 0x80, symBinAddr: 0xD00, symSize: 0x10 }
+  - { offset: 0x11C, size: 0x8, addend: 0x0, symName: _pg_finfo_plpython_to_jsonb.my_finfo, symObjAddr: 0x1018, symBinAddr: 0x1D84, symSize: 0x0 }
+  - { offset: 0x14A, size: 0x8, addend: 0x0, symName: _pg_finfo_jsonb_to_plpython, symObjAddr: 0x200, symBinAddr: 0xE80, symSize: 0x10 }
+  - { offset: 0x171, size: 0x8, addend: 0x0, symName: _pg_finfo_jsonb_to_plpython.my_finfo, symObjAddr: 0x101C, symBinAddr: 0x1D88, symSize: 0x0 }
+  - { offset: 0x187, size: 0x8, addend: 0x0, symName: _PLyObject_AsString_p, symObjAddr: 0xB6B0, symBinAddr: 0x3000, symSize: 0x0 }
+  - { offset: 0xDAF, size: 0x8, addend: 0x0, symName: _PLy_elog_impl_p, symObjAddr: 0xB6C0, symBinAddr: 0x3010, symSize: 0x0 }
+  - { offset: 0xDE1, size: 0x8, addend: 0x0, symName: _decimal_constructor, symObjAddr: 0xB6C8, symBinAddr: 0x3018, symSize: 0x0 }
+  - { offset: 0xDF6, size: 0x8, addend: 0x0, symName: _PLyUnicode_FromStringAndSize_p, symObjAddr: 0xB6B8, symBinAddr: 0x3008, symSize: 0x0 }
+  - { offset: 0x1C44, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x10, symBinAddr: 0xC90, symSize: 0x70 }
+  - { offset: 0x1CE1, size: 0x8, addend: 0x0, symName: _plpython_to_jsonb, symObjAddr: 0x90, symBinAddr: 0xD10, symSize: 0x30 }
+  - { offset: 0x1D62, size: 0x8, addend: 0x0, symName: _PLyObject_ToJsonbValue, symObjAddr: 0xC0, symBinAddr: 0xD40, symSize: 0x140 }
+  - { offset: 0x2134, size: 0x8, addend: 0x0, symName: _PLySequence_ToJsonbValue, symObjAddr: 0x750, symBinAddr: 0x13D0, symSize: 0x190 }
+  - { offset: 0x2317, size: 0x8, addend: 0x0, symName: _PLyMapping_ToJsonbValue, symObjAddr: 0x8E0, symBinAddr: 0x1560, symSize: 0x230 }
+  - { offset: 0x263B, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue, symObjAddr: 0xB10, symBinAddr: 0x1790, symSize: 0x130 }
+  - { offset: 0x28BE, size: 0x8, addend: 0x0, symName: _PLyObject_ToJsonbValue.cold.1, symObjAddr: 0xD40, symBinAddr: 0x19C0, symSize: 0x60 }
+  - { offset: 0x28EF, size: 0x8, addend: 0x0, symName: _jsonb_to_plpython, symObjAddr: 0x210, symBinAddr: 0xE90, symSize: 0x90 }
+  - { offset: 0x2A1D, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer, symObjAddr: 0x2A0, symBinAddr: 0xF20, symSize: 0x4B0 }
+  - { offset: 0x311B, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbValue, symObjAddr: 0xC60, symBinAddr: 0x18E0, symSize: 0xE0 }
+  - { offset: 0x3262, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer.cold.2, symObjAddr: 0xDF0, symBinAddr: 0x1A70, symSize: 0x50 }
+  - { offset: 0x3279, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer.cold.1, symObjAddr: 0xDA0, symBinAddr: 0x1A20, symSize: 0x50 }
+  - { offset: 0x3290, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbContainer.cold.3, symObjAddr: 0xE40, symBinAddr: 0x1AC0, symSize: 0x50 }
+  - { offset: 0x32A7, size: 0x8, addend: 0x0, symName: _Py_XDECREF, symObjAddr: 0xC40, symBinAddr: 0x18C0, symSize: 0x20 }
+  - { offset: 0x3581, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue.cold.3, symObjAddr: 0xF30, symBinAddr: 0x1BB0, symSize: 0x70 }
+  - { offset: 0x3598, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue.cold.1, symObjAddr: 0xE90, symBinAddr: 0x1B10, symSize: 0x50 }
+  - { offset: 0x35AF, size: 0x8, addend: 0x0, symName: _PLyNumber_ToJsonbValue.cold.2, symObjAddr: 0xEE0, symBinAddr: 0x1B60, symSize: 0x50 }
+  - { offset: 0x35F9, size: 0x8, addend: 0x0, symName: _PLyObject_FromJsonbValue.cold.1, symObjAddr: 0xFA0, symBinAddr: 0x1C20, symSize: 0x40 }
+...

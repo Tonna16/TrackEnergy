@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/libzstd.1.5.7.dylib'
+relocations:     []
+...

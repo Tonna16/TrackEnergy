@@ -1,0 +1,56 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/libpqwalreceiver.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1350, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1350, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x2020, symBinAddr: 0x3550, symSize: 0x0 }
+  - { offset: 0x106, size: 0x8, addend: 0x0, symName: _PQWalReceiverFunctions, symObjAddr: 0x29F0, symBinAddr: 0x5000, symSize: 0x0 }
+  - { offset: 0x1803, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x10, symBinAddr: 0x1360, symSize: 0x30 }
+  - { offset: 0x183F, size: 0x8, addend: 0x0, symName: __PG_init.cold.1, symObjAddr: 0x15C0, symBinAddr: 0x2910, symSize: 0x40 }
+  - { offset: 0x1856, size: 0x8, addend: 0x0, symName: _libpqrcv_connect, symObjAddr: 0x40, symBinAddr: 0x1390, symSize: 0x2C0 }
+  - { offset: 0x1AFB, size: 0x8, addend: 0x0, symName: _libpqrcv_check_conninfo, symObjAddr: 0x300, symBinAddr: 0x1650, symSize: 0xB0 }
+  - { offset: 0x1D92, size: 0x8, addend: 0x0, symName: _libpqrcv_PQexec, symObjAddr: 0x14A0, symBinAddr: 0x27F0, symSize: 0x90 }
+  - { offset: 0x1EEB, size: 0x8, addend: 0x0, symName: _libpqrcv_connect.cold.1, symObjAddr: 0x1600, symBinAddr: 0x2950, symSize: 0x80 }
+  - { offset: 0x1FB2, size: 0x8, addend: 0x0, symName: _libpqrcv_check_conninfo.cold.2, symObjAddr: 0x16F0, symBinAddr: 0x2A40, symSize: 0x60 }
+  - { offset: 0x1FC9, size: 0x8, addend: 0x0, symName: _libpqrcv_check_conninfo.cold.1, symObjAddr: 0x1680, symBinAddr: 0x29D0, symSize: 0x70 }
+  - { offset: 0x200F, size: 0x8, addend: 0x0, symName: _libpqrcv_get_conninfo, symObjAddr: 0x3B0, symBinAddr: 0x1700, symSize: 0x120 }
+  - { offset: 0x2212, size: 0x8, addend: 0x0, symName: _libpqrcv_get_conninfo.cold.1, symObjAddr: 0x1750, symBinAddr: 0x2AA0, symSize: 0x50 }
+  - { offset: 0x2229, size: 0x8, addend: 0x0, symName: _libpqrcv_get_senderinfo, symObjAddr: 0x4D0, symBinAddr: 0x1820, symSize: 0x70 }
+  - { offset: 0x22E9, size: 0x8, addend: 0x0, symName: _libpqrcv_identify_system, symObjAddr: 0x540, symBinAddr: 0x1890, symSize: 0xB0 }
+  - { offset: 0x2495, size: 0x8, addend: 0x0, symName: _libpqrcv_identify_system.cold.1, symObjAddr: 0x17A0, symBinAddr: 0x2AF0, symSize: 0x80 }
+  - { offset: 0x24DB, size: 0x8, addend: 0x0, symName: _libpqrcv_identify_system.cold.2, symObjAddr: 0x1820, symBinAddr: 0x2B70, symSize: 0x60 }
+  - { offset: 0x24F2, size: 0x8, addend: 0x0, symName: _libpqrcv_get_dbname_from_conninfo, symObjAddr: 0x5F0, symBinAddr: 0x1940, symSize: 0xC0 }
+  - { offset: 0x25FD, size: 0x8, addend: 0x0, symName: _libpqrcv_get_dbname_from_conninfo.cold.1, symObjAddr: 0x1880, symBinAddr: 0x2BD0, symSize: 0x70 }
+  - { offset: 0x2643, size: 0x8, addend: 0x0, symName: _libpqrcv_server_version, symObjAddr: 0x6B0, symBinAddr: 0x1A00, symSize: 0x10 }
+  - { offset: 0x268D, size: 0x8, addend: 0x0, symName: _libpqrcv_readtimelinehistoryfile, symObjAddr: 0x6C0, symBinAddr: 0x1A10, symSize: 0x120 }
+  - { offset: 0x28A3, size: 0x8, addend: 0x0, symName: _libpqrcv_readtimelinehistoryfile.cold.1, symObjAddr: 0x18F0, symBinAddr: 0x2C40, symSize: 0x80 }
+  - { offset: 0x28E9, size: 0x8, addend: 0x0, symName: _libpqrcv_readtimelinehistoryfile.cold.2, symObjAddr: 0x1970, symBinAddr: 0x2CC0, symSize: 0x60 }
+  - { offset: 0x29EC, size: 0x8, addend: 0x0, symName: _libpqrcv_startstreaming, symObjAddr: 0x7E0, symBinAddr: 0x1B30, symSize: 0x300 }
+  - { offset: 0x2EAC, size: 0x8, addend: 0x0, symName: _libpqrcv_startstreaming.cold.1, symObjAddr: 0x19D0, symBinAddr: 0x2D20, symSize: 0x60 }
+  - { offset: 0x2EC3, size: 0x8, addend: 0x0, symName: _libpqrcv_startstreaming.cold.3, symObjAddr: 0x1A90, symBinAddr: 0x2DE0, symSize: 0x60 }
+  - { offset: 0x2EE7, size: 0x8, addend: 0x0, symName: _libpqrcv_startstreaming.cold.2, symObjAddr: 0x1A30, symBinAddr: 0x2D80, symSize: 0x60 }
+  - { offset: 0x2EFE, size: 0x8, addend: 0x0, symName: _libpqrcv_endstreaming, symObjAddr: 0xAE0, symBinAddr: 0x1E30, symSize: 0x120 }
+  - { offset: 0x3157, size: 0x8, addend: 0x0, symName: _libpqrcv_PQgetResult, symObjAddr: 0x1530, symBinAddr: 0x2880, symSize: 0x90 }
+  - { offset: 0x3235, size: 0x8, addend: 0x0, symName: _libpqrcv_endstreaming.cold.1, symObjAddr: 0x1AF0, symBinAddr: 0x2E40, symSize: 0x60 }
+  - { offset: 0x324C, size: 0x8, addend: 0x0, symName: _libpqrcv_endstreaming.cold.2, symObjAddr: 0x1B50, symBinAddr: 0x2EA0, symSize: 0x40 }
+  - { offset: 0x3263, size: 0x8, addend: 0x0, symName: _libpqrcv_endstreaming.cold.4, symObjAddr: 0x1BF0, symBinAddr: 0x2F40, symSize: 0x60 }
+  - { offset: 0x327A, size: 0x8, addend: 0x0, symName: _libpqrcv_endstreaming.cold.3, symObjAddr: 0x1B90, symBinAddr: 0x2EE0, symSize: 0x60 }
+  - { offset: 0x3291, size: 0x8, addend: 0x0, symName: _libpqrcv_endstreaming.cold.5, symObjAddr: 0x1C50, symBinAddr: 0x2FA0, symSize: 0x60 }
+  - { offset: 0x32A8, size: 0x8, addend: 0x0, symName: _libpqrcv_receive, symObjAddr: 0xC00, symBinAddr: 0x1F50, symSize: 0x140 }
+  - { offset: 0x34D5, size: 0x8, addend: 0x0, symName: _libpqrcv_receive.cold.2, symObjAddr: 0x1D10, symBinAddr: 0x3060, symSize: 0x50 }
+  - { offset: 0x34EC, size: 0x8, addend: 0x0, symName: _libpqrcv_receive.cold.4, symObjAddr: 0x1DC0, symBinAddr: 0x3110, symSize: 0x60 }
+  - { offset: 0x3503, size: 0x8, addend: 0x0, symName: _libpqrcv_receive.cold.1, symObjAddr: 0x1CB0, symBinAddr: 0x3000, symSize: 0x60 }
+  - { offset: 0x351A, size: 0x8, addend: 0x0, symName: _libpqrcv_receive.cold.3, symObjAddr: 0x1D60, symBinAddr: 0x30B0, symSize: 0x60 }
+  - { offset: 0x3531, size: 0x8, addend: 0x0, symName: _libpqrcv_send, symObjAddr: 0xD40, symBinAddr: 0x2090, symSize: 0x40 }
+  - { offset: 0x35EB, size: 0x8, addend: 0x0, symName: _libpqrcv_send.cold.1, symObjAddr: 0x1E20, symBinAddr: 0x3170, symSize: 0x60 }
+  - { offset: 0x3602, size: 0x8, addend: 0x0, symName: _libpqrcv_create_slot, symObjAddr: 0xD80, symBinAddr: 0x20D0, symSize: 0x270 }
+  - { offset: 0x3D48, size: 0x8, addend: 0x0, symName: _libpqrcv_create_slot.cold.1, symObjAddr: 0x1E80, symBinAddr: 0x31D0, symSize: 0x70 }
+  - { offset: 0x3D5F, size: 0x8, addend: 0x0, symName: _libpqrcv_alter_slot, symObjAddr: 0xFF0, symBinAddr: 0x2340, symSize: 0xA0 }
+  - { offset: 0x3E88, size: 0x8, addend: 0x0, symName: _libpqrcv_alter_slot.cold.1, symObjAddr: 0x1EF0, symBinAddr: 0x3240, symSize: 0x60 }
+  - { offset: 0x3E9F, size: 0x8, addend: 0x0, symName: _libpqrcv_get_backend_pid, symObjAddr: 0x1090, symBinAddr: 0x23E0, symSize: 0x10 }
+  - { offset: 0x4215, size: 0x8, addend: 0x0, symName: _libpqrcv_exec, symObjAddr: 0x10A0, symBinAddr: 0x23F0, symSize: 0x3D0 }
+  - { offset: 0x4694, size: 0x8, addend: 0x0, symName: _libpqrcv_exec.cold.1, symObjAddr: 0x1F50, symBinAddr: 0x32A0, symSize: 0x40 }
+  - { offset: 0x46AB, size: 0x8, addend: 0x0, symName: _libpqrcv_exec.cold.2, symObjAddr: 0x1F90, symBinAddr: 0x32E0, symSize: 0x5B }
+  - { offset: 0x46D8, size: 0x8, addend: 0x0, symName: _libpqrcv_disconnect, symObjAddr: 0x1470, symBinAddr: 0x27C0, symSize: 0x30 }
+...

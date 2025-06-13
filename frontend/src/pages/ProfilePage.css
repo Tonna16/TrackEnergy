@@ -1,0 +1,47 @@
+.profile-page {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: var(--tw-bg-white);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.profile-info p {
+  margin: 0.5rem 0;
+}
+.profile-info button,
+.form-actions button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  border: none;
+  color: white;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+.profile-form label {
+  display: block;
+  margin-bottom: 1rem;
+}
+.profile-form input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  margin-top: 0.25rem;
+}
+.form-actions {
+  margin-top: 1rem;
+}
+.profile-error {
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+.profile-success {
+  color: #059669;
+  margin-bottom: 1rem;
+}
+.profile-loading {
+  text-align: center;
+  margin: 2rem;
+}

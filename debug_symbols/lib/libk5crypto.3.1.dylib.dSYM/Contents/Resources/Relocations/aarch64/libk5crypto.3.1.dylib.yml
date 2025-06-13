@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/libk5crypto.3.1.dylib'
+relocations:     []
+...

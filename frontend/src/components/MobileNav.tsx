@@ -13,7 +13,7 @@ export default function MobileNav() {
   ];
   
   return (
-    <div className="sm:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 fixed bottom-0 left-0 right-0 z-10">
+       <div className="sm:hidden bg-white dark:bg-dark-bg border-t border-gray-200 dark:border-dark-border fixed bottom-0 left-0 right-0 z-10"> 
       <nav className="flex justify-around">
         {navigation.map((item) => {
           const isActive = location.pathname === item.href;
@@ -24,7 +24,7 @@ export default function MobileNav() {
               className={`flex flex-col items-center pt-2 pb-1 ${
                 isActive 
                   ? 'text-emerald-600 dark:text-emerald-400' 
-                  : 'text-gray-500 dark:text-gray-400'
+                                   : 'text-gray-500 dark:text-dark-textSecondary' 
               }`}
             >
               <item.icon className="h-6 w-6" />

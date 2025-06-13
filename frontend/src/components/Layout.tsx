@@ -8,7 +8,7 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   return (
-    <div className="flex h-screen bg-gray-50">
+       <div className="flex h-screen bg-gray-50 dark:bg-black"> 
       {/* Sidebar for desktop */}
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       

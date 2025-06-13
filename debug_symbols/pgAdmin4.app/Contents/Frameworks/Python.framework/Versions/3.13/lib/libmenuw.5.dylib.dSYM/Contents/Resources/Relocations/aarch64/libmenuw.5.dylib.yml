@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './pgAdmin4.app/Contents/Frameworks/Python.framework/Versions/3.13/lib/libmenuw.5.dylib'
+relocations:     []
+...

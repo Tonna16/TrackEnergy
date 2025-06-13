@@ -1,0 +1,21 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_gb18030.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1200, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1200, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x940, symBinAddr: 0x1B50, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_gb18030_to_utf8, symObjAddr: 0x10, symBinAddr: 0x1210, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_gb18030_to_utf8.my_finfo, symObjAddr: 0x978, symBinAddr: 0x1B88, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_gb18030, symObjAddr: 0x20, symBinAddr: 0x1220, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_gb18030.my_finfo, symObjAddr: 0x97C, symBinAddr: 0x1B8C, symSize: 0x0 }
+  - { offset: 0x183, size: 0x8, addend: 0x0, symName: _gb18030_to_unicode_tree, symObjAddr: 0x3FD80, symBinAddr: 0x41018, symSize: 0x0 }
+  - { offset: 0x34E, size: 0x8, addend: 0x0, symName: _gb18030_to_unicode_tree_table, symObjAddr: 0x980, symBinAddr: 0x1B90, symSize: 0x0 }
+  - { offset: 0x370, size: 0x8, addend: 0x0, symName: _gb18030_from_unicode_tree, symObjAddr: 0x3FDB8, symBinAddr: 0x41050, symSize: 0x0 }
+  - { offset: 0x385, size: 0x8, addend: 0x0, symName: _gb18030_from_unicode_tree_table, symObjAddr: 0x209F0, symBinAddr: 0x21C00, symSize: 0x0 }
+  - { offset: 0x400, size: 0x8, addend: 0x0, symName: _gb18030_to_utf8, symObjAddr: 0x30, symBinAddr: 0x1230, symSize: 0x80 }
+  - { offset: 0x616, size: 0x8, addend: 0x0, symName: _conv_18030_to_utf8, symObjAddr: 0xB0, symBinAddr: 0x12B0, symSize: 0x450 }
+  - { offset: 0xA52, size: 0x8, addend: 0x0, symName: _unicode_to_utf8word, symObjAddr: 0x8B0, symBinAddr: 0x1AB0, symSize: 0x82 }
+  - { offset: 0xA78, size: 0x8, addend: 0x0, symName: _utf8_to_gb18030, symObjAddr: 0x500, symBinAddr: 0x1700, symSize: 0x80 }
+  - { offset: 0xC41, size: 0x8, addend: 0x0, symName: _conv_utf8_to_18030, symObjAddr: 0x580, symBinAddr: 0x1780, symSize: 0x330 }
+...

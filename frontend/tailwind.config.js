@@ -1,4 +1,4 @@
-/**  @type {import('tailwindcss').Config} */
+/**   @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
@@ -17,9 +17,17 @@ export default {
           800: '#065f46',
           900: '#064e3b',
         },
+               dark: {
+          bg: '#000000',
+          card: '#000000',
+          border: '#333333',
+          text: '#ffffff',
+          textSecondary: '#10b981',
+          input: '#121212'
+        } 
       },
     },
   },
   plugins: [],
-};
+}; 
  

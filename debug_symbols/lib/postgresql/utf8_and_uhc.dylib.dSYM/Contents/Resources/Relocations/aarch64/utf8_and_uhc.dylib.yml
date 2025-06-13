@@ -1,0 +1,18 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_uhc.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3360, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3360, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x13C, symBinAddr: 0x34C0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_uhc_to_utf8, symObjAddr: 0xC, symBinAddr: 0x336C, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_uhc_to_utf8.my_finfo, symObjAddr: 0x174, symBinAddr: 0x34F8, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_uhc, symObjAddr: 0x18, symBinAddr: 0x3378, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_uhc.my_finfo, symObjAddr: 0x178, symBinAddr: 0x34FC, symSize: 0x0 }
+  - { offset: 0x183, size: 0x8, addend: 0x0, symName: _uhc_to_unicode_tree, symObjAddr: 0x28C20, symBinAddr: 0x2C018, symSize: 0x0 }
+  - { offset: 0x34E, size: 0x8, addend: 0x0, symName: _uhc_to_unicode_tree_table, symObjAddr: 0x17C, symBinAddr: 0x3500, symSize: 0x0 }
+  - { offset: 0x370, size: 0x8, addend: 0x0, symName: _uhc_from_unicode_tree, symObjAddr: 0x28C58, symBinAddr: 0x2C050, symSize: 0x0 }
+  - { offset: 0x385, size: 0x8, addend: 0x0, symName: _uhc_from_unicode_tree_table, symObjAddr: 0x17C7C, symBinAddr: 0x1B000, symSize: 0x0 }
+  - { offset: 0x400, size: 0x8, addend: 0x0, symName: _uhc_to_utf8, symObjAddr: 0x24, symBinAddr: 0x3384, symSize: 0x8C }
+  - { offset: 0x5CA, size: 0x8, addend: 0x0, symName: _utf8_to_uhc, symObjAddr: 0xB0, symBinAddr: 0x3410, symSize: 0x8C }
+...

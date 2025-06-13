@@ -1,0 +1,23 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/jsonb_plperl.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x10D0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x10D0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xC8C, symBinAddr: 0x1E54, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_jsonb_to_plperl, symObjAddr: 0x10, symBinAddr: 0x10E0, symSize: 0x10 }
+  - { offset: 0x11C, size: 0x8, addend: 0x0, symName: _pg_finfo_jsonb_to_plperl.my_finfo, symObjAddr: 0xCC4, symBinAddr: 0x1E8C, symSize: 0x0 }
+  - { offset: 0x14A, size: 0x8, addend: 0x0, symName: _pg_finfo_plperl_to_jsonb, symObjAddr: 0x380, symBinAddr: 0x1450, symSize: 0x10 }
+  - { offset: 0x171, size: 0x8, addend: 0x0, symName: _pg_finfo_plperl_to_jsonb.my_finfo, symObjAddr: 0xCC8, symBinAddr: 0x1E90, symSize: 0x0 }
+  - { offset: 0x4FBA, size: 0x8, addend: 0x0, symName: _jsonb_to_plperl, symObjAddr: 0x20, symBinAddr: 0x10F0, symSize: 0x30 }
+  - { offset: 0x508A, size: 0x8, addend: 0x0, symName: _Jsonb_to_SV, symObjAddr: 0x50, symBinAddr: 0x1120, symSize: 0x330 }
+  - { offset: 0x58BF, size: 0x8, addend: 0x0, symName: _JsonbValue_to_SV, symObjAddr: 0x890, symBinAddr: 0x1960, symSize: 0x280 }
+  - { offset: 0x5D2B, size: 0x8, addend: 0x0, symName: _Jsonb_to_SV.cold.2, symObjAddr: 0xB50, symBinAddr: 0x1C20, symSize: 0x40 }
+  - { offset: 0x5D42, size: 0x8, addend: 0x0, symName: _Jsonb_to_SV.cold.1, symObjAddr: 0xB10, symBinAddr: 0x1BE0, symSize: 0x40 }
+  - { offset: 0x5D59, size: 0x8, addend: 0x0, symName: _plperl_to_jsonb, symObjAddr: 0x390, symBinAddr: 0x1460, symSize: 0x50 }
+  - { offset: 0x5E03, size: 0x8, addend: 0x0, symName: _SV_to_JsonbValue, symObjAddr: 0x3E0, symBinAddr: 0x14B0, symSize: 0x4B0 }
+  - { offset: 0x6AE3, size: 0x8, addend: 0x0, symName: _SV_to_JsonbValue.cold.1, symObjAddr: 0xB90, symBinAddr: 0x1C60, symSize: 0x40 }
+  - { offset: 0x6AFA, size: 0x8, addend: 0x0, symName: _SV_to_JsonbValue.cold.2, symObjAddr: 0xBD0, symBinAddr: 0x1CA0, symSize: 0x40 }
+  - { offset: 0x6B11, size: 0x8, addend: 0x0, symName: _SV_to_JsonbValue.cold.3, symObjAddr: 0xC10, symBinAddr: 0x1CE0, symSize: 0x40 }
+  - { offset: 0x6C19, size: 0x8, addend: 0x0, symName: _JsonbValue_to_SV.cold.1, symObjAddr: 0xC50, symBinAddr: 0x1D20, symSize: 0x3B }
+...

@@ -1,0 +1,24 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/basic_archive.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1470, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1470, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x804, symBinAddr: 0x1D04, symSize: 0x0 }
+  - { offset: 0x101, size: 0x8, addend: 0x0, symName: _archive_directory, symObjAddr: 0x42D8, symBinAddr: 0x3000, symSize: 0x0 }
+  - { offset: 0x11B, size: 0x8, addend: 0x0, symName: _basic_archive_callbacks, symObjAddr: 0xA80, symBinAddr: 0x20E0, symSize: 0x0 }
+  - { offset: 0x2B0, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x10, symBinAddr: 0x1480, symSize: 0x60 }
+  - { offset: 0x3AA, size: 0x8, addend: 0x0, symName: _check_archive_directory, symObjAddr: 0x70, symBinAddr: 0x14E0, symSize: 0xB0 }
+  - { offset: 0x6F7, size: 0x8, addend: 0x0, symName: __PG_archive_module_init, symObjAddr: 0x120, symBinAddr: 0x1590, symSize: 0x10 }
+  - { offset: 0x710, size: 0x8, addend: 0x0, symName: _basic_archive_configured, symObjAddr: 0x130, symBinAddr: 0x15A0, symSize: 0x60 }
+  - { offset: 0x8AA, size: 0x8, addend: 0x0, symName: _basic_archive_file, symObjAddr: 0x190, symBinAddr: 0x1600, symSize: 0x3D0 }
+  - { offset: 0xF04, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.4, symObjAddr: 0x650, symBinAddr: 0x1AC0, symSize: 0x50 }
+  - { offset: 0xF53, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.8, symObjAddr: 0x780, symBinAddr: 0x1BF0, symSize: 0x40 }
+  - { offset: 0xF6A, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.9, symObjAddr: 0x7C0, symBinAddr: 0x1C30, symSize: 0x43 }
+  - { offset: 0xF81, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.1, symObjAddr: 0x560, symBinAddr: 0x19D0, symSize: 0x50 }
+  - { offset: 0xFAD, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.2, symObjAddr: 0x5B0, symBinAddr: 0x1A20, symSize: 0x50 }
+  - { offset: 0xFD9, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.7, symObjAddr: 0x730, symBinAddr: 0x1BA0, symSize: 0x50 }
+  - { offset: 0x1005, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.6, symObjAddr: 0x6E0, symBinAddr: 0x1B50, symSize: 0x50 }
+  - { offset: 0x1031, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.5, symObjAddr: 0x6A0, symBinAddr: 0x1B10, symSize: 0x40 }
+  - { offset: 0x1048, size: 0x8, addend: 0x0, symName: _basic_archive_file.cold.3, symObjAddr: 0x600, symBinAddr: 0x1A70, symSize: 0x50 }
+...

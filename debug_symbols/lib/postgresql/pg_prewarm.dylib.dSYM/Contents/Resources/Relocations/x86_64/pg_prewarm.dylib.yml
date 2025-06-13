@@ -1,0 +1,53 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/pg_prewarm.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _pg_finfo_autoprewarm_start_worker, symObjAddr: 0x0, symBinAddr: 0xB00, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _pg_finfo_autoprewarm_start_worker, symObjAddr: 0x0, symBinAddr: 0xB00, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _pg_finfo_autoprewarm_start_worker.my_finfo, symObjAddr: 0x1550, symBinAddr: 0x2820, symSize: 0x0 }
+  - { offset: 0x8D, size: 0x8, addend: 0x0, symName: _pg_finfo_autoprewarm_dump_now, symObjAddr: 0x10, symBinAddr: 0xB10, symSize: 0x10 }
+  - { offset: 0xB2, size: 0x8, addend: 0x0, symName: _pg_finfo_autoprewarm_dump_now.my_finfo, symObjAddr: 0x1554, symBinAddr: 0x2824, symSize: 0x0 }
+  - { offset: 0xDB, size: 0x8, addend: 0x0, symName: _autoprewarm_interval, symObjAddr: 0x1AC8, symBinAddr: 0x4000, symSize: 0x0 }
+  - { offset: 0xF0, size: 0x8, addend: 0x0, symName: _autoprewarm, symObjAddr: 0x1ACC, symBinAddr: 0x4004, symSize: 0x0 }
+  - { offset: 0x10C, size: 0x8, addend: 0x0, symName: _apw_state, symObjAddr: 0xF1F8, symBinAddr: 0x5000, symSize: 0x0 }
+  - { offset: 0x1143, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x20, symBinAddr: 0xB20, symSize: 0xD0 }
+  - { offset: 0x12F9, size: 0x8, addend: 0x0, symName: _apw_start_leader_worker, symObjAddr: 0xF0, symBinAddr: 0xBF0, symSize: 0x120 }
+  - { offset: 0x1547, size: 0x8, addend: 0x0, symName: _apw_start_leader_worker.cold.2, symObjAddr: 0x1110, symBinAddr: 0x1FC0, symSize: 0x50 }
+  - { offset: 0x155E, size: 0x8, addend: 0x0, symName: _apw_start_leader_worker.cold.1, symObjAddr: 0x10C0, symBinAddr: 0x1F70, symSize: 0x50 }
+  - { offset: 0x18CF, size: 0x8, addend: 0x0, symName: _autoprewarm_main, symObjAddr: 0x210, symBinAddr: 0xD10, symSize: 0x660 }
+  - { offset: 0x1FDA, size: 0x8, addend: 0x0, symName: _apw_dump_now, symObjAddr: 0x8C0, symBinAddr: 0x13C0, symSize: 0x350 }
+  - { offset: 0x24C2, size: 0x8, addend: 0x0, symName: _autoprewarm_main.cold.4, symObjAddr: 0x1250, symBinAddr: 0x2100, symSize: 0x50 }
+  - { offset: 0x24EE, size: 0x8, addend: 0x0, symName: _autoprewarm_main.cold.3, symObjAddr: 0x1210, symBinAddr: 0x20C0, symSize: 0x40 }
+  - { offset: 0x251A, size: 0x8, addend: 0x0, symName: _autoprewarm_main.cold.1, symObjAddr: 0x1160, symBinAddr: 0x2010, symSize: 0x50 }
+  - { offset: 0x2546, size: 0x8, addend: 0x0, symName: _autoprewarm_main.cold.2, symObjAddr: 0x11B0, symBinAddr: 0x2060, symSize: 0x60 }
+  - { offset: 0x2588, size: 0x8, addend: 0x0, symName: _apw_detach_shmem, symObjAddr: 0x870, symBinAddr: 0x1370, symSize: 0x50 }
+  - { offset: 0x27EE, size: 0x8, addend: 0x0, symName: _apw_dump_now.cold.5, symObjAddr: 0x1430, symBinAddr: 0x22E0, symSize: 0x40 }
+  - { offset: 0x2805, size: 0x8, addend: 0x0, symName: _apw_dump_now.cold.1, symObjAddr: 0x12A0, symBinAddr: 0x2150, symSize: 0x50 }
+  - { offset: 0x281C, size: 0x8, addend: 0x0, symName: _apw_dump_now.cold.2, symObjAddr: 0x12F0, symBinAddr: 0x21A0, symSize: 0x70 }
+  - { offset: 0x2852, size: 0x8, addend: 0x0, symName: _apw_dump_now.cold.4, symObjAddr: 0x13D0, symBinAddr: 0x2280, symSize: 0x60 }
+  - { offset: 0x2888, size: 0x8, addend: 0x0, symName: _apw_dump_now.cold.3, symObjAddr: 0x1360, symBinAddr: 0x2210, symSize: 0x70 }
+  - { offset: 0x40C1, size: 0x8, addend: 0x0, symName: _autoprewarm_database_main, symObjAddr: 0xC10, symBinAddr: 0x1710, symSize: 0x290 }
+  - { offset: 0x44DA, size: 0x8, addend: 0x0, symName: _autoprewarm_database_main.cold.1, symObjAddr: 0x1470, symBinAddr: 0x2320, symSize: 0x40 }
+  - { offset: 0x44F1, size: 0x8, addend: 0x0, symName: _autoprewarm_start_worker, symObjAddr: 0xEA0, symBinAddr: 0x19A0, symSize: 0x80 }
+  - { offset: 0x4601, size: 0x8, addend: 0x0, symName: _autoprewarm_start_worker.cold.1, symObjAddr: 0x14B0, symBinAddr: 0x2360, symSize: 0x40 }
+  - { offset: 0x4618, size: 0x8, addend: 0x0, symName: _autoprewarm_start_worker.cold.2, symObjAddr: 0x14F0, symBinAddr: 0x23A0, symSize: 0x46 }
+  - { offset: 0x462F, size: 0x8, addend: 0x0, symName: _autoprewarm_dump_now, symObjAddr: 0xF20, symBinAddr: 0x1A20, symSize: 0x120 }
+  - { offset: 0x47BC, size: 0x8, addend: 0x0, symName: _apw_compare_blockinfo, symObjAddr: 0x1040, symBinAddr: 0x1B40, symSize: 0x50 }
+  - { offset: 0x480F, size: 0x8, addend: 0x0, symName: _apw_init_state, symObjAddr: 0x1090, symBinAddr: 0x1B90, symSize: 0x30 }
+  - { offset: 0x4912, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1BC0, symSize: 0x10 }
+  - { offset: 0x491F, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1BC0, symSize: 0x10 }
+  - { offset: 0x4944, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x5F0, symBinAddr: 0x2828, symSize: 0x0 }
+  - { offset: 0x49E1, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_prewarm, symObjAddr: 0x10, symBinAddr: 0x1BD0, symSize: 0x10 }
+  - { offset: 0x4A06, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_prewarm.my_finfo, symObjAddr: 0x628, symBinAddr: 0x2860, symSize: 0x0 }
+  - { offset: 0x4A45, size: 0x8, addend: 0x0, symName: _blockbuffer, symObjAddr: 0xA000, symBinAddr: 0x6000, symSize: 0x0 }
+  - { offset: 0x6CB0, size: 0x8, addend: 0x0, symName: _pg_prewarm, symObjAddr: 0x20, symBinAddr: 0x1BE0, symSize: 0x370 }
+  - { offset: 0x737E, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.5, symObjAddr: 0x4E0, symBinAddr: 0x2520, symSize: 0x40 }
+  - { offset: 0x73F8, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.8, symObjAddr: 0x5B0, symBinAddr: 0x25F0, symSize: 0x3E }
+  - { offset: 0x740F, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.7, symObjAddr: 0x570, symBinAddr: 0x25B0, symSize: 0x40 }
+  - { offset: 0x7426, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.4, symObjAddr: 0x490, symBinAddr: 0x24D0, symSize: 0x50 }
+  - { offset: 0x743D, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.1, symObjAddr: 0x3B0, symBinAddr: 0x23F0, symSize: 0x40 }
+  - { offset: 0x7454, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.6, symObjAddr: 0x520, symBinAddr: 0x2560, symSize: 0x50 }
+  - { offset: 0x746B, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.3, symObjAddr: 0x440, symBinAddr: 0x2480, symSize: 0x50 }
+  - { offset: 0x7482, size: 0x8, addend: 0x0, symName: _pg_prewarm.cold.2, symObjAddr: 0x3F0, symBinAddr: 0x2430, symSize: 0x50 }
+  - { offset: 0x7499, size: 0x8, addend: 0x0, symName: _pg_prewarm_read_stream_next_block, symObjAddr: 0x390, symBinAddr: 0x1F50, symSize: 0x20 }
+...

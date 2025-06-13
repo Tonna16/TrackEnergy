@@ -1,0 +1,11 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/earthdistance.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3E1C, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3E1C, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x124, symBinAddr: 0x3F64, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_geo_distance, symObjAddr: 0xC, symBinAddr: 0x3E28, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_geo_distance.my_finfo, symObjAddr: 0x15C, symBinAddr: 0x3F9C, symSize: 0x0 }
+  - { offset: 0x2A8, size: 0x8, addend: 0x0, symName: _geo_distance, symObjAddr: 0x18, symBinAddr: 0x3E34, symSize: 0x10C }
+...

@@ -1,0 +1,61 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_win.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1190, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x1190, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x240, symBinAddr: 0x13F0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_win_to_utf8, symObjAddr: 0x10, symBinAddr: 0x11A0, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_win_to_utf8.my_finfo, symObjAddr: 0x278, symBinAddr: 0x1428, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_win, symObjAddr: 0x20, symBinAddr: 0x11B0, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_win.my_finfo, symObjAddr: 0x27C, symBinAddr: 0x142C, symSize: 0x0 }
+  - { offset: 0x183, size: 0x8, addend: 0x0, symName: _maps, symObjAddr: 0x5D90, symBinAddr: 0x7040, symSize: 0x0 }
+  - { offset: 0x4B3, size: 0x8, addend: 0x0, symName: _win866_to_unicode_tree, symObjAddr: 0x5E98, symBinAddr: 0x7148, symSize: 0x0 }
+  - { offset: 0x4C8, size: 0x8, addend: 0x0, symName: _win866_to_unicode_tree_table, symObjAddr: 0x280, symBinAddr: 0x1430, symSize: 0x0 }
+  - { offset: 0x4EA, size: 0x8, addend: 0x0, symName: _win866_from_unicode_tree, symObjAddr: 0x5ED0, symBinAddr: 0x7180, symSize: 0x0 }
+  - { offset: 0x4FF, size: 0x8, addend: 0x0, symName: _win866_from_unicode_tree_table, symObjAddr: 0x680, symBinAddr: 0x1830, symSize: 0x0 }
+  - { offset: 0x521, size: 0x8, addend: 0x0, symName: _win874_to_unicode_tree, symObjAddr: 0x5F08, symBinAddr: 0x71B8, symSize: 0x0 }
+  - { offset: 0x536, size: 0x8, addend: 0x0, symName: _win874_to_unicode_tree_table, symObjAddr: 0xB00, symBinAddr: 0x1CB0, symSize: 0x0 }
+  - { offset: 0x557, size: 0x8, addend: 0x0, symName: _win874_from_unicode_tree, symObjAddr: 0x5F40, symBinAddr: 0x71F0, symSize: 0x0 }
+  - { offset: 0x56C, size: 0x8, addend: 0x0, symName: _win874_from_unicode_tree_table, symObjAddr: 0xEE0, symBinAddr: 0x2090, symSize: 0x0 }
+  - { offset: 0x58E, size: 0x8, addend: 0x0, symName: _win1250_to_unicode_tree, symObjAddr: 0x5F78, symBinAddr: 0x7228, symSize: 0x0 }
+  - { offset: 0x5A3, size: 0x8, addend: 0x0, symName: _win1250_to_unicode_tree_table, symObjAddr: 0x1230, symBinAddr: 0x23E0, symSize: 0x0 }
+  - { offset: 0x5B8, size: 0x8, addend: 0x0, symName: _win1250_from_unicode_tree, symObjAddr: 0x5FB0, symBinAddr: 0x7260, symSize: 0x0 }
+  - { offset: 0x5CD, size: 0x8, addend: 0x0, symName: _win1250_from_unicode_tree_table, symObjAddr: 0x1630, symBinAddr: 0x27E0, symSize: 0x0 }
+  - { offset: 0x5EF, size: 0x8, addend: 0x0, symName: _win1251_to_unicode_tree, symObjAddr: 0x5FE8, symBinAddr: 0x7298, symSize: 0x0 }
+  - { offset: 0x604, size: 0x8, addend: 0x0, symName: _win1251_to_unicode_tree_table, symObjAddr: 0x1A30, symBinAddr: 0x2BE0, symSize: 0x0 }
+  - { offset: 0x619, size: 0x8, addend: 0x0, symName: _win1251_from_unicode_tree, symObjAddr: 0x6020, symBinAddr: 0x72D0, symSize: 0x0 }
+  - { offset: 0x62E, size: 0x8, addend: 0x0, symName: _win1251_from_unicode_tree_table, symObjAddr: 0x1E30, symBinAddr: 0x2FE0, symSize: 0x0 }
+  - { offset: 0x650, size: 0x8, addend: 0x0, symName: _win1252_to_unicode_tree, symObjAddr: 0x6058, symBinAddr: 0x7308, symSize: 0x0 }
+  - { offset: 0x665, size: 0x8, addend: 0x0, symName: _win1252_to_unicode_tree_table, symObjAddr: 0x21B0, symBinAddr: 0x3360, symSize: 0x0 }
+  - { offset: 0x67A, size: 0x8, addend: 0x0, symName: _win1252_from_unicode_tree, symObjAddr: 0x6090, symBinAddr: 0x7340, symSize: 0x0 }
+  - { offset: 0x68F, size: 0x8, addend: 0x0, symName: _win1252_from_unicode_tree_table, symObjAddr: 0x25B0, symBinAddr: 0x3760, symSize: 0x0 }
+  - { offset: 0x6B1, size: 0x8, addend: 0x0, symName: _win1253_to_unicode_tree, symObjAddr: 0x60C8, symBinAddr: 0x7378, symSize: 0x0 }
+  - { offset: 0x6C6, size: 0x8, addend: 0x0, symName: _win1253_to_unicode_tree_table, symObjAddr: 0x29C0, symBinAddr: 0x3B70, symSize: 0x0 }
+  - { offset: 0x6E7, size: 0x8, addend: 0x0, symName: _win1253_from_unicode_tree, symObjAddr: 0x6100, symBinAddr: 0x73B0, symSize: 0x0 }
+  - { offset: 0x6FC, size: 0x8, addend: 0x0, symName: _win1253_from_unicode_tree_table, symObjAddr: 0x2DC0, symBinAddr: 0x3F70, symSize: 0x0 }
+  - { offset: 0x71E, size: 0x8, addend: 0x0, symName: _win1254_to_unicode_tree, symObjAddr: 0x6138, symBinAddr: 0x73E8, symSize: 0x0 }
+  - { offset: 0x733, size: 0x8, addend: 0x0, symName: _win1254_to_unicode_tree_table, symObjAddr: 0x3150, symBinAddr: 0x4300, symSize: 0x0 }
+  - { offset: 0x748, size: 0x8, addend: 0x0, symName: _win1254_from_unicode_tree, symObjAddr: 0x6170, symBinAddr: 0x7420, symSize: 0x0 }
+  - { offset: 0x75D, size: 0x8, addend: 0x0, symName: _win1254_from_unicode_tree_table, symObjAddr: 0x3550, symBinAddr: 0x4700, symSize: 0x0 }
+  - { offset: 0x77F, size: 0x8, addend: 0x0, symName: _win1255_to_unicode_tree, symObjAddr: 0x61A8, symBinAddr: 0x7458, symSize: 0x0 }
+  - { offset: 0x794, size: 0x8, addend: 0x0, symName: _win1255_to_unicode_tree_table, symObjAddr: 0x39B0, symBinAddr: 0x4B60, symSize: 0x0 }
+  - { offset: 0x7A9, size: 0x8, addend: 0x0, symName: _win1255_from_unicode_tree, symObjAddr: 0x61E0, symBinAddr: 0x7490, symSize: 0x0 }
+  - { offset: 0x7BE, size: 0x8, addend: 0x0, symName: _win1255_from_unicode_tree_table, symObjAddr: 0x3DB0, symBinAddr: 0x4F60, symSize: 0x0 }
+  - { offset: 0x7E0, size: 0x8, addend: 0x0, symName: _win1256_to_unicode_tree, symObjAddr: 0x6218, symBinAddr: 0x74C8, symSize: 0x0 }
+  - { offset: 0x7F5, size: 0x8, addend: 0x0, symName: _win1256_to_unicode_tree_table, symObjAddr: 0x4220, symBinAddr: 0x53D0, symSize: 0x0 }
+  - { offset: 0x80A, size: 0x8, addend: 0x0, symName: _win1256_from_unicode_tree, symObjAddr: 0x6250, symBinAddr: 0x7500, symSize: 0x0 }
+  - { offset: 0x81F, size: 0x8, addend: 0x0, symName: _win1256_from_unicode_tree_table, symObjAddr: 0x4620, symBinAddr: 0x57D0, symSize: 0x0 }
+  - { offset: 0x841, size: 0x8, addend: 0x0, symName: _win1257_to_unicode_tree, symObjAddr: 0x6288, symBinAddr: 0x7538, symSize: 0x0 }
+  - { offset: 0x856, size: 0x8, addend: 0x0, symName: _win1257_to_unicode_tree_table, symObjAddr: 0x4C20, symBinAddr: 0x5DD0, symSize: 0x0 }
+  - { offset: 0x86B, size: 0x8, addend: 0x0, symName: _win1257_from_unicode_tree, symObjAddr: 0x62C0, symBinAddr: 0x7570, symSize: 0x0 }
+  - { offset: 0x880, size: 0x8, addend: 0x0, symName: _win1257_from_unicode_tree_table, symObjAddr: 0x5020, symBinAddr: 0x61D0, symSize: 0x0 }
+  - { offset: 0x895, size: 0x8, addend: 0x0, symName: _win1258_to_unicode_tree, symObjAddr: 0x62F8, symBinAddr: 0x75A8, symSize: 0x0 }
+  - { offset: 0x8AA, size: 0x8, addend: 0x0, symName: _win1258_to_unicode_tree_table, symObjAddr: 0x5430, symBinAddr: 0x65E0, symSize: 0x0 }
+  - { offset: 0x8BF, size: 0x8, addend: 0x0, symName: _win1258_from_unicode_tree, symObjAddr: 0x6330, symBinAddr: 0x75E0, symSize: 0x0 }
+  - { offset: 0x8D4, size: 0x8, addend: 0x0, symName: _win1258_from_unicode_tree_table, symObjAddr: 0x5830, symBinAddr: 0x69E0, symSize: 0x0 }
+  - { offset: 0x94F, size: 0x8, addend: 0x0, symName: _win_to_utf8, symObjAddr: 0x30, symBinAddr: 0x11C0, symSize: 0xB0 }
+  - { offset: 0xB47, size: 0x8, addend: 0x0, symName: _win_to_utf8.cold.1, symObjAddr: 0x1A0, symBinAddr: 0x1330, symSize: 0x50 }
+  - { offset: 0xB6F, size: 0x8, addend: 0x0, symName: _utf8_to_win, symObjAddr: 0xE0, symBinAddr: 0x1270, symSize: 0xC0 }
+  - { offset: 0xD1F, size: 0x8, addend: 0x0, symName: _utf8_to_win.cold.1, symObjAddr: 0x1F0, symBinAddr: 0x1380, symSize: 0x46 }
+...

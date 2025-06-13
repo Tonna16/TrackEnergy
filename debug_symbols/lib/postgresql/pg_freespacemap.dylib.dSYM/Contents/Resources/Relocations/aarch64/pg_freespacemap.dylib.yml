@@ -1,0 +1,15 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/pg_freespacemap.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D3C, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D3C, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x160, symBinAddr: 0x3EFC, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_freespace, symObjAddr: 0xC, symBinAddr: 0x3D48, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_freespace.my_finfo, symObjAddr: 0x198, symBinAddr: 0x3F34, symSize: 0x0 }
+  - { offset: 0x1035, size: 0x8, addend: 0x0, symName: _pg_freespace, symObjAddr: 0x18, symBinAddr: 0x3D54, symSize: 0x98 }
+  - { offset: 0x1140, size: 0x8, addend: 0x0, symName: _pg_freespace.cold.1, symObjAddr: 0xB0, symBinAddr: 0x3DF8, symSize: 0x64 }
+  - { offset: 0x4AB7, size: 0x8, addend: 0x0, symName: _pg_freespace.cold.2, symObjAddr: 0x114, symBinAddr: 0x3E5C, symSize: 0x40 }
+  - { offset: 0x4ACE, size: 0x8, addend: 0x0, symName: _pg_freespace.cold.1, symObjAddr: 0xB0, symBinAddr: 0x3DF8, symSize: 0x64 }
+  - { offset: 0x4AE5, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x154, symBinAddr: 0x3DEC, symSize: 0xC }
+...

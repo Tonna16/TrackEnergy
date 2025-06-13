@@ -1,0 +1,15 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/lo.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xB80, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xB80, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x2E8, symBinAddr: 0xEA4, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_lo_manage, symObjAddr: 0x10, symBinAddr: 0xB90, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_lo_manage.my_finfo, symObjAddr: 0x320, symBinAddr: 0xEDC, symSize: 0x0 }
+  - { offset: 0x5560, size: 0x8, addend: 0x0, symName: _lo_manage, symObjAddr: 0x20, symBinAddr: 0xBA0, symSize: 0x1B0 }
+  - { offset: 0x5902, size: 0x8, addend: 0x0, symName: _lo_manage.cold.1, symObjAddr: 0x1D0, symBinAddr: 0xD50, symSize: 0x40 }
+  - { offset: 0x5919, size: 0x8, addend: 0x0, symName: _lo_manage.cold.2, symObjAddr: 0x210, symBinAddr: 0xD90, symSize: 0x50 }
+  - { offset: 0x5930, size: 0x8, addend: 0x0, symName: _lo_manage.cold.3, symObjAddr: 0x260, symBinAddr: 0xDE0, symSize: 0x40 }
+  - { offset: 0x5947, size: 0x8, addend: 0x0, symName: _lo_manage.cold.4, symObjAddr: 0x2A0, symBinAddr: 0xE20, symSize: 0x47 }
+...

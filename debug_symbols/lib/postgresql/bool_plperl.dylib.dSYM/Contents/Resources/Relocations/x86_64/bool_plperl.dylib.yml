@@ -1,0 +1,14 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/bool_plperl.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xDD0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xDD0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x174, symBinAddr: 0xF58, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_bool_to_plperl, symObjAddr: 0x10, symBinAddr: 0xDE0, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_bool_to_plperl.my_finfo, symObjAddr: 0x1AC, symBinAddr: 0xF90, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_plperl_to_bool, symObjAddr: 0x60, symBinAddr: 0xE30, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_plperl_to_bool.my_finfo, symObjAddr: 0x1B0, symBinAddr: 0xF94, symSize: 0x0 }
+  - { offset: 0x4CF0, size: 0x8, addend: 0x0, symName: _bool_to_plperl, symObjAddr: 0x20, symBinAddr: 0xDF0, symSize: 0x40 }
+  - { offset: 0x4E21, size: 0x8, addend: 0x0, symName: _plperl_to_bool, symObjAddr: 0x70, symBinAddr: 0xE40, symSize: 0x104 }
+...

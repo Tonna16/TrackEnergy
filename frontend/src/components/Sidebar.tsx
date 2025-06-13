@@ -28,17 +28,17 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       )}
       
       {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform ease-in-out duration-300 md:translate-x-0 md:static md:h-screen ${
+           <div
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-bg shadow-lg transform transition-transform ease-in-out duration-300 md:translate-x-0 md:static md:h-screen ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } border-r border-gray-200 dark:border-gray-700`}
+        } border-r border-gray-200 dark:border-dark-border`} 
       >
         <div className="h-full flex flex-col">
           {/* Logo and close button */}
-          <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+                   <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-dark-border"> 
             <Link to="/" className="flex items-center space-x-2">
               <Zap className="h-6 w-6 text-emerald-500" />
-              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">WattWatch</span>
+              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">EnergyIQ</span>
             </Link>
             <button
               type="button"
@@ -59,8 +59,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                   to={item.href}
                   className={`flex items-center px-2 py-3 rounded-lg text-sm font-medium ${
                     isActive
-                      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700/30'
+                                                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400' 
+              : 'text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-dark-input' 
                   }`}
                   onClick={() => setOpen(false)}
                 >
@@ -76,8 +76,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           </nav>
           
           {/* Energy usage summary */}
-          <div className="p-4 mt-auto border-t border-gray-200 dark:border-gray-700">
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg">
+                   <div className="p-4 mt-auto border-t border-gray-200 dark:border-dark-border"> 
+                       <div className="bg-emerald-50 dark:bg-dark-card p-3 rounded-lg"> 
               <h4 className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Current Usage</h4>
               <div className="mt-1 flex items-center">
                 <div className="text-2xl font-semibold text-gray-800 dark:text-white">3.2 kWh</div>

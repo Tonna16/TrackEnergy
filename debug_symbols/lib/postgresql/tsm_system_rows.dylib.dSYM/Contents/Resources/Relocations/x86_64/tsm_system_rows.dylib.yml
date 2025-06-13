@@ -1,0 +1,17 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/tsm_system_rows.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xAE0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xAE0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x3D0, symBinAddr: 0xEF4, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_tsm_system_rows_handler, symObjAddr: 0x10, symBinAddr: 0xAF0, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_tsm_system_rows_handler.my_finfo, symObjAddr: 0x408, symBinAddr: 0xF2C, symSize: 0x0 }
+  - { offset: 0x4DDB, size: 0x8, addend: 0x0, symName: _tsm_system_rows_handler, symObjAddr: 0x20, symBinAddr: 0xB00, symSize: 0x80 }
+  - { offset: 0x4EC4, size: 0x8, addend: 0x0, symName: _system_rows_samplescangetsamplesize, symObjAddr: 0xA0, symBinAddr: 0xB80, symSize: 0xE0 }
+  - { offset: 0x4FE7, size: 0x8, addend: 0x0, symName: _system_rows_initsamplescan, symObjAddr: 0x180, symBinAddr: 0xC60, symSize: 0x30 }
+  - { offset: 0x502B, size: 0x8, addend: 0x0, symName: _system_rows_beginsamplescan, symObjAddr: 0x1B0, symBinAddr: 0xC90, symSize: 0x40 }
+  - { offset: 0x50BD, size: 0x8, addend: 0x0, symName: _system_rows_beginsamplescan.cold.1, symObjAddr: 0x390, symBinAddr: 0xE70, symSize: 0x40 }
+  - { offset: 0x5169, size: 0x8, addend: 0x0, symName: _system_rows_nextsampleblock, symObjAddr: 0x1F0, symBinAddr: 0xCD0, symSize: 0x170 }
+  - { offset: 0x528E, size: 0x8, addend: 0x0, symName: _system_rows_nextsampletuple, symObjAddr: 0x360, symBinAddr: 0xE40, symSize: 0x30 }
+...

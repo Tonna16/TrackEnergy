@@ -1,0 +1,15 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/euc2004_sjis2004.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x55C, symBinAddr: 0xF60, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jis_2004_to_shift_jis_2004, symObjAddr: 0x10, symBinAddr: 0xA00, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_euc_jis_2004_to_shift_jis_2004.my_finfo, symObjAddr: 0x594, symBinAddr: 0xF98, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_shift_jis_2004_to_euc_jis_2004, symObjAddr: 0x20, symBinAddr: 0xA10, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_shift_jis_2004_to_euc_jis_2004.my_finfo, symObjAddr: 0x598, symBinAddr: 0xF9C, symSize: 0x0 }
+  - { offset: 0x26E, size: 0x8, addend: 0x0, symName: _euc_jis_2004_to_shift_jis_2004, symObjAddr: 0x30, symBinAddr: 0xA20, symSize: 0x210 }
+  - { offset: 0x4DA, size: 0x8, addend: 0x0, symName: _shift_jis_2004_to_euc_jis_2004, symObjAddr: 0x240, symBinAddr: 0xC30, symSize: 0x31C }
+  - { offset: 0x6AE, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x55C, symBinAddr: 0xF60, symSize: 0x0 }
+...

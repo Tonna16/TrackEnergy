@@ -1,0 +1,19 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/moddatetime.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x9F0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x3A4, symBinAddr: 0xDD8, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_moddatetime, symObjAddr: 0x10, symBinAddr: 0xA00, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_moddatetime.my_finfo, symObjAddr: 0x3DC, symBinAddr: 0xE10, symSize: 0x0 }
+  - { offset: 0x5548, size: 0x8, addend: 0x0, symName: _moddatetime, symObjAddr: 0x20, symBinAddr: 0xA10, symSize: 0x170 }
+  - { offset: 0x58CA, size: 0x8, addend: 0x0, symName: _moddatetime.cold.1, symObjAddr: 0x190, symBinAddr: 0xB80, symSize: 0x40 }
+  - { offset: 0x58E1, size: 0x8, addend: 0x0, symName: _moddatetime.cold.4, symObjAddr: 0x250, symBinAddr: 0xC40, symSize: 0x40 }
+  - { offset: 0x58F8, size: 0x8, addend: 0x0, symName: _moddatetime.cold.2, symObjAddr: 0x1D0, symBinAddr: 0xBC0, symSize: 0x40 }
+  - { offset: 0x590F, size: 0x8, addend: 0x0, symName: _moddatetime.cold.8, symObjAddr: 0x370, symBinAddr: 0xD60, symSize: 0x34 }
+  - { offset: 0x5926, size: 0x8, addend: 0x0, symName: _moddatetime.cold.3, symObjAddr: 0x210, symBinAddr: 0xC00, symSize: 0x40 }
+  - { offset: 0x593D, size: 0x8, addend: 0x0, symName: _moddatetime.cold.7, symObjAddr: 0x330, symBinAddr: 0xD20, symSize: 0x40 }
+  - { offset: 0x5954, size: 0x8, addend: 0x0, symName: _moddatetime.cold.5, symObjAddr: 0x290, symBinAddr: 0xC80, symSize: 0x50 }
+  - { offset: 0x596B, size: 0x8, addend: 0x0, symName: _moddatetime.cold.6, symObjAddr: 0x2E0, symBinAddr: 0xCD0, symSize: 0x50 }
+...

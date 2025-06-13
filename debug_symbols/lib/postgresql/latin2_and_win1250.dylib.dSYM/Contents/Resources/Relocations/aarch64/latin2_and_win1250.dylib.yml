@@ -1,0 +1,28 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/latin2_and_win1250.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3ADC, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3ADC, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x32C, symBinAddr: 0x3E50, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_latin2_to_mic, symObjAddr: 0xC, symBinAddr: 0x3AE8, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_latin2_to_mic.my_finfo, symObjAddr: 0x364, symBinAddr: 0x3E88, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin2, symObjAddr: 0x18, symBinAddr: 0x3AF4, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin2.my_finfo, symObjAddr: 0x368, symBinAddr: 0x3E8C, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_win1250_to_mic, symObjAddr: 0x24, symBinAddr: 0x3B00, symSize: 0xC }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_win1250_to_mic.my_finfo, symObjAddr: 0x36C, symBinAddr: 0x3E90, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_win1250, symObjAddr: 0x30, symBinAddr: 0x3B0C, symSize: 0xC }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_win1250.my_finfo, symObjAddr: 0x370, symBinAddr: 0x3E94, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_latin2_to_win1250, symObjAddr: 0x3C, symBinAddr: 0x3B18, symSize: 0xC }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_latin2_to_win1250.my_finfo, symObjAddr: 0x374, symBinAddr: 0x3E98, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_win1250_to_latin2, symObjAddr: 0x48, symBinAddr: 0x3B24, symSize: 0xC }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_win1250_to_latin2.my_finfo, symObjAddr: 0x378, symBinAddr: 0x3E9C, symSize: 0x0 }
+  - { offset: 0x23F, size: 0x8, addend: 0x0, symName: _win1250_2_iso88592, symObjAddr: 0x37C, symBinAddr: 0x3EA0, symSize: 0x0 }
+  - { offset: 0x26C, size: 0x8, addend: 0x0, symName: _iso88592_2_win1250, symObjAddr: 0x3FC, symBinAddr: 0x3F20, symSize: 0x0 }
+  - { offset: 0x2E1, size: 0x8, addend: 0x0, symName: _latin2_to_mic, symObjAddr: 0x54, symBinAddr: 0x3B30, symSize: 0x74 }
+  - { offset: 0x42F, size: 0x8, addend: 0x0, symName: _mic_to_latin2, symObjAddr: 0xC8, symBinAddr: 0x3BA4, symSize: 0x74 }
+  - { offset: 0x556, size: 0x8, addend: 0x0, symName: _win1250_to_mic, symObjAddr: 0x13C, symBinAddr: 0x3C18, symSize: 0x7C }
+  - { offset: 0x682, size: 0x8, addend: 0x0, symName: _mic_to_win1250, symObjAddr: 0x1B8, symBinAddr: 0x3C94, symSize: 0x7C }
+  - { offset: 0x7AE, size: 0x8, addend: 0x0, symName: _latin2_to_win1250, symObjAddr: 0x234, symBinAddr: 0x3D10, symSize: 0x7C }
+  - { offset: 0x8D8, size: 0x8, addend: 0x0, symName: _win1250_to_latin2, symObjAddr: 0x2B0, symBinAddr: 0x3D8C, symSize: 0x7C }
+...

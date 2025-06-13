@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './pgAdmin4.app/Contents/Frameworks/libintl.8.dylib'
+relocations:     []
+...

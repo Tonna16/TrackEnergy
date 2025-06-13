@@ -1,25 +1,22 @@
-// src/components/EnergyTip.tsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const EnergyTip: React.FC = () => {
-  const [tip, setTip] = useState<string>('');
+export default function EnergyTip() {
+  const [tip, setTip] = useState('');
 
   useEffect(() => {
-    fetch('/api/energy-tips')
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
+    fetch('http://localhost:8080/api/tips')
+      .then((res) => res.json())
+      .then((data: string[]) => {
+        if (data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length);
+          setTip(data[randomIndex]);
+        }
       })
-      .then(setTip)
-      .catch(err => {
-        console.error('Failed to load tip:', err);
-        setTip('Unable to load energy-saving tip right now.');
+      .catch((err) => {
+        console.error('Error fetching tips:', err);
       });
   }, []);
 
-  return (
-    <p>{tip}</p>  // Just plain text
-  );
-};
-
-export default EnergyTip;
+  return <span>{tip}</span>;
+}
+    

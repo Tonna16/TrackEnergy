@@ -1,4 +1,4 @@
-@tailwind  base;
+@tailwind   base;
 @tailwind components;
 @tailwind utilities;
 
@@ -8,10 +8,20 @@
     --color-secondary: 99 102 241;
   }
   
-  body {
+   body {
     @apply bg-gray-50 text-gray-800 min-h-screen;
+  } 
+  
+   .dark body {
+    @apply bg-dark-bg text-dark-text;
   }
-}
+  
+  .dark input, 
+  .dark select, 
+  .dark textarea {
+    @apply bg-dark-input border-dark-border text-dark-text;
+  } 
+} 
 
 @layer components {
   .btn {
@@ -30,8 +40,8 @@
     @apply border border-gray-300 hover:bg-gray-100;
   }
   
-  .card {
-    @apply bg-white rounded-xl shadow-sm p-4 border border-gray-100;
-  }
+   .card {
+    @apply bg-white rounded-xl shadow-sm p-4 border border-gray-100 dark:bg-black dark:border-dark-border;
+  } 
 }
  

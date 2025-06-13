@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './stackbuilder.app/Contents/Frameworks/libwx_osx_cocoau_webview-3.2.0.4.1.dylib'
+relocations:     []
+...

@@ -1,0 +1,51 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/pg_walinspect.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2500, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2500, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x1528, symBinAddr: 0x3BF0, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_block_info, symObjAddr: 0xC, symBinAddr: 0x250C, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_block_info.my_finfo, symObjAddr: 0x1560, symBinAddr: 0x3C28, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_record_info, symObjAddr: 0x18, symBinAddr: 0x2518, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_record_info.my_finfo, symObjAddr: 0x1564, symBinAddr: 0x3C2C, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_records_info, symObjAddr: 0x24, symBinAddr: 0x2524, symSize: 0xC }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_records_info.my_finfo, symObjAddr: 0x1568, symBinAddr: 0x3C30, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_records_info_till_end_of_wal, symObjAddr: 0x30, symBinAddr: 0x2530, symSize: 0xC }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_records_info_till_end_of_wal.my_finfo, symObjAddr: 0x156C, symBinAddr: 0x3C34, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_stats, symObjAddr: 0x3C, symBinAddr: 0x253C, symSize: 0xC }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_stats.my_finfo, symObjAddr: 0x1570, symBinAddr: 0x3C38, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_stats_till_end_of_wal, symObjAddr: 0x48, symBinAddr: 0x2548, symSize: 0xC }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_get_wal_stats_till_end_of_wal.my_finfo, symObjAddr: 0x1574, symBinAddr: 0x3C3C, symSize: 0x0 }
+  - { offset: 0x431D, size: 0x8, addend: 0x0, symName: _pg_get_wal_block_info, symObjAddr: 0x54, symBinAddr: 0x2554, symSize: 0x584 }
+  - { offset: 0x47D8, size: 0x8, addend: 0x0, symName: _ValidateInputLSNs, symObjAddr: 0x5D8, symBinAddr: 0x2AD8, symSize: 0x64 }
+  - { offset: 0x48B5, size: 0x8, addend: 0x0, symName: _InitXLogReaderState, symObjAddr: 0x63C, symBinAddr: 0x2B3C, symSize: 0x9C }
+  - { offset: 0x48DE, size: 0x8, addend: 0x0, symName: _InitXLogReaderState, symObjAddr: 0x63C, symBinAddr: 0x2B3C, symSize: 0x9C }
+  - { offset: 0x49E3, size: 0x8, addend: 0x0, symName: _ReadNextXLogRecord, symObjAddr: 0x6D8, symBinAddr: 0x2BD8, symSize: 0x48 }
+  - { offset: 0x4A19, size: 0x8, addend: 0x0, symName: _ReadNextXLogRecord, symObjAddr: 0x6D8, symBinAddr: 0x2BD8, symSize: 0x48 }
+  - { offset: 0x4A93, size: 0x8, addend: 0x0, symName: _pg_get_wal_record_info, symObjAddr: 0x720, symBinAddr: 0x2C20, symSize: 0x108 }
+  - { offset: 0x4BFE, size: 0x8, addend: 0x0, symName: _pg_get_wal_block_info.cold.1, symObjAddr: 0x1140, symBinAddr: 0x3658, symSize: 0x50 }
+  - { offset: 0x4C70, size: 0x8, addend: 0x0, symName: _ValidateInputLSNs.cold.1, symObjAddr: 0x1190, symBinAddr: 0x36A8, symSize: 0x58 }
+  - { offset: 0x4C87, size: 0x8, addend: 0x0, symName: _ValidateInputLSNs.cold.2, symObjAddr: 0x11E8, symBinAddr: 0x3700, symSize: 0x38 }
+  - { offset: 0x4CDB, size: 0x8, addend: 0x0, symName: _InitXLogReaderState.cold.1, symObjAddr: 0x1220, symBinAddr: 0x3738, symSize: 0x44 }
+  - { offset: 0x4CF2, size: 0x8, addend: 0x0, symName: _InitXLogReaderState.cold.2, symObjAddr: 0x1264, symBinAddr: 0x377C, symSize: 0x48 }
+  - { offset: 0x4D09, size: 0x8, addend: 0x0, symName: _InitXLogReaderState.cold.3, symObjAddr: 0x12AC, symBinAddr: 0x37C4, symSize: 0x48 }
+  - { offset: 0x4D3C, size: 0x8, addend: 0x0, symName: _ReadNextXLogRecord.cold.1, symObjAddr: 0x12F4, symBinAddr: 0x380C, symSize: 0x90 }
+  - { offset: 0x4D85, size: 0x8, addend: 0x0, symName: _pg_get_wal_record_info, symObjAddr: 0x720, symBinAddr: 0x2C20, symSize: 0x108 }
+  - { offset: 0x4FEE, size: 0x8, addend: 0x0, symName: _GetWALRecordInfo, symObjAddr: 0x828, symBinAddr: 0x2D28, symSize: 0x184 }
+  - { offset: 0x51B5, size: 0x8, addend: 0x0, symName: _pg_get_wal_record_info.cold.1, symObjAddr: 0x1384, symBinAddr: 0x389C, symSize: 0x58 }
+  - { offset: 0x51CC, size: 0x8, addend: 0x0, symName: _pg_get_wal_record_info.cold.3, symObjAddr: 0x142C, symBinAddr: 0x3944, symSize: 0x34 }
+  - { offset: 0x51E3, size: 0x8, addend: 0x0, symName: _pg_get_wal_record_info.cold.2, symObjAddr: 0x13DC, symBinAddr: 0x38F4, symSize: 0x50 }
+  - { offset: 0x5221, size: 0x8, addend: 0x0, symName: _pg_get_wal_records_info, symObjAddr: 0x9AC, symBinAddr: 0x2EAC, symSize: 0x50 }
+  - { offset: 0x52A0, size: 0x8, addend: 0x0, symName: _GetWALRecordsInfo, symObjAddr: 0x9FC, symBinAddr: 0x2EFC, symSize: 0x154 }
+  - { offset: 0x54AF, size: 0x8, addend: 0x0, symName: _pg_get_wal_stats, symObjAddr: 0xB50, symBinAddr: 0x3050, symSize: 0x68 }
+  - { offset: 0x5561, size: 0x8, addend: 0x0, symName: _GetWalStats, symObjAddr: 0xBB8, symBinAddr: 0x30B8, symSize: 0x4BC }
+  - { offset: 0x5CF1, size: 0x8, addend: 0x0, symName: _pg_get_wal_records_info_till_end_of_wal, symObjAddr: 0x1074, symBinAddr: 0x3574, symSize: 0x60 }
+  - { offset: 0x5DBB, size: 0x8, addend: 0x0, symName: _pg_get_wal_stats_till_end_of_wal, symObjAddr: 0x10D4, symBinAddr: 0x35D4, symSize: 0x6C }
+  - { offset: 0x5DC5, size: 0x8, addend: 0x0, symName: _pg_get_wal_records_info_till_end_of_wal.cold.1, symObjAddr: 0x1460, symBinAddr: 0x3978, symSize: 0x58 }
+  - { offset: 0x5DDC, size: 0x8, addend: 0x0, symName: _pg_get_wal_stats_till_end_of_wal, symObjAddr: 0x10D4, symBinAddr: 0x35D4, symSize: 0x6C }
+  - { offset: 0x5ED3, size: 0x8, addend: 0x0, symName: _pg_get_wal_block_info.cold.1, symObjAddr: 0x1140, symBinAddr: 0x3658, symSize: 0x50 }
+  - { offset: 0x5EDD, size: 0x8, addend: 0x0, symName: _pg_get_wal_stats_till_end_of_wal.cold.1, symObjAddr: 0x14B8, symBinAddr: 0x39D0, symSize: 0x58 }
+  - { offset: 0x5EF4, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x1510, symBinAddr: 0x3640, symSize: 0xC }
+  - { offset: 0x5F0B, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0x151C, symBinAddr: 0x364C, symSize: 0xC }
+...

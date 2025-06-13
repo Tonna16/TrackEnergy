@@ -1,0 +1,26 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/latin_and_mic.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xC30, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0xC30, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x308, symBinAddr: 0xF48, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_latin1_to_mic, symObjAddr: 0x10, symBinAddr: 0xC40, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_latin1_to_mic.my_finfo, symObjAddr: 0x340, symBinAddr: 0xF80, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin1, symObjAddr: 0x20, symBinAddr: 0xC50, symSize: 0x10 }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin1.my_finfo, symObjAddr: 0x344, symBinAddr: 0xF84, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_latin3_to_mic, symObjAddr: 0x30, symBinAddr: 0xC60, symSize: 0x10 }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_latin3_to_mic.my_finfo, symObjAddr: 0x348, symBinAddr: 0xF88, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin3, symObjAddr: 0x40, symBinAddr: 0xC70, symSize: 0x10 }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin3.my_finfo, symObjAddr: 0x34C, symBinAddr: 0xF8C, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_latin4_to_mic, symObjAddr: 0x50, symBinAddr: 0xC80, symSize: 0x10 }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_latin4_to_mic.my_finfo, symObjAddr: 0x350, symBinAddr: 0xF90, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin4, symObjAddr: 0x60, symBinAddr: 0xC90, symSize: 0x10 }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_mic_to_latin4.my_finfo, symObjAddr: 0x354, symBinAddr: 0xF94, symSize: 0x0 }
+  - { offset: 0x2A6, size: 0x8, addend: 0x0, symName: _latin1_to_mic, symObjAddr: 0x70, symBinAddr: 0xCA0, symSize: 0x70 }
+  - { offset: 0x3E9, size: 0x8, addend: 0x0, symName: _mic_to_latin1, symObjAddr: 0xE0, symBinAddr: 0xD10, symSize: 0x70 }
+  - { offset: 0x500, size: 0x8, addend: 0x0, symName: _latin3_to_mic, symObjAddr: 0x150, symBinAddr: 0xD80, symSize: 0x70 }
+  - { offset: 0x5EC, size: 0x8, addend: 0x0, symName: _mic_to_latin3, symObjAddr: 0x1C0, symBinAddr: 0xDF0, symSize: 0x70 }
+  - { offset: 0x6D8, size: 0x8, addend: 0x0, symName: _latin4_to_mic, symObjAddr: 0x230, symBinAddr: 0xE60, symSize: 0x70 }
+  - { offset: 0x7C4, size: 0x8, addend: 0x0, symName: _mic_to_latin4, symObjAddr: 0x2A0, symBinAddr: 0xED0, symSize: 0x65 }
+...

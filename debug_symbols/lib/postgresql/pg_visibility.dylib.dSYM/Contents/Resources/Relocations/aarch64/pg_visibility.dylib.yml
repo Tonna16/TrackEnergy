@@ -1,0 +1,50 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/pg_visibility.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2700, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x2700, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x1680, symBinAddr: 0x3E18, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_map, symObjAddr: 0xC, symBinAddr: 0x270C, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_map.my_finfo, symObjAddr: 0x16B8, symBinAddr: 0x3E50, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_map_rel, symObjAddr: 0x18, symBinAddr: 0x2718, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_map_rel.my_finfo, symObjAddr: 0x16BC, symBinAddr: 0x3E54, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility, symObjAddr: 0x24, symBinAddr: 0x2724, symSize: 0xC }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility.my_finfo, symObjAddr: 0x16C0, symBinAddr: 0x3E58, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_rel, symObjAddr: 0x30, symBinAddr: 0x2730, symSize: 0xC }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_rel.my_finfo, symObjAddr: 0x16C4, symBinAddr: 0x3E5C, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_map_summary, symObjAddr: 0x3C, symBinAddr: 0x273C, symSize: 0xC }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_visibility_map_summary.my_finfo, symObjAddr: 0x16C8, symBinAddr: 0x3E60, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_check_frozen, symObjAddr: 0x48, symBinAddr: 0x2748, symSize: 0xC }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_check_frozen.my_finfo, symObjAddr: 0x16CC, symBinAddr: 0x3E64, symSize: 0x0 }
+  - { offset: 0x233, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_check_visible, symObjAddr: 0x54, symBinAddr: 0x2754, symSize: 0xC }
+  - { offset: 0x258, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_check_visible.my_finfo, symObjAddr: 0x16D0, symBinAddr: 0x3E68, symSize: 0x0 }
+  - { offset: 0x262, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_truncate_visibility_map, symObjAddr: 0x60, symBinAddr: 0x2760, symSize: 0xC }
+  - { offset: 0x287, size: 0x8, addend: 0x0, symName: _pg_finfo_pg_truncate_visibility_map.my_finfo, symObjAddr: 0x16D4, symBinAddr: 0x3E6C, symSize: 0x0 }
+  - { offset: 0x5C26, size: 0x8, addend: 0x0, symName: _pg_visibility_map, symObjAddr: 0x6C, symBinAddr: 0x276C, symSize: 0x158 }
+  - { offset: 0x5E4C, size: 0x8, addend: 0x0, symName: _pg_visibility, symObjAddr: 0x1C4, symBinAddr: 0x28C4, symSize: 0x1F8 }
+  - { offset: 0x5F51, size: 0x8, addend: 0x0, symName: _pg_visibility_map.cold.2, symObjAddr: 0x1404, symBinAddr: 0x3B3C, symSize: 0x38 }
+  - { offset: 0x5F68, size: 0x8, addend: 0x0, symName: _pg_visibility_map.cold.1, symObjAddr: 0x13B4, symBinAddr: 0x3AEC, symSize: 0x50 }
+  - { offset: 0x5FC8, size: 0x8, addend: 0x0, symName: _pg_visibility, symObjAddr: 0x1C4, symBinAddr: 0x28C4, symSize: 0x1F8 }
+  - { offset: 0x62B6, size: 0x8, addend: 0x0, symName: _pg_visibility_map_rel, symObjAddr: 0x3BC, symBinAddr: 0x2ABC, symSize: 0x1B4 }
+  - { offset: 0x6314, size: 0x8, addend: 0x0, symName: _pg_visibility.cold.2, symObjAddr: 0x148C, symBinAddr: 0x3B74, symSize: 0x38 }
+  - { offset: 0x6360, size: 0x8, addend: 0x0, symName: _pg_visibility_map_rel, symObjAddr: 0x3BC, symBinAddr: 0x2ABC, symSize: 0x1B4 }
+  - { offset: 0x66AA, size: 0x8, addend: 0x0, symName: _collect_visibility_data, symObjAddr: 0x570, symBinAddr: 0x2C70, symSize: 0x1CC }
+  - { offset: 0x68D9, size: 0x8, addend: 0x0, symName: _pg_visibility_rel, symObjAddr: 0x73C, symBinAddr: 0x2E3C, symSize: 0x1E8 }
+  - { offset: 0x69A1, size: 0x8, addend: 0x0, symName: _pg_visibility_rel, symObjAddr: 0x73C, symBinAddr: 0x2E3C, symSize: 0x1E8 }
+  - { offset: 0x6C52, size: 0x8, addend: 0x0, symName: _pg_visibility_map_summary, symObjAddr: 0x924, symBinAddr: 0x3024, symSize: 0x174 }
+  - { offset: 0x6E54, size: 0x8, addend: 0x0, symName: _pg_check_frozen, symObjAddr: 0xA98, symBinAddr: 0x3198, symSize: 0xE4 }
+  - { offset: 0x6E90, size: 0x8, addend: 0x0, symName: _pg_visibility_map_summary.cold.2, symObjAddr: 0x1564, symBinAddr: 0x3BAC, symSize: 0x34 }
+  - { offset: 0x6EBA, size: 0x8, addend: 0x0, symName: _pg_check_frozen, symObjAddr: 0xA98, symBinAddr: 0x3198, symSize: 0xE4 }
+  - { offset: 0x700C, size: 0x8, addend: 0x0, symName: _collect_corrupt_items, symObjAddr: 0xB7C, symBinAddr: 0x327C, symSize: 0x4A0 }
+  - { offset: 0x75B4, size: 0x8, addend: 0x0, symName: _pg_check_visible, symObjAddr: 0x101C, symBinAddr: 0x371C, symSize: 0xE4 }
+  - { offset: 0x7709, size: 0x8, addend: 0x0, symName: _GetStrictOldestNonRemovableTransactionId, symObjAddr: 0x1304, symBinAddr: 0x3A04, symSize: 0xB0 }
+  - { offset: 0x782B, size: 0x8, addend: 0x0, symName: _pg_check_visible, symObjAddr: 0x101C, symBinAddr: 0x371C, symSize: 0xE4 }
+  - { offset: 0x7997, size: 0x8, addend: 0x0, symName: _pg_truncate_visibility_map, symObjAddr: 0x1100, symBinAddr: 0x3800, symSize: 0x204 }
+  - { offset: 0x7BB5, size: 0x8, addend: 0x0, symName: _GetStrictOldestNonRemovableTransactionId, symObjAddr: 0x1304, symBinAddr: 0x3A04, symSize: 0xB0 }
+  - { offset: 0x7DE6, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x1638, symBinAddr: 0x3AB4, symSize: 0xC }
+  - { offset: 0x7DFD, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0x1644, symBinAddr: 0x3AC0, symSize: 0xC }
+  - { offset: 0x7E14, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_2, symObjAddr: 0x1650, symBinAddr: 0x3ACC, symSize: 0xC }
+  - { offset: 0x7E2B, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_3, symObjAddr: 0x165C, symBinAddr: 0x3AD8, symSize: 0x8 }
+  - { offset: 0x7E42, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_4, symObjAddr: 0x1664, symBinAddr: 0x3AE0, symSize: 0xC }
+...

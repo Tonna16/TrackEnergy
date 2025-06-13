@@ -1,0 +1,16 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/utf8_and_iso8859_1.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D14, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D14, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x208, symBinAddr: 0x3F58, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_iso8859_1_to_utf8, symObjAddr: 0xC, symBinAddr: 0x3D20, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_iso8859_1_to_utf8.my_finfo, symObjAddr: 0x240, symBinAddr: 0x3F90, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_iso8859_1, symObjAddr: 0x18, symBinAddr: 0x3D2C, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_utf8_to_iso8859_1.my_finfo, symObjAddr: 0x244, symBinAddr: 0x3F94, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _iso8859_1_to_utf8, symObjAddr: 0x24, symBinAddr: 0x3D38, symSize: 0xC0 }
+  - { offset: 0x289, size: 0x8, addend: 0x0, symName: _utf8_to_iso8859_1, symObjAddr: 0xE4, symBinAddr: 0x3DF8, symSize: 0x124 }
+  - { offset: 0x2D9, size: 0x8, addend: 0x0, symName: _utf8_to_iso8859_1, symObjAddr: 0xE4, symBinAddr: 0x3DF8, symSize: 0x124 }
+  - { offset: 0x3FE, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x208, symBinAddr: 0x3F58, symSize: 0x0 }
+...

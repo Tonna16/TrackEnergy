@@ -1,0 +1,24 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/hstore_plpython3.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x7E0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x7E0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x5E8, symBinAddr: 0xE38, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_hstore_to_plpython, symObjAddr: 0x100, symBinAddr: 0x8E0, symSize: 0x10 }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_hstore_to_plpython.my_finfo, symObjAddr: 0x620, symBinAddr: 0xE70, symSize: 0x0 }
+  - { offset: 0x14D, size: 0x8, addend: 0x0, symName: _pg_finfo_plpython_to_hstore, symObjAddr: 0x2A0, symBinAddr: 0xA80, symSize: 0x10 }
+  - { offset: 0x172, size: 0x8, addend: 0x0, symName: _pg_finfo_plpython_to_hstore.my_finfo, symObjAddr: 0x624, symBinAddr: 0xE74, symSize: 0x0 }
+  - { offset: 0x188, size: 0x8, addend: 0x0, symName: _PLyObject_AsString_p, symObjAddr: 0x7BF0, symBinAddr: 0x2000, symSize: 0x0 }
+  - { offset: 0xDAB, size: 0x8, addend: 0x0, symName: _PLyUnicode_FromStringAndSize_p, symObjAddr: 0x7BF8, symBinAddr: 0x2008, symSize: 0x0 }
+  - { offset: 0xDE0, size: 0x8, addend: 0x0, symName: _hstoreUpgrade_p, symObjAddr: 0x7C00, symBinAddr: 0x2010, symSize: 0x0 }
+  - { offset: 0xE6B, size: 0x8, addend: 0x0, symName: _hstoreUniquePairs_p, symObjAddr: 0x7C08, symBinAddr: 0x2018, symSize: 0x0 }
+  - { offset: 0xF0E, size: 0x8, addend: 0x0, symName: _hstorePairs_p, symObjAddr: 0x7C10, symBinAddr: 0x2020, symSize: 0x0 }
+  - { offset: 0xF48, size: 0x8, addend: 0x0, symName: _hstoreCheckKeyLen_p, symObjAddr: 0x7C18, symBinAddr: 0x2028, symSize: 0x0 }
+  - { offset: 0xF78, size: 0x8, addend: 0x0, symName: _hstoreCheckValLen_p, symObjAddr: 0x7C20, symBinAddr: 0x2030, symSize: 0x0 }
+  - { offset: 0x1C37, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0x10, symBinAddr: 0x7F0, symSize: 0xF0 }
+  - { offset: 0x1D89, size: 0x8, addend: 0x0, symName: _hstore_to_plpython, symObjAddr: 0x110, symBinAddr: 0x8F0, symSize: 0x190 }
+  - { offset: 0x1FBC, size: 0x8, addend: 0x0, symName: _hstore_to_plpython.cold.1, symObjAddr: 0x550, symBinAddr: 0xD30, symSize: 0x50 }
+  - { offset: 0x1FD3, size: 0x8, addend: 0x0, symName: _plpython_to_hstore, symObjAddr: 0x2B0, symBinAddr: 0xA90, symSize: 0x2A0 }
+  - { offset: 0x23AE, size: 0x8, addend: 0x0, symName: _plpython_to_hstore.cold.1, symObjAddr: 0x5A0, symBinAddr: 0xD80, symSize: 0x45 }
+...

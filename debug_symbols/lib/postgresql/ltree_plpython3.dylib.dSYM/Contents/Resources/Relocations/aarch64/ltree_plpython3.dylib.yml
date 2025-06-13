@@ -1,0 +1,15 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/ltree_plpython3.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D30, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3D30, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x14C, symBinAddr: 0x3EE8, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_ltree_to_plpython, symObjAddr: 0x40, symBinAddr: 0x3D70, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_ltree_to_plpython.my_finfo, symObjAddr: 0x184, symBinAddr: 0x3F20, symSize: 0x0 }
+  - { offset: 0x159, size: 0x8, addend: 0x0, symName: _PLyUnicode_FromStringAndSize_p, symObjAddr: 0x63F8, symBinAddr: 0x8000, symSize: 0x0 }
+  - { offset: 0x1ADA, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0xC, symBinAddr: 0x3D3C, symSize: 0x34 }
+  - { offset: 0x1B35, size: 0x8, addend: 0x0, symName: _ltree_to_plpython, symObjAddr: 0x4C, symBinAddr: 0x3D7C, symSize: 0xB8 }
+  - { offset: 0x1C10, size: 0x8, addend: 0x0, symName: _ltree_to_plpython.cold.1, symObjAddr: 0x104, symBinAddr: 0x3E34, symSize: 0x48 }
+  - { offset: 0x1C64, size: 0x8, addend: 0x0, symName: _ltree_to_plpython.cold.1, symObjAddr: 0x104, symBinAddr: 0x3E34, symSize: 0x48 }
+...

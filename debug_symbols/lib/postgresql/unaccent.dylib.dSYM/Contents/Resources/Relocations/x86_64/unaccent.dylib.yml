@@ -1,0 +1,24 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     './lib/postgresql/unaccent.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x10F0, symSize: 0x10 }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x10F0, symSize: 0x10 }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xBF8, symBinAddr: 0x1DA8, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_unaccent_init, symObjAddr: 0x10, symBinAddr: 0x1100, symSize: 0x10 }
+  - { offset: 0x11C, size: 0x8, addend: 0x0, symName: _pg_finfo_unaccent_init.my_finfo, symObjAddr: 0xC30, symBinAddr: 0x1DE0, symSize: 0x0 }
+  - { offset: 0x14F, size: 0x8, addend: 0x0, symName: _pg_finfo_unaccent_lexize, symObjAddr: 0x6B0, symBinAddr: 0x17A0, symSize: 0x10 }
+  - { offset: 0x176, size: 0x8, addend: 0x0, symName: _pg_finfo_unaccent_lexize.my_finfo, symObjAddr: 0xC34, symBinAddr: 0x1DE4, symSize: 0x0 }
+  - { offset: 0x180, size: 0x8, addend: 0x0, symName: _pg_finfo_unaccent_dict, symObjAddr: 0x820, symBinAddr: 0x1910, symSize: 0x10 }
+  - { offset: 0x1A7, size: 0x8, addend: 0x0, symName: _pg_finfo_unaccent_dict.my_finfo, symObjAddr: 0xC38, symBinAddr: 0x1DE8, symSize: 0x0 }
+  - { offset: 0x1105, size: 0x8, addend: 0x0, symName: _unaccent_init, symObjAddr: 0x20, symBinAddr: 0x1110, symSize: 0xB0 }
+  - { offset: 0x1279, size: 0x8, addend: 0x0, symName: _initTrie, symObjAddr: 0xD0, symBinAddr: 0x11C0, symSize: 0x5E0 }
+  - { offset: 0x1659, size: 0x8, addend: 0x0, symName: _unaccent_init.cold.1, symObjAddr: 0xA80, symBinAddr: 0x1B70, symSize: 0x40 }
+  - { offset: 0x1670, size: 0x8, addend: 0x0, symName: _unaccent_init.cold.3, symObjAddr: 0xB00, symBinAddr: 0x1BF0, symSize: 0x50 }
+  - { offset: 0x1687, size: 0x8, addend: 0x0, symName: _unaccent_init.cold.2, symObjAddr: 0xAC0, symBinAddr: 0x1BB0, symSize: 0x40 }
+  - { offset: 0x1EAE, size: 0x8, addend: 0x0, symName: _placeChar, symObjAddr: 0x990, symBinAddr: 0x1A80, symSize: 0xF0 }
+  - { offset: 0x1FDD, size: 0x8, addend: 0x0, symName: _initTrie.cold.1, symObjAddr: 0xB50, symBinAddr: 0x1C40, symSize: 0x50 }
+  - { offset: 0x205C, size: 0x8, addend: 0x0, symName: _unaccent_lexize, symObjAddr: 0x6C0, symBinAddr: 0x17B0, symSize: 0x160 }
+  - { offset: 0x222C, size: 0x8, addend: 0x0, symName: _unaccent_dict, symObjAddr: 0x830, symBinAddr: 0x1920, symSize: 0x160 }
+  - { offset: 0x2479, size: 0x8, addend: 0x0, symName: _unaccent_dict.cold.1, symObjAddr: 0xBA0, symBinAddr: 0x1C90, symSize: 0x55 }
+...

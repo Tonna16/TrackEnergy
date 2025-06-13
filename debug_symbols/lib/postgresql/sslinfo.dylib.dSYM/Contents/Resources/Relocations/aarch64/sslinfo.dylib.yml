@@ -1,0 +1,51 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/sslinfo.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x320C, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x320C, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0x948, symBinAddr: 0x3D70, symSize: 0x0 }
+  - { offset: 0xF5, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_is_used, symObjAddr: 0xC, symBinAddr: 0x3218, symSize: 0xC }
+  - { offset: 0x11A, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_is_used.my_finfo, symObjAddr: 0x980, symBinAddr: 0x3DA8, symSize: 0x0 }
+  - { offset: 0x148, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_version, symObjAddr: 0x2C, symBinAddr: 0x3238, symSize: 0xC }
+  - { offset: 0x16D, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_version.my_finfo, symObjAddr: 0x984, symBinAddr: 0x3DAC, symSize: 0x0 }
+  - { offset: 0x177, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_cipher, symObjAddr: 0x84, symBinAddr: 0x3290, symSize: 0xC }
+  - { offset: 0x19C, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_cipher.my_finfo, symObjAddr: 0x988, symBinAddr: 0x3DB0, symSize: 0x0 }
+  - { offset: 0x1A6, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_cert_present, symObjAddr: 0xDC, symBinAddr: 0x32E8, symSize: 0xC }
+  - { offset: 0x1CB, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_cert_present.my_finfo, symObjAddr: 0x98C, symBinAddr: 0x3DB4, symSize: 0x0 }
+  - { offset: 0x1D5, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_serial, symObjAddr: 0xFC, symBinAddr: 0x3308, symSize: 0xC }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_serial.my_finfo, symObjAddr: 0x990, symBinAddr: 0x3DB8, symSize: 0x0 }
+  - { offset: 0x204, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_dn_field, symObjAddr: 0x1B4, symBinAddr: 0x33C0, symSize: 0xC }
+  - { offset: 0x229, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_dn_field.my_finfo, symObjAddr: 0x994, symBinAddr: 0x3DBC, symSize: 0x0 }
+  - { offset: 0x233, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_issuer_field, symObjAddr: 0x34C, symBinAddr: 0x3558, symSize: 0xC }
+  - { offset: 0x25A, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_issuer_field.my_finfo, symObjAddr: 0x998, symBinAddr: 0x3DC0, symSize: 0x0 }
+  - { offset: 0x264, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_dn, symObjAddr: 0x3B0, symBinAddr: 0x35BC, symSize: 0xC }
+  - { offset: 0x28B, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_client_dn.my_finfo, symObjAddr: 0x99C, symBinAddr: 0x3DC4, symSize: 0x0 }
+  - { offset: 0x295, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_issuer_dn, symObjAddr: 0x454, symBinAddr: 0x3660, symSize: 0xC }
+  - { offset: 0x2BC, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_issuer_dn.my_finfo, symObjAddr: 0x9A0, symBinAddr: 0x3DC8, symSize: 0x0 }
+  - { offset: 0x2C6, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_extension_info, symObjAddr: 0x4F8, symBinAddr: 0x3704, symSize: 0xC }
+  - { offset: 0x2ED, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_extension_info.my_finfo, symObjAddr: 0x9A4, symBinAddr: 0x3DCC, symSize: 0x0 }
+  - { offset: 0x3B42, size: 0x8, addend: 0x0, symName: _ssl_is_used, symObjAddr: 0x18, symBinAddr: 0x3224, symSize: 0x14 }
+  - { offset: 0x3B6B, size: 0x8, addend: 0x0, symName: _ssl_version, symObjAddr: 0x38, symBinAddr: 0x3244, symSize: 0x4C }
+  - { offset: 0x4224, size: 0x8, addend: 0x0, symName: _ssl_cipher, symObjAddr: 0x90, symBinAddr: 0x329C, symSize: 0x4C }
+  - { offset: 0x4288, size: 0x8, addend: 0x0, symName: _ssl_client_cert_present, symObjAddr: 0xE8, symBinAddr: 0x32F4, symSize: 0x14 }
+  - { offset: 0x42B1, size: 0x8, addend: 0x0, symName: _ssl_client_serial, symObjAddr: 0x108, symBinAddr: 0x3314, symSize: 0xAC }
+  - { offset: 0x436D, size: 0x8, addend: 0x0, symName: _ssl_client_dn_field, symObjAddr: 0x1C0, symBinAddr: 0x33CC, symSize: 0x64 }
+  - { offset: 0x4424, size: 0x8, addend: 0x0, symName: _X509_NAME_field_to_text, symObjAddr: 0x224, symBinAddr: 0x3430, symSize: 0x128 }
+  - { offset: 0x4675, size: 0x8, addend: 0x0, symName: _pg_finfo_ssl_issuer_field, symObjAddr: 0x34C, symBinAddr: 0x3558, symSize: 0xC }
+  - { offset: 0x48CD, size: 0x8, addend: 0x0, symName: _X509_NAME_field_to_text.cold.3, symObjAddr: 0x7C8, symBinAddr: 0x39E8, symSize: 0x34 }
+  - { offset: 0x48F9, size: 0x8, addend: 0x0, symName: _X509_NAME_field_to_text.cold.1, symObjAddr: 0x73C, symBinAddr: 0x395C, symSize: 0x50 }
+  - { offset: 0x4910, size: 0x8, addend: 0x0, symName: _X509_NAME_field_to_text.cold.2, symObjAddr: 0x78C, symBinAddr: 0x39AC, symSize: 0x3C }
+  - { offset: 0x493C, size: 0x8, addend: 0x0, symName: _ssl_issuer_field, symObjAddr: 0x358, symBinAddr: 0x3564, symSize: 0x58 }
+  - { offset: 0x49C7, size: 0x8, addend: 0x0, symName: _ssl_client_dn, symObjAddr: 0x3BC, symBinAddr: 0x35C8, symSize: 0x98 }
+  - { offset: 0x4A47, size: 0x8, addend: 0x0, symName: _ssl_issuer_dn, symObjAddr: 0x460, symBinAddr: 0x366C, symSize: 0x98 }
+  - { offset: 0x4B0C, size: 0x8, addend: 0x0, symName: _ssl_extension_info, symObjAddr: 0x504, symBinAddr: 0x3710, symSize: 0x238 }
+  - { offset: 0x4F56, size: 0x8, addend: 0x0, symName: _X509_NAME_field_to_text.cold.1, symObjAddr: 0x73C, symBinAddr: 0x395C, symSize: 0x50 }
+  - { offset: 0x51B8, size: 0x8, addend: 0x0, symName: _ssl_extension_info.cold.1, symObjAddr: 0x7FC, symBinAddr: 0x3A1C, symSize: 0x3C }
+  - { offset: 0x51CF, size: 0x8, addend: 0x0, symName: _ssl_extension_info.cold.2, symObjAddr: 0x838, symBinAddr: 0x3A58, symSize: 0x48 }
+  - { offset: 0x51E6, size: 0x8, addend: 0x0, symName: _ssl_extension_info.cold.3, symObjAddr: 0x880, symBinAddr: 0x3AA0, symSize: 0x48 }
+  - { offset: 0x51FD, size: 0x8, addend: 0x0, symName: _ssl_extension_info.cold.4, symObjAddr: 0x8C8, symBinAddr: 0x3AE8, symSize: 0x34 }
+  - { offset: 0x5214, size: 0x8, addend: 0x0, symName: _ssl_extension_info.cold.5, symObjAddr: 0x8FC, symBinAddr: 0x3B1C, symSize: 0x38 }
+  - { offset: 0x522B, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_0, symObjAddr: 0x934, symBinAddr: 0x3948, symSize: 0xC }
+  - { offset: 0x5242, size: 0x8, addend: 0x0, symName: _OUTLINED_FUNCTION_1, symObjAddr: 0x940, symBinAddr: 0x3954, symSize: 0x8 }
+...

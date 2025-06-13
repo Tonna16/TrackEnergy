@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/libicudata.68.2.dylib'
+relocations:     []
+...

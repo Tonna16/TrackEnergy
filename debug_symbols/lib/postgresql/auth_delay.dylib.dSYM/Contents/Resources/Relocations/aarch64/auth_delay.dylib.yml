@@ -1,0 +1,12 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     './lib/postgresql/auth_delay.dylib'
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3DF4, symSize: 0xC }
+  - { offset: 0x33, size: 0x8, addend: 0x0, symName: _Pg_magic_func, symObjAddr: 0x0, symBinAddr: 0x3DF4, symSize: 0xC }
+  - { offset: 0x58, size: 0x8, addend: 0x0, symName: _Pg_magic_func.Pg_magic_data, symObjAddr: 0xE4, symBinAddr: 0x3EFC, symSize: 0x0 }
+  - { offset: 0x101, size: 0x8, addend: 0x0, symName: _auth_delay_milliseconds, symObjAddr: 0x50A8, symBinAddr: 0x8000, symSize: 0x0 }
+  - { offset: 0x116, size: 0x8, addend: 0x0, symName: _original_client_auth_hook, symObjAddr: 0x50B0, symBinAddr: 0x8008, symSize: 0x0 }
+  - { offset: 0x16B0, size: 0x8, addend: 0x0, symName: __PG_init, symObjAddr: 0xC, symBinAddr: 0x3E00, symSize: 0x88 }
+  - { offset: 0x17C8, size: 0x8, addend: 0x0, symName: _auth_delay_checks, symObjAddr: 0x94, symBinAddr: 0x3E88, symSize: 0x50 }
+...
