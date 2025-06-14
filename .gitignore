@@ -32,3 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 uninstall-postgresql.app/
+pgAdmin 4.app/
+
+
+lib/libicudata.68.2.dylib
+debug_symbols/
