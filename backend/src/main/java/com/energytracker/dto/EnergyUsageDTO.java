@@ -3,7 +3,8 @@ package com.energytracker.dto;
 import java.time.LocalDate;
 
 /**
- * A simple DTO that holds (date, applianceId, applianceName, kWhUsed).
+ * A simple DTO that holds a single energy usage record.
+ * - Represents an appliance's energy usage on a specific day.
  */
 public class EnergyUsageDTO {
     private final LocalDate date;
@@ -21,12 +22,15 @@ public class EnergyUsageDTO {
     public LocalDate getDate() {
         return date;
     }
+
     public Long getApplianceId() {
         return applianceId;
     }
+
     public String getApplianceName() {
         return applianceName;
     }
+
     public double getkWhUsed() {
         return kWhUsed;
     }

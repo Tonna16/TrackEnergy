@@ -1,21 +1,17 @@
+// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { usePasswordToggle } from '../hooks/usePasswordToggle';
-
-interface LocationState {
-  from?: { pathname: string };
-}
+import axios from 'axios';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const state = location.state as LocationState;
-  const from = state?.from?.pathname || '/';
+  const from = (useLocation().state as any)?.from?.pathname || '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false); // NEW STATE
   const [error, setError] = useState<string | null>(null);
   const passwordToggle = usePasswordToggle();
 
@@ -23,42 +19,34 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     try {
-      const response = await axios.post('/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate(from, { replace: true });  // ← go back where they came from
+      const res = await axios.post('/auth/login', {
+        email,
+        password,
+        remember, // SEND REMEMBER FLAG TO BACKEND
+      });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      navigate(from, { replace: true });
     } catch (err: any) {
-      const msg =
-        err.response?.data?.error ||
-        err.response?.data ||
-        'Login failed. Please try again.';
-      setError(msg);
+      setError(err.response?.data?.error || 'Login failed');
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-      {/* Back Arrow */}
-      <button
-        onClick={() => navigate(from)}
-        className="mb-4 text-gray-500 hover:text-gray-700 dark:text-gray-400"
-      >
+      <button onClick={() => navigate(from)} className="mb-4 text-gray-500">
         <ArrowLeft size={24} />
       </button>
-
-      <h2 className="text-2xl font-semibold text-center mb-6 dark:text-white">Login</h2>
+      <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
       <form onSubmit={handleLogin} className="space-y-4">
-        {/* Email */}
         <input
           type="email"
           placeholder="Email"
           value={email}
           required
           onChange={e => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-emerald-500"
+          className="w-full px-3 py-2 border rounded-md"
         />
-
-        {/* Password */}
         <div className="relative">
           <input
             type={passwordToggle.type}
@@ -66,26 +54,37 @@ const LoginPage: React.FC = () => {
             value={password}
             required
             onChange={e => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-emerald-500"
+            className="w-full px-3 py-2 border rounded-md"
           />
           <span
             onClick={passwordToggle.toggle}
-            className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+            className="absolute right-3 top-2.5 cursor-pointer"
           >
-            {passwordToggle.visible ? <EyeOff size={20}/> : <Eye size={20}/>}
+            {passwordToggle.visible ? <EyeOff size={20} /> : <Eye size={20} />}
           </span>
         </div>
 
+        {/* REMEMBER ME CHECKBOX */}
+        <label className="flex items-center text-sm">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={() => setRemember(prev => !prev)}
+            className="mr-2"
+          />
+          Remember me
+        </label>
+
         <button
           type="submit"
-          className="w-full py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700"
+          className="w-full py-2 bg-emerald-600 text-white rounded-md"
         >
           Login
         </button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </form>
 
-      <p className="text-center text-sm mt-4 dark:text-gray-300">
+      <p className="text-center mt-4 text-sm">
         Don’t have an account?{' '}
         <button
           onClick={() => navigate('/signup', { state: { from } })}

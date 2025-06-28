@@ -1,5 +1,10 @@
 // src/shim.ts
-
-// This will run before your app and provide a global Buffer
 import { Buffer } from 'buffer';
+
+// polyfill Buffer
 ;(window as any).Buffer = Buffer;
+
+// polyfill global (some libs expect it)
+if (typeof (window as any).global === 'undefined') {
+  ;(window as any).global = window
+}

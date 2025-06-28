@@ -3,10 +3,10 @@ package com.energytracker.dto;
 import java.util.Map;
 
 /**
- * Holds a single projection point:
- *   - date (either "YYYY-MM-DD" for daily/weekly or "MMM yyyy" for monthly),
- *   - totalCost (sum of all appliances for that period),
- *   - byAppCost → a map: { applianceName → cost }.
+ * Represents a single projected usage point for charting.
+ * - `date`: either ISO format (YYYY-MM-DD) or 'MMM yyyy' depending on granularity.
+ * - `totalCost`: summed cost of all appliances for the interval.
+ * - `byAppCost`: breakdown of cost per appliance.
  */
 public class UsageProjectionDTO {
     private final String date;
@@ -22,9 +22,11 @@ public class UsageProjectionDTO {
     public String getDate() {
         return date;
     }
+
     public double getTotalCost() {
         return totalCost;
     }
+
     public Map<String, Double> getByAppCost() {
         return byAppCost;
     }

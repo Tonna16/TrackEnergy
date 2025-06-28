@@ -18,7 +18,7 @@ public class UserService {
      * Given a user's email (from Principal.getName()), return their database ID.
      * Throws IllegalArgumentException if not found.
      */
-    public Long getUserIdByEmail(String email) {
+    public  Long  getUserIdByEmail(String email) {
         User u = userRepo.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("User not found for email: " + email));
         return u.getId();

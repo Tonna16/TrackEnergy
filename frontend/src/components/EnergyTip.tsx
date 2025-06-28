@@ -1,22 +1,19 @@
-import { useEffect, useState } from 'react';
-
+import React, { useEffect, useState } from 'react'
+import api from '../utils/api'
 export default function EnergyTip() {
-  const [tip, setTip] = useState('');
+  const [tip, setTip] = useState('')
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/tips')
-      .then((res) => res.json())
-      .then((data: string[]) => {
-        if (data.length > 0) {
-          const randomIndex = Math.floor(Math.random() * data.length);
-          setTip(data[randomIndex]);
+    api
+      .get<string[]>('/tips')      // → /api/tips proxied for you
+      .then(res => {
+        const tips = res.data
+        if (tips.length > 0) {
+          setTip(tips[Math.floor(Math.random() * tips.length)])
         }
       })
-      .catch((err) => {
-        console.error('Error fetching tips:', err);
-      });
-  }, []);
+      .catch(console.error)
+  }, [])
 
-  return <span>{tip}</span>;
+  return <span>{tip}</span>
 }
-    

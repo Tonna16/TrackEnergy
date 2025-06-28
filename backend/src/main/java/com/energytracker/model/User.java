@@ -17,10 +17,10 @@ public class User {
     private String password;
     private String username;
     private String fullName;
-    private String location;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    
 
     // One User → many Appliances
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -62,13 +62,6 @@ public class User {
     }
     public void setFullName(String fullName) {
         this.fullName = fullName;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-    public void setLocation(String location) {
-        this.location = location;
     }
 
     public LocalDateTime getCreatedAt() {

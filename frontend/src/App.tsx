@@ -8,7 +8,6 @@ import Insights from './pages/Insights';
 import Settings from './pages/Settings';
 import LoginPage from './pages/LoginPage'; // Ensure the file exists at this path or adjust the path accordingly
 import SignupPage from './pages/SignupPage';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProfilePage from './pages/ProfilePage'; 
 
@@ -30,9 +29,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
-  
-        <ToastContainer position="top-right" />
-      </>
+        </>
     );
   }
   

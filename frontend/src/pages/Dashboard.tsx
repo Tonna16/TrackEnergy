@@ -7,12 +7,39 @@ import EnergyUsageChart from '../components/EnergyUsageChart';
 import UsageSummary from '../components/UsageSummary';
 
 export default function Dashboard() {
-  const { appliances, dailyUsageSeries } = useAppContext();
+  const {
+    appliances,
+    dailyUsageSeries,
+    notifications,
+  } = useAppContext();
+
   const navigate = useNavigate();
   const hasLimitedData = dailyUsageSeries.length < 5;
 
+  // Only show warnings, alerts, and successes (hide “info” popups)
+  const filteredNotifications = notifications
+    .filter(n => n.type !== 'info')
+    .slice(0, 3);
+
   return (
     <div className="space-y-6">
+      {/* 🔔 Display latest non-info notifications */}
+      {filteredNotifications.map((n) => (
+        <div
+          key={n.id}
+          className={`flex items-start space-x-3 border-l-4 p-4 rounded-md
+            ${n.type === 'alert' ? 'bg-red-100 border-red-500 text-red-800'
+            : n.type === 'warning' ? 'bg-yellow-100 border-yellow-500 text-yellow-800'
+            : 'bg-green-100 border-green-500 text-green-800'}
+          `}
+        >
+          <span className="font-medium">{n.message}</span>
+          <span className="ml-auto text-sm text-gray-500">
+            {new Date(n.createdAt).toLocaleTimeString()}
+          </span>
+        </div>
+      ))}
+
       {hasLimitedData && (
         <div className="flex items-start space-x-3 bg-yellow-100 text-yellow-800 border rounded-md p-4">
           <AlertCircle size={20} />

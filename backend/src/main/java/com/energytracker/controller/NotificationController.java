@@ -2,7 +2,6 @@ package com.energytracker.controller;
 
 import com.energytracker.model.Notification;
 import com.energytracker.service.NotificationService;
-import com.energytracker.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,22 +15,21 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final UserService userService;
 
-    public NotificationController(NotificationService notificationService,
-                                  UserService userService) {
+    public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
-        this.userService = userService;
     }
 
     /** GET /api/notifications — list all for current user */
     @GetMapping
     public ResponseEntity<?> getNotifications(Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                 .body("User not authenticated");
         }
 
-        Long userId = userService.getUserIdByEmail(principal.getName());
+        // principal.getName() is the userId string, not the email
+        Long userId = Long.parseLong(principal.getName());
         List<Notification> notifications = notificationService.getForUser(userId);
         return ResponseEntity.ok(notifications);
     }

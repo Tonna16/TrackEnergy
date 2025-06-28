@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { User as UserIcon, LogOut as LogOutIcon } from 'lucide-react';
+import {
+  User as UserIcon,
+  ArrowLeft as BackIcon,
+  LogOut as LogOutIcon,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './ProfilePage.css';
+import api from '../utils/api'; // make sure this is imported
 
 interface UserDto {
-  id: number;
-  email: string;
   username: string;
-  location?: string;
-  createdAt?: string;
+  email: string;
+  fullName?: string;
+  createdAt: string;
 }
 
 export default function ProfilePage() {
@@ -18,23 +22,32 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get<UserDto>('/profile')
+    const token = localStorage.getItem('token');
+    api
+      .get<UserDto>('/auth/profile', {
+        headers: { Authorization: token ? `Bearer ${token}` : '' },
+      })
       .then((res) => setUser(res.data))
       .catch((err) => {
-        console.error('Failed to load profile:', err.response?.status);
-        if (err.response?.status === 401) {
+        const status = err.response?.status;
+        if (status === 401 || status === 403) {
           localStorage.removeItem('token');
-          return navigate('/login');
+          navigate('/login');
+        } else {
+          console.error(err);
+          setError('Unable to load profile.');
         }
-        setError('Unable to load profile.');
       });
   }, [navigate]);
+
+  const handleBack = () => {
+    navigate('/');
+  };
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to log out?')) {
       localStorage.removeItem('token');
-      navigate('/login');
+      navigate('/');
     }
   };
 
@@ -45,31 +58,32 @@ export default function ProfilePage() {
     return <div className="profile-loading text-center mt-8">Loading profile…</div>;
   }
 
+  // Format the joined date
+  const joined = new Date(user.createdAt).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-      <div className="flex items-center space-x-4 mb-6">
-        <UserIcon className="h-12 w-12 text-emerald-600" />
-        <div>
-          <h2 className="text-xl font-semibold dark:text-white">{user.username}</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-        </div>
+    <div className="profile-page">
+      <button className="back-button" onClick={handleBack}>
+        <BackIcon /> Back
+      </button>
+
+      <div className="profile-header">
+        <UserIcon className="profile-avatar" />
+        <h2 className="profile-username">{user.username}</h2>
       </div>
 
-      <div className="space-y-2 mb-6 text-gray-700 dark:text-gray-200">
-        {user.location && (
-          <p><strong>Location:</strong> {user.location}</p>
-        )}
-        {user.createdAt && (
-          <p><strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
-        )}
+      <div className="profile-info">
+        <p><strong>Full Name:</strong> {user.fullName || '—'}</p>
+        <p><strong>Email:</strong> {user.email}</p>
+        <p><strong>Joined:</strong> {joined}</p>
       </div>
 
-      <button
-        onClick={handleLogout}
-        className="w-full py-2 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center justify-center"
-      >
-        <LogOutIcon className="h-5 w-5 mr-2" />
-        Log Out
+      <button className="logout-button" onClick={handleLogout}>
+        <LogOutIcon className="logout-icon" /> Log Out
       </button>
     </div>
   );
