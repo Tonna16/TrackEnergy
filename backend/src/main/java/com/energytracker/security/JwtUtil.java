@@ -13,26 +13,36 @@ import java.util.Date;
 public class JwtUtil {
 
     private final Key key;
-    private final long defaultExpirationMs;
+    private final long accessTokenExpirationMs;
+    private final long refreshTokenExpirationMs;
 
     public JwtUtil(
         @Value("${jwt.secret}") String secret,
-        @Value("${jwt.expiration-ms:86400000}") long defaultExpirationMs
+        @Value("${jwt.access-expiration-ms:900000}") long accessTokenExpirationMs,    // 15 minutes
+        @Value("${jwt.refresh-expiration-ms:604800000}") long refreshTokenExpirationMs // 7 days
     ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.defaultExpirationMs = defaultExpirationMs;
+        this.accessTokenExpirationMs = accessTokenExpirationMs;
+        this.refreshTokenExpirationMs = refreshTokenExpirationMs;
+
         System.out.println("[JwtUtil] Initialized with secret: " + bytesToHex(secret.getBytes()));
     }
 
     @PostConstruct
     private void postInit() {
-        System.out.println("[JwtUtil] Ready. Default expiration: " + defaultExpirationMs + " ms");
+        System.out.println("[JwtUtil] Access token expiration: " + accessTokenExpirationMs + "ms");
+        System.out.println("[JwtUtil] Refresh token expiration: " + refreshTokenExpirationMs + "ms");
     }
 
-    public String generateToken(Long userId) {
-        return generateToken(userId, defaultExpirationMs);
+    public String generateAccessToken(Long userId) {
+        return generateToken(userId, accessTokenExpirationMs);
     }
 
+    public String generateRefreshToken(Long userId) {
+        return generateToken(userId, refreshTokenExpirationMs);
+    }
+
+    // Fallback generator (used by /login if user chose custom expiry)
     public String generateToken(Long userId, long expirationMs) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
@@ -43,23 +53,39 @@ public class JwtUtil {
                 .compact();
     }
 
+    public boolean validateRefreshToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            boolean isExpired = claims.getExpiration().before(new Date());
+            if (isExpired) {
+                System.out.println("[JwtUtil] Refresh token expired at: " + claims.getExpiration());
+                return false;
+            }
+            return true;
+        } catch (JwtException e) {
+            System.out.println("[JwtUtil] Refresh token invalid: " + e.getMessage());
+            return false;
+        }
+    }
+
     public Long extractUserId(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
+            Claims claims = parseClaims(token);
+            return Long.parseLong(claims.getSubject());
+        } catch (ExpiredJwtException e) {
+            System.out.println("[JwtUtil] Token expired: " + e.getClaims().getExpiration());
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("[JwtUtil] Token invalid: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
-            String subject = claims.getSubject();
-            System.out.println("[JwtUtil] Token OK → sub=" + subject);
-            return Long.parseLong(subject);
-        } catch (ExpiredJwtException e) {
-            System.out.println("[JwtUtil] Token EXPIRED at: " + e.getClaims().getExpiration());
-        } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("[JwtUtil] Token INVALID: " + e.getMessage());
-        }
-        return null;
     }
 
     private static String bytesToHex(byte[] bytes) {

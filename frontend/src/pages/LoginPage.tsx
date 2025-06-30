@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { usePasswordToggle } from '../hooks/usePasswordToggle';
-import axios from 'axios';
-
+import api from '../utils/api'; // Ensure this path is correct
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const from = (useLocation().state as any)?.from?.pathname || '/';
@@ -19,12 +18,14 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     try {
-      const res = await axios.post('/auth/login', {
+      const res = await api.post('/auth/login', {
         email,
         password,
         remember, // SEND REMEMBER FLAG TO BACKEND
       });
-      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('token', res.data.accessToken);
+      localStorage.setItem('refreshToken', res.data.refreshToken);
+
       localStorage.setItem('user', JSON.stringify(res.data.user));
       navigate(from, { replace: true });
     } catch (err: any) {

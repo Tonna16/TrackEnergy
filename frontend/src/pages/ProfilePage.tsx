@@ -5,7 +5,6 @@ import {
   LogOut as LogOutIcon,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './ProfilePage.css';
 import api from '../utils/api'; // make sure this is imported
 
@@ -24,9 +23,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     api
-      .get<UserDto>('/auth/profile', {
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
-      })
+      .get<UserDto>('/auth/profile')
       .then((res) => setUser(res.data))
       .catch((err) => {
         const status = err.response?.status;

@@ -21,26 +21,24 @@ public class ProfileController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getProfile(Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
-        }
-
-        // principal.getName() is the userId (set by JwtAuthFilter)
-        long userId = Long.parseLong(principal.getName());
-        User u = userRepo.findById(userId)
-                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        // Build the response map defensively
-        Map<String,Object> resp = new HashMap<>();
-        resp.put("id",        u.getId());
-        resp.put("email",     u.getEmail());
-        resp.put("username",  u.getUsername());
-        if (u.getFullName() != null)  resp.put("fullName",  u.getFullName());
-        resp.put("createdAt", u.getCreatedAt());
-
-        return ResponseEntity.ok(resp);
+public ResponseEntity<?> getProfile(Principal principal) {
+    if (principal == null) {
+        return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
     }
+
+    long userId = Long.parseLong(principal.getName());
+    return userRepo.findById(userId)
+        .map(u -> {
+            Map<String,Object> resp = new HashMap<>();
+            resp.put("id", u.getId());
+            resp.put("email", u.getEmail());
+            resp.put("username", u.getUsername());
+            if (u.getFullName() != null) resp.put("fullName", u.getFullName());
+            resp.put("createdAt", u.getCreatedAt());
+            return ResponseEntity.ok(resp);
+        })
+        .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "User not found")));
+}
 
     // (You can leave your PUT/update logic here unchanged, or apply the same null‐safe pattern.)
 }

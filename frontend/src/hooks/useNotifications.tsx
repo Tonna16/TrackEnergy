@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-
+import api from '../utils/api' // Adjust the import path as needed
 export type NotificationType = 'alert' | 'system'
 
 export interface Notification {
@@ -22,7 +21,7 @@ export function useNotifications(userId: string) {
   useEffect(() => {
     if (!userId) return
     setLoading(true)
-    axios
+    api
       .get<Notification[]>('/notifications')
       .then((res) => {
         const sorted = res.data.sort(
@@ -73,7 +72,7 @@ export function useNotifications(userId: string) {
 
   const markAsRead = async (id: number) => {
     try {
-      await axios.post(`/notifications/${id}/read`)
+      await api.post(`/notifications/${id}/read`)
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n))
       )
@@ -84,7 +83,7 @@ export function useNotifications(userId: string) {
 
   const deleteNotification = async (id: number) => {
     try {
-      await axios.delete(`/notifications/${id}`)
+      await api.delete(`/notifications/${id}`)
       setNotifications((prev) => prev.filter((n) => n.id !== id))
     } catch (err) {
       console.error('Failed to delete notification:', err)

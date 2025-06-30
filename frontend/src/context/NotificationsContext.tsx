@@ -6,7 +6,7 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react'
-import axios from 'axios'
+import api from '../utils/api' // Adjust the import path as needed
 import { connectWebSocket, subscribeToNotifications } from '../utils/websocket'
 import { useAppContext } from './AppContext'
 
@@ -34,7 +34,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
 
   const loadInitial = async () => {
     try {
-      const res = await axios.get<Notification[]>('/notifications')
+      const res = await api.get<Notification[]>('/notifications')
       setServerNotifications(res.data)
     } catch (e) {
       console.error('Failed to load server notifications:', e)
@@ -83,14 +83,14 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   }, [])
 
   const markAsRead = async (id: number) => {
-    await axios.post(`/notifications/${id}/read`)
+    await api.post(`/notifications/${id}/read`)
     setServerNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     )
   }
 
   const deleteNotification = async (id: number) => {
-    await axios.delete(`/notifications/${id}`)
+    await api.delete(`/notifications/${id}`)
     setServerNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 

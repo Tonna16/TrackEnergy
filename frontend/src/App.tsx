@@ -10,28 +10,28 @@ import LoginPage from './pages/LoginPage'; // Ensure the file exists at this pat
 import SignupPage from './pages/SignupPage';
 import 'react-toastify/dist/ReactToastify.css';
 import ProfilePage from './pages/ProfilePage'; 
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
-    return (
-      <>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="add-appliance" element={<ApplianceForm />} />
-            <Route path="edit-appliance/:id" element={<ApplianceForm />} />
-            <Route path="compare" element={<Compare />} />
-            <Route path="insights" element={<Insights />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-  
-          {/* Authentication */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+  return (
+    <Routes>
+      {/* Protected Area */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="add-appliance" element={<ApplianceForm />} />
+          <Route path="edit-appliance/:id" element={<ApplianceForm />} />
+          <Route path="compare" element={<Compare />} />
+          <Route path="insights" element={<Insights />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="/profile" element={<ProfilePage />} />
-        </Routes>
-        </>
-    );
-  }
-  
+        </Route>
+      </Route>
 
+      {/* Public Auth Pages */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+    </Routes>
+  );
+}
 export default App;
