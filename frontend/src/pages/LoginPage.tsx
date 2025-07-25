@@ -3,30 +3,42 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { usePasswordToggle } from '../hooks/usePasswordToggle';
-import api from '../utils/api'; // Ensure this path is correct
+import api from '../utils/api';
+import {
+  saveAuthToken,
+  saveRefreshToken,
+  saveUser,
+} from '../utils/auth';
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const from = (useLocation().state as any)?.from?.pathname || '/';
+  const location = useLocation();
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false); // NEW STATE
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const passwordToggle = usePasswordToggle();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
     try {
-      const res = await api.post('/auth/login', {
+      // POST to /api/auth/login
+      const res = await api.post('auth/login', {
         email,
         password,
-        remember, // SEND REMEMBER FLAG TO BACKEND
+        remember,
       });
-      localStorage.setItem('token', res.data.accessToken);
-      localStorage.setItem('refreshToken', res.data.refreshToken);
 
-      localStorage.setItem('user', JSON.stringify(res.data.user));
+      // Store tokens and user info
+      saveAuthToken(res.data.accessToken);
+      saveRefreshToken(res.data.refreshToken);
+      saveUser(res.data.user);
+
+      // Redirect to where they came from, or dashboard
       navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed');
@@ -60,17 +72,22 @@ const LoginPage: React.FC = () => {
           <span
             onClick={passwordToggle.toggle}
             className="absolute right-3 top-2.5 cursor-pointer"
+            aria-label={passwordToggle.visible ? 'Hide password' : 'Show password'}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') passwordToggle.toggle();
+            }}
           >
             {passwordToggle.visible ? <EyeOff size={20} /> : <Eye size={20} />}
           </span>
         </div>
 
-        {/* REMEMBER ME CHECKBOX */}
         <label className="flex items-center text-sm">
           <input
             type="checkbox"
             checked={remember}
-            onChange={() => setRemember(prev => !prev)}
+            onChange={() => setRemember(r => !r)}
             className="mr-2"
           />
           Remember me
@@ -78,11 +95,11 @@ const LoginPage: React.FC = () => {
 
         <button
           type="submit"
-          className="w-full py-2 bg-emerald-600 text-white rounded-md"
+          className="w-full py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition"
         >
           Login
         </button>
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
       </form>
 
       <p className="text-center mt-4 text-sm">

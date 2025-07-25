@@ -5,7 +5,7 @@ export default function EnergyTip() {
 
   useEffect(() => {
     api
-      .get<string[]>('/tips')      // → /api/tips proxied for you
+      .get<string[]>('tips')      // → /api/tips proxied for you
       .then(res => {
         const tips = res.data
         if (tips.length > 0) {

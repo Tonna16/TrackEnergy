@@ -1,44 +1,38 @@
 package com.energytracker.controller;
 
 import com.energytracker.model.User;
-import com.energytracker.repository.UserRepository;
+import com.energytracker.service.UserService;
+import com.energytracker.security.JwtUtil;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/profile")
+@RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:5173")
 public class ProfileController {
 
-    private final UserRepository userRepo;
+    private final UserService userService;
 
-    public ProfileController(UserRepository userRepo) {
-        this.userRepo = userRepo;
+    public ProfileController(UserService userService) {
+        this.userService = userService;
     }
 
-    @GetMapping
-public ResponseEntity<?> getProfile(Principal principal) {
-    if (principal == null) {
-        return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@AuthenticationPrincipal String email) {
+        try {
+            User user = userService.getUserByEmail(email);
+            return ResponseEntity.ok(Map.of(
+                "username", user.getUsername(),
+                "email", user.getEmail(),
+                "fullName", user.getFullName(),
+                "createdAt", user.getCreatedAt()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        }
     }
-
-    long userId = Long.parseLong(principal.getName());
-    return userRepo.findById(userId)
-        .map(u -> {
-            Map<String,Object> resp = new HashMap<>();
-            resp.put("id", u.getId());
-            resp.put("email", u.getEmail());
-            resp.put("username", u.getUsername());
-            if (u.getFullName() != null) resp.put("fullName", u.getFullName());
-            resp.put("createdAt", u.getCreatedAt());
-            return ResponseEntity.ok(resp);
-        })
-        .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "User not found")));
-}
-
-    // (You can leave your PUT/update logic here unchanged, or apply the same null‐safe pattern.)
 }

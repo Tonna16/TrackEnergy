@@ -15,27 +15,35 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtFilter;
+    private final JwtUtil jwtUtil;
 
-    public SecurityConfig(JwtAuthFilter jwtFilter) {
-        this.jwtFilter = jwtFilter;
+    public SecurityConfig(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
+    @Bean
+    public JwtAuthFilter jwtAuthFilter() {
+        return new JwtAuthFilter(jwtUtil);
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-  .csrf(csrf -> csrf.disable())
-  .cors(Customizer.withDefaults())
-  .authorizeHttpRequests(auth -> auth
-      // public endpoints
-      .requestMatchers("/api/auth/**", "/api/tips/**", "/ws/**").permitAll()
-      // protected endpoints
-      .requestMatchers("/api/energy-usage/**", "/api/profile/**", "/api/notifications/**").authenticated()
-      .anyRequest().authenticated()
-  )
-  .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-  .httpBasic(httpBasic -> httpBasic.disable());
-
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/api/auth/login",
+                    "/api/auth/signup",
+                    "/api/auth/refresh",
+                    "/api/tips/**"
+                ).permitAll()
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/api/notifications/**").hasRole("USER")
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }

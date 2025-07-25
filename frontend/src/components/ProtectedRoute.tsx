@@ -4,40 +4,48 @@ import { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { logout, getAuthToken } from '../utils/auth';
 
+// Only protect truly private routes
+const PRIVATE_PATHS = [
+  '/profile',
+];
+
 export default function ProtectedRoute() {
   const location = useLocation();
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const verify = async () => {
+    async function verify() {
       const token = getAuthToken();
       if (!token) {
         setAuthenticated(false);
         setChecking(false);
         return;
       }
-
       try {
-        await api.get('/auth/profile'); // triggers interceptor & validates/refreshes
+        // lightweight check
+        await api.get('profile');
         setAuthenticated(true);
       } catch {
-        logout();
+        logout(); // clears token + redirect
         setAuthenticated(false);
       } finally {
         setChecking(false);
       }
-    };
-
+    }
     verify();
   }, []);
 
-  if (checking) return null; // Or show loading spinner
+  if (checking) return null;
 
-  return authenticated ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" replace state={{ from: location }} />
+  // If hitting a private path *and* not authed → login
+  const isPrivate = PRIVATE_PATHS.some(path =>
+    location.pathname.startsWith(path)
   );
+  if (!authenticated && isPrivate) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  // Otherwise render everything
+  return <Outlet />;
 }
- 

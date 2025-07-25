@@ -1,52 +1,70 @@
-// src/lib/api.ts
-import axios from 'axios';
-import { getAuthToken, getRefreshToken, saveAuthToken, saveRefreshToken, logout } from '../utils/auth';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios'
+import {
+  getAuthToken,
+  getRefreshToken,
+  saveAuthToken,
+  saveRefreshToken,
+  logout,
+} from '../utils/auth'
+
+interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
+  _retry?: boolean
+}
 
 const api = axios.create({
   baseURL: '/api',
-  withCredentials: true,
-});
+  withCredentials: false, // Set true if backend requires cookies for refresh
+})
 
-// Request Interceptor → attach access token
-api.interceptors.request.use(cfg => {
-  const token = getAuthToken();
+api.interceptors.request.use(config => {
+  const token = getAuthToken()
   if (token) {
-    cfg.headers = cfg.headers || {};
-    cfg.headers.Authorization = `Bearer ${token}`;
+    config.headers = config.headers ?? {}
+    config.headers.Authorization = `Bearer ${token}`
   }
-  return cfg;
-});
+  return config
+})
 
-// Response Interceptor → handle expired token
 api.interceptors.response.use(
   res => res,
-  async err => {
-    const originalReq = err.config;
+  async (error: AxiosError) => {
+    const original = error.config as AxiosRequestConfigWithRetry
 
-    // Prevent infinite loops
-    if (err.response?.status === 401 && !originalReq._retry) {
-      originalReq._retry = true;
+    if (
+      error.response?.status === 401 &&
+      !original._retry &&
+      getRefreshToken()
+    ) {
+      original._retry = true
+
+      if (original.url?.includes('/auth/refresh')) {
+        logout()
+        // Consider emitting an event or state change here instead of reload
+        window.location.href = '/'
+        return Promise.reject(error)
+      }
 
       try {
-        const refreshRes = await axios.post('/auth/refresh', {
-          refreshToken: getRefreshToken()
-        });
+        const r = await axios.post('/api/auth/refresh', {
+          refreshToken: getRefreshToken(),
+        })
 
-        const { accessToken, refreshToken } = refreshRes.data;
-        saveAuthToken(accessToken);
-        saveRefreshToken(refreshToken);
+        saveAuthToken(r.data.accessToken)
+        saveRefreshToken(r.data.refreshToken)
 
-        originalReq.headers.Authorization = `Bearer ${accessToken}`;
-        return api(originalReq); // Retry the original request
+        original.headers = original.headers ?? {}
+        original.headers.Authorization = `Bearer ${r.data.accessToken}`
+
+        return api(original)
       } catch (refreshError) {
-        logout();
-        window.location.href = '/login'; // Redirect to login
-        return Promise.reject(refreshError);
+        logout()
+        window.location.href = '/'
+        return Promise.reject(refreshError)
       }
     }
 
-    return Promise.reject(err);
+    return Promise.reject(error)
   }
-);
+)
 
-export default api;
+export default api

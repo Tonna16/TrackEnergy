@@ -1,4 +1,3 @@
-// src/main/java/com/energytracker/service/EnergyUsageService.java
 package com.energytracker.service;
 
 import com.energytracker.dto.EnergyUsageDTO;
@@ -6,6 +5,7 @@ import com.energytracker.dto.UsageProjectionDTO;
 import com.energytracker.dto.UsageSummaryDTO;
 import com.energytracker.model.Appliance;
 import com.energytracker.model.EnergyUsageLog;
+import com.energytracker.model.User;
 import com.energytracker.repository.ApplianceRepository;
 import com.energytracker.repository.EnergyUsageLogRepository;
 import com.util.TimeSeriesForecaster;
@@ -24,6 +24,8 @@ public class EnergyUsageService {
     private final ApplianceRepository applianceRepo;
     private final UserSettingsService userSettingsService;
     private final TimeSeriesForecaster forecaster;
+    private final UserService userService;
+    private final NotificationService notificationService;
 
     private static final Map<Integer, Double> SEASONAL_FACTORS = Map.ofEntries(
         Map.entry(0, 1.05), Map.entry(1, 1.02), Map.entry(2, 0.98),
@@ -32,18 +34,22 @@ public class EnergyUsageService {
         Map.entry(9, 1.00), Map.entry(10, 0.98), Map.entry(11, 1.05)
     );
     private static final double NOISE_BOUND = 0.05;
-    private static final int MIN_HISTORY_DAYS = 30;
+    private static final int MIN_HISTORY_DAYS = 30;  // require at least 30 days for reliable forecast
 
     public EnergyUsageService(
         EnergyUsageLogRepository logRepo,
         ApplianceRepository applianceRepo,
         UserSettingsService userSettingsService,
-        TimeSeriesForecaster forecaster
+        TimeSeriesForecaster forecaster,
+        UserService userService,
+        NotificationService notificationService
     ) {
         this.logRepo = logRepo;
         this.applianceRepo = applianceRepo;
         this.userSettingsService = userSettingsService;
         this.forecaster = forecaster;
+        this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     /** Raw usage data for charts */
@@ -72,7 +78,7 @@ public class EnergyUsageService {
         return new UsageSummaryDTO(totalKwh, totalCost, avgDaily);
     }
 
-    /** Last-N-days summary */
+    /** Last‑N‑days summary */
     @Transactional(readOnly = true)
     public UsageSummaryDTO getUsageSummaryForRange(Long userId, int days) {
         LocalDate end = LocalDate.now();
@@ -97,22 +103,67 @@ public class EnergyUsageService {
         return new UsageSummaryDTO(totalKwh, totalCost, avgDaily);
     }
 
-    /** Annual cost forecast by summing 12 monthly projections */
+    /** 
+     * Annual cost forecast by summing 12 monthly projections
+     * Returns null if insufficient history (less than MIN_HISTORY_DAYS)
+     */
     @Transactional(readOnly = true)
-    public double getAnnualCostForecast(Long userId) {
+    public Double getAnnualCostForecast(Long userId) {
         var apps = applianceRepo.findByUserId(userId);
-        double rate = userSettingsService
-            .getSettingsByUserId(userId)
+        if (apps.isEmpty()) {
+            System.out.println("[EnergyUsageService] No appliances found for user " + userId);
+            return null;
+        }
+    
+        // Use getUserSettings to get existing or create default settings
+        var settings = userSettingsService.getUserSettings(userId);
+        if (settings == null) {
+            System.out.println("[EnergyUsageService] User settings returned null for user " + userId);
+            return null;
+        }
+    
+        double rate = settings.getElectricityRatePerKWh();
+    
+        long historyDays = logRepo.findAllByUserId(userId).stream()
+            .map(EnergyUsageLog::getDate).distinct().count();
+    
+        boolean useForecast = historyDays >= MIN_HISTORY_DAYS;
+    
+        var monthly = project(apps, rate, -1, 12, useForecast, "MMM yyyy");
+        double totalCost = monthly.stream().mapToDouble(UsageProjectionDTO::getTotalCost).sum();
+    
+        System.out.println("[EnergyUsageService] Annual cost forecast for user " + userId + ": " + totalCost);
+    
+        return totalCost;
+    }
+    
+    
+
+    /**
+     * ✅ NEW: Forecasted Daily Cost = average of the next 30 daily projections
+     * Returns null if no appliances or insufficient data
+     */
+    @Transactional(readOnly = true)
+    public Double getForecastedDailyCost(Long userId) {
+        var apps = applianceRepo.findByUserId(userId);
+        if (apps.isEmpty()) return null;
+
+        double rate = userSettingsService.getSettingsByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("Settings missing"))
             .getElectricityRatePerKWh();
 
         long historyDays = logRepo.findAllByUserId(userId).stream()
-                                  .map(EnergyUsageLog::getDate)
-                                  .distinct().count();
+            .map(EnergyUsageLog::getDate).distinct().count();
+
         boolean useForecast = historyDays >= MIN_HISTORY_DAYS;
 
-        var monthly = project(apps, rate, -1, 12, useForecast, "MMM yyyy");
-        return monthly.stream().mapToDouble(UsageProjectionDTO::getTotalCost).sum();
+        List<UsageProjectionDTO> nextThirty = project(apps, rate, 1, 30, useForecast, "yyyy-MM-dd");
+        if (nextThirty.isEmpty()) return null;
+
+        double sumCost = nextThirty.stream()
+            .mapToDouble(UsageProjectionDTO::getTotalCost)
+            .sum();
+        return sumCost / 30.0;
     }
 
     /** Manual entry */
@@ -127,7 +178,20 @@ public class EnergyUsageService {
         entry.setAppliance(app);
         entry.setDate(date);
         entry.setKWhUsed(kWhUsed);
-        return logRepo.save(entry);
+        EnergyUsageLog saved = logRepo.save(entry);
+
+        double baselineKwh = (app.getWattage() * app.getHoursPerDay()) / 1000.0;
+        if (kWhUsed > baselineKwh * 1.2) {
+            User user = userService.getUserById(app.getUser().getId());
+            notificationService.createHighUsageNotificationIfNotExists(
+                user,
+                applianceId,
+                app.getName(),
+                date,
+                kWhUsed
+            );
+        }
+        return saved;
     }
 
     /** Cost projections (daily/weekly/monthly) */
@@ -138,21 +202,15 @@ public class EnergyUsageService {
             .getSettingsByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("Settings missing"))
             .getElectricityRatePerKWh();
-
-        long historyDays = logRepo.findAllByUserId(userId).stream()
-                                  .map(EnergyUsageLog::getDate)
-                                  .distinct().count();
-        boolean useForecast = historyDays >= MIN_HISTORY_DAYS;
-
+        boolean useForecast = true;
         return switch (timeRange.trim().toLowerCase()) {
             case "daily"   -> project(apps, rate, 1, 30, useForecast, "yyyy-MM-dd");
-            case "weekly"  -> project(apps, rate, 7,  4, useForecast, "yyyy-MM-dd");
-            case "monthly" -> project(apps, rate, -1, 6, useForecast, "MMM yyyy");
+            case "weekly"  -> project(apps, rate, 7,  4, !useForecast, "yyyy-MM-dd");
+            case "monthly" -> project(apps, rate, -1, 6, !useForecast, "MMM yyyy");
             default        -> throw new IllegalArgumentException("Invalid timeRange");
         };
     }
 
-    /** Helper to build the projections list */
     private List<UsageProjectionDTO> project(
         List<Appliance> apps,
         double rate,
@@ -164,13 +222,11 @@ public class EnergyUsageService {
         var fmt = DateTimeFormatter.ofPattern(datePattern);
         var today = LocalDate.now();
         List<UsageProjectionDTO> out = new ArrayList<>();
-
         for (int i = 1; i <= count; i++) {
             LocalDate date = periodDays > 0
                 ? today.plusDays((long)i * periodDays)
                 : today.plusMonths(i);
             int days = periodDays > 0 ? periodDays : date.lengthOfMonth();
-
             var dto = projectPoint(apps, rate, date, days, useForecast);
             if (periodDays < 0) {
                 dto = new UsageProjectionDTO(date.format(fmt), dto.getTotalCost(), dto.getByAppCost());
@@ -180,7 +236,6 @@ public class EnergyUsageService {
         return out;
     }
 
-    /** Core projection logic per date */
     private UsageProjectionDTO projectPoint(
         List<Appliance> apps,
         double rate,
@@ -196,22 +251,22 @@ public class EnergyUsageService {
             double perDay = useForecast
                 ? forecaster.forecastNext(a.getId(), MIN_HISTORY_DAYS)
                 : (a.getWattage() * a.getHoursPerDay()) / 1000.0;
+
             double baseKwh = perDay * days;
             double withSeason = baseKwh * season;
             double trend = computeTrendFactor(a.getId());
-
             long seed = Objects.hash(a.getId(), date.toEpochDay());
             double noise = 1 + (new Random(seed).nextDouble() * 2 * NOISE_BOUND - NOISE_BOUND);
-
-            double kwh  = withSeason * trend * noise;
+            double kwh = withSeason * trend * noise;
             double cost = kwh * rate;
+
             byApp.put(a.getName(), cost);
             totalCost += cost;
         }
+
         return new UsageProjectionDTO(date.toString(), totalCost, byApp);
     }
 
-    /** Helper to compute a simple linear trend factor */
     private double computeTrendFactor(Long applianceId) {
         LocalDate end = LocalDate.now().minusDays(1);
         LocalDate start = end.minusDays(29);
@@ -221,10 +276,10 @@ public class EnergyUsageService {
             .entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .toList();
-
         if (entries.size() < 2) return 1.0;
-        int n = entries.size(), i=0;
-        double sumX=0, sumY=0, sumXY=0, sumXX=0;
+
+        int n = entries.size(), i = 0;
+        double sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
         for (var e : entries) {
             sumX  += i;
             sumY  += e.getValue();
@@ -232,9 +287,10 @@ public class EnergyUsageService {
             sumXX += i * i;
             i++;
         }
+
         double slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
         double meanY = sumY / n;
-        return (meanY == 0) ? 1.0 : Math.max(0.9, Math.min(1.1, 1 + slope/meanY));
+        return (meanY == 0) ? 1.0 : Math.max(0.9, Math.min(1.1, 1 + slope / meanY));
     }
 
     /** Sum of kWh for a specific day */

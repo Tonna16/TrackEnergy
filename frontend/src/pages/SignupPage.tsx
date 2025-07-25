@@ -1,16 +1,24 @@
+// src/pages/SignupPage.tsx
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { usePasswordToggle } from '../hooks/usePasswordToggle';
 import api from '../utils/api';
+import {
+  saveAuthToken,
+  saveRefreshToken,
+  saveUser,
+} from '../utils/auth';
+
 interface LocationState {
   from?: { pathname: string };
 }
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const state = useLocation().state as LocationState;
-  const from = state?.from?.pathname || '/';
+  const location = useLocation();
+const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
+
 
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
@@ -28,18 +36,20 @@ const SignupPage: React.FC = () => {
       setError("Passwords don't match");
       return;
     }
+
     setError(null);
     try {
-      const res = await api.post('/auth/signup', {
+      const res = await api.post('auth/signup', {
         username,
         fullName,
         email,
         password,
       });
-      localStorage.setItem('token', res.data.accessToken);
-      localStorage.setItem('refreshToken', res.data.refreshToken);
 
-      localStorage.setItem('user', JSON.stringify(res.data.user));
+      saveAuthToken(res.data.accessToken);
+      saveRefreshToken(res.data.refreshToken);
+      saveUser(res.data.user);
+
       navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Signup failed');
@@ -120,6 +130,7 @@ const SignupPage: React.FC = () => {
         </button>
         {error && <p className="text-red-500 text-center">{error}</p>}
       </form>
+
       <p className="text-center mt-4 text-sm">
         Already have an account?{' '}
         <button

@@ -1,8 +1,9 @@
-// src/main/java/com/energytracker/util/TimeSeriesForecaster.java
 package com.util;
 
 import com.energytracker.model.EnergyUsageLog;
+import com.energytracker.model.Appliance;
 import com.energytracker.repository.EnergyUsageLogRepository;
+import com.energytracker.repository.ApplianceRepository;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.springframework.stereotype.Component;
 
@@ -12,20 +13,23 @@ import java.util.stream.Collectors;
 
 /**
  * Simple Exponential Smoothing forecaster.
+ * Improved to handle very limited data better with fallback.
  */
 @Component
 public class TimeSeriesForecaster {
 
     private final EnergyUsageLogRepository logRepo;
+    private final ApplianceRepository applianceRepo;
     private static final double ALPHA = 0.3;  // smoothing factor
 
-    public TimeSeriesForecaster(EnergyUsageLogRepository logRepo) {
+    public TimeSeriesForecaster(EnergyUsageLogRepository logRepo, ApplianceRepository applianceRepo) {
         this.logRepo = logRepo;
+        this.applianceRepo = applianceRepo;
     }
 
     /**
      * Forecasts tomorrow's usage (kWh) for a given appliance via SES over the last N days.
-     * Falls back to straight mean if insufficient history.
+     * Falls back to baseline estimate if insufficient history.
      */
     public double forecastNext(Long applianceId, int historyDays) {
         LocalDate end = LocalDate.now().minusDays(1);
@@ -41,18 +45,33 @@ public class TimeSeriesForecaster {
             .map(e -> e.getValue())
             .collect(Collectors.toList());
 
-        if (series.size() < 2) {
-            // Not enough points: just use mean
-            return new Mean().evaluate(series.stream().mapToDouble(d -> d).toArray());
+        // No history at all → baseline fallback
+        if (series.isEmpty()) {
+            return fallbackEstimateForAppliance(applianceId);
         }
 
-        // SES iterative smoothing
+        // Only one data point → use it directly
+        if (series.size() < 2) {
+            return new Mean().evaluate(series.stream().mapToDouble(Double::doubleValue).toArray());
+        }
+
+        // SES smoothing over the series
         double s = series.get(0);
         for (int i = 1; i < series.size(); i++) {
             double x = series.get(i);
             s = ALPHA * x + (1 - ALPHA) * s;
         }
-        // the forecast for next point = last smoothed value
+        // Forecast for next day = last smoothed value
         return s;
+    }
+
+    /**
+     * Baseline fallback estimate if no usage data.
+     * Estimates as wattage * hoursPerDay / 1000 (kWh).
+     */
+    private double fallbackEstimateForAppliance(Long applianceId) {
+        return applianceRepo.findById(applianceId)
+                .map(a -> (a.getWattage() * a.getHoursPerDay()) / 1000.0)
+                .orElse(0.0);
     }
 }

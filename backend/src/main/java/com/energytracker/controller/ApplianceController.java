@@ -1,59 +1,73 @@
 package com.energytracker.controller;
 
 import com.energytracker.model.Appliance;
+import com.energytracker.model.User;
 import com.energytracker.service.ApplianceService;
+import com.energytracker.service.UserService;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Endpoints under /api/appliances
- */
 @RestController
 @RequestMapping("/api/appliances")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ApplianceController {
+
     private final ApplianceService applianceService;
+    private final UserService userService;
 
-    public ApplianceController(ApplianceService applianceService) {
+    public ApplianceController(ApplianceService applianceService, UserService userService) {
         this.applianceService = applianceService;
+        this.userService = userService;
     }
 
-    /**
-     * GET /api/appliances?userId={userId}
-     * Returns all appliances for that user.
-     */
+    private Long getUserIdFromPrincipal() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!(principal instanceof String email)) {
+            throw new RuntimeException("User not authenticated");
+        }
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        return user.getId();
+    }
+
+    /** GET /api/appliances - get all appliances for authenticated user */
     @GetMapping
-    public List<Appliance> list(@RequestParam Long userId) {
-        return applianceService.listUserAppliances(userId);
+    public ResponseEntity<List<Appliance>> list() {
+        Long userId = getUserIdFromPrincipal();
+        List<Appliance> appliances = applianceService.listUserAppliances(userId);
+        return ResponseEntity.ok(appliances);
     }
 
-    /**
-     * POST /api/appliances?userId={userId}
-     * Body: { name, wattage, hoursPerDay, daysPerWeek, brand, model, type, location, isHighEfficiency }
-     */
+    /** POST /api/appliances - create new appliance for authenticated user */
     @PostMapping
-    public Appliance create(@RequestParam Long userId, @RequestBody Appliance payload) {
-        return applianceService.createAppliance(userId, payload);
+    public ResponseEntity<Appliance> create(@RequestBody Appliance payload) {
+        Long userId = getUserIdFromPrincipal();
+        Appliance created = applianceService.createAppliance(userId, payload);
+        return ResponseEntity.ok(created);
     }
 
-    /**
-     * PUT /api/appliances/{applianceId}?userId={userId}
-     * Body: { name, wattage, hoursPerDay, daysPerWeek, brand, model, type, location, isHighEfficiency }
-     */
+    /** PUT /api/appliances/{applianceId} - update appliance for authenticated user */
     @PutMapping("/{applianceId}")
-    public Appliance update(
-            @RequestParam Long userId,
+    public ResponseEntity<Appliance> update(
             @PathVariable Long applianceId,
             @RequestBody Appliance payload
     ) {
-        return applianceService.updateAppliance(userId, applianceId, payload);
+        Long userId = getUserIdFromPrincipal();
+        Appliance updated = applianceService.updateAppliance(userId, applianceId, payload);
+        return ResponseEntity.ok(updated);
     }
 
-    /**
-     * DELETE /api/appliances/{applianceId}?userId={userId}
-     */
+    /** DELETE /api/appliances/{applianceId} - delete appliance for authenticated user */
     @DeleteMapping("/{applianceId}")
-    public void delete(@RequestParam Long userId, @PathVariable Long applianceId) {
+    public ResponseEntity<Void> delete(@PathVariable Long applianceId) {
+        Long userId = getUserIdFromPrincipal();
         applianceService.deleteAppliance(userId, applianceId);
+        return ResponseEntity.ok().build();
     }
 }

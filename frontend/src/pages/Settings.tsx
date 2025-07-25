@@ -1,37 +1,100 @@
-// src/pages/Settings.tsx
-import { useState } from 'react';
-import { Check, DollarSign, Home, HelpCircle } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
+import { useState, useEffect, useRef } from 'react'
+import { Check, DollarSign, Home, HelpCircle } from 'lucide-react'
+import { useAppContext } from '../context/AppContext'
+import { useNotificationsCtx } from '../context/NotificationsContext'
 
 export default function Settings() {
-  const { settings, updateSettings } = useAppContext();
-  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const { settings, updateSettings, fetchLiveRate } = useAppContext()
+  const { addNotification, notifyExchangeRate } = useNotificationsCtx()
 
-  const [formData, setFormData] = useState({
-    electricityRate: settings.electricityRate,
-    currency: settings.currency,
-    householdSize: settings.householdSize,
-    darkMode: settings.darkMode,
-  });
+  const [formData, setFormData] = useState({ ...settings })
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement;
+  useEffect(() => {
+    setFormData({ ...settings })
+  }, [settings])
+
+  const prevSettingsRef = useRef(settings)
+  useEffect(() => {
+    prevSettingsRef.current = settings
+  }, [settings])
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type, checked } = e.target as HTMLInputElement
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked
-        : type === 'number' ? parseFloat(value)
-        : value,
-    }));
-  };
+      [name]:
+        type === 'checkbox'
+          ? checked
+          : type === 'number'
+          ? parseFloat(value)
+          : value,
+    }))
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateSettings(formData);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 3000);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setSaving(true)
 
-  const symbol = formData.currency === 'USD' ? '$' : '€';
+    try {
+      const old = prevSettingsRef.current
+      const next = formData
+
+      if (next.currency !== old.currency) {
+        let newRate: number
+        let newElectricityRate: number
+
+        if (next.currency === 'EUR') {
+          newRate = await fetchLiveRate('EUR')
+          newElectricityRate = old.electricityRate * newRate
+        } else {
+          newRate = 1
+          newElectricityRate = old.electricityRate / old.exchangeRate
+        }
+
+        updateSettings({
+          ...next,
+          exchangeRate: newRate,
+          electricityRate: newElectricityRate,
+        })
+
+        await notifyExchangeRate(
+          next.currency,
+          newRate,
+          newElectricityRate,
+          new Date().toISOString().slice(0, 10)
+        )
+      } else {
+        updateSettings(next)
+        if (next.electricityRate !== old.electricityRate) {
+          addNotification({
+            type: 'info',
+            title: 'Electricity Rate Updated',
+            message: `Electricity rate is now ${next.currency} ${next.electricityRate.toFixed(
+              4
+            )}/kWh.`,
+          })
+        }
+      }
+
+      setShowSaveSuccess(true)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      timeoutRef.current = setTimeout(() => setShowSaveSuccess(false), 3000)
+    } catch (e) {
+      setError('Failed to save settings. Please try again.')
+      console.error(e)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const symbol = formData.currency === 'USD' ? '$' : '€'
 
   return (
     <div className="max-w-3xl mx-auto pb-16 sm:pb-0">
@@ -46,22 +109,29 @@ export default function Settings() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="electricityRate" className="block text-sm font-medium dark:text-gray-300">
+              <label
+                htmlFor="electricityRate"
+                className="block text-sm font-medium dark:text-gray-300"
+              >
                 Electricity Rate ({symbol}/kWh)
               </label>
               <input
                 type="number"
-                step="0.01"
-                min="0.01"
+                step="0.0001"
+                min="0.0001"
                 id="electricityRate"
                 name="electricityRate"
                 value={formData.electricityRate}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
+                disabled={saving}
               />
             </div>
             <div>
-              <label htmlFor="currency" className="block text-sm font-medium dark:text-gray-300">
+              <label
+                htmlFor="currency"
+                className="block text-sm font-medium dark:text-gray-300"
+              >
                 Currency
               </label>
               <select
@@ -70,6 +140,7 @@ export default function Settings() {
                 value={formData.currency}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
+                disabled={saving}
               >
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
@@ -85,7 +156,10 @@ export default function Settings() {
             Household Settings
           </h2>
           <div>
-            <label htmlFor="householdSize" className="block text-sm font-medium dark:text-gray-300">
+            <label
+              htmlFor="householdSize"
+              className="block text-sm font-medium dark:text-gray-300"
+            >
               Household Size
             </label>
             <select
@@ -94,6 +168,7 @@ export default function Settings() {
               value={formData.householdSize}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white"
+              disabled={saving}
             >
               <option value={1}>1 person</option>
               <option value={2}>2 people</option>
@@ -118,8 +193,12 @@ export default function Settings() {
               checked={formData.darkMode}
               onChange={handleChange}
               className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded dark:bg-gray-700"
+              disabled={saving}
             />
-            <label htmlFor="darkMode" className="ml-2 block text-sm font-medium dark:text-gray-300">
+            <label
+              htmlFor="darkMode"
+              className="ml-2 block text-sm font-medium dark:text-gray-300"
+            >
               Dark Mode
             </label>
           </div>
@@ -128,19 +207,28 @@ export default function Settings() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700"
+            disabled={saving}
+            className={`px-6 py-2 rounded-md text-white ${
+              saving ? 'bg-gray-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'
+            }`}
           >
             Save Settings
           </button>
         </div>
       </form>
 
-      {/* Save Success Toast */}
       {showSaveSuccess && (
         <div className="fixed bottom-6 right-6 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow">
-          <Check className="h-5 w-5 inline-block mr-2" /> Settings saved successfully
+          <Check className="h-5 w-5 inline-block mr-2" />
+          Settings saved successfully
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed bottom-16 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow">
+          {error}
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -5,7 +5,6 @@ import com.energytracker.service.AuthService;
 import com.energytracker.model.User;
 import com.energytracker.repository.UserRepository;
 import com.energytracker.dto.RefreshRequest;
-import com.energytracker.dto.TokenResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +41,8 @@ public class AuthController {
             }
 
             User u = authService.register(email, fullName, password, username);
-            String accessToken = jwtUtil.generateAccessToken(u.getId());
-            String refreshToken = jwtUtil.generateRefreshToken(u.getId());
+            String accessToken = jwtUtil.generateAccessToken(u.getEmail());  // ✅ Use email
+            String refreshToken = jwtUtil.generateRefreshToken(u.getEmail());
 
             Map<String, Object> userDto = Map.of(
                 "username", u.getUsername(),
@@ -52,7 +51,7 @@ public class AuthController {
             );
 
             return ResponseEntity.ok(Map.of(
-                "token", accessToken,
+                "accessToken", accessToken,
                 "refreshToken", refreshToken,
                 "user", userDto
             ));
@@ -75,8 +74,8 @@ public class AuthController {
             User u = authService.login(email, password);
             long expiry = remember ? 1000L * 60 * 60 * 24 * 30 : 1000L * 60 * 60 * 24; // 30d vs 1d
 
-            String accessToken = jwtUtil.generateToken(u.getId(), expiry);
-            String refreshToken = jwtUtil.generateRefreshToken(u.getId());
+            String accessToken = jwtUtil.generateToken(u.getEmail(), expiry); // ✅ Use email
+            String refreshToken = jwtUtil.generateRefreshToken(u.getEmail());
 
             Map<String, Object> userDto = Map.of(
                 "username", u.getUsername(),
@@ -85,11 +84,10 @@ public class AuthController {
             );
 
             return ResponseEntity.ok(Map.of(
-                "accessToken", accessToken, // ✅ Correct key
+                "accessToken", accessToken,
                 "refreshToken", refreshToken,
                 "user", userDto
             ));
-            
 
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(401).body(Map.of("error", ex.getMessage()));
@@ -100,41 +98,19 @@ public class AuthController {
     public ResponseEntity<?> refreshToken(@RequestBody RefreshRequest request) {
         String refreshToken = request.getRefreshToken();
         if (jwtUtil.validateRefreshToken(refreshToken)) {
-            Long userId = jwtUtil.extractUserId(refreshToken);
-            String newAccessToken = jwtUtil.generateAccessToken(userId);
-            String newRefreshToken = jwtUtil.generateRefreshToken(userId); // issue new refresh token
-    
+            String email = jwtUtil.extractEmail(refreshToken); // ✅ Extract email
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid token"));
+            }
+
+            String newAccessToken = jwtUtil.generateAccessToken(email);
+            String newRefreshToken = jwtUtil.generateRefreshToken(email);
+
             return ResponseEntity.ok(Map.of(
                 "accessToken", newAccessToken,
                 "refreshToken", newRefreshToken
             ));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));
-    }
-    
-
-    @GetMapping("/profile")
-    public ResponseEntity<?> me(HttpServletRequest req) {
-        String header = req.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
-            return ResponseEntity.status(401)
-                .body(Map.of("error", "Missing or invalid Authorization header"));
-        }
-
-        String token = header.substring(7);
-        Long userId = jwtUtil.extractUserId(token);
-
-        if (userId == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired token"));
-        }
-
-        return userRepo.findById(userId)
-            .map(u -> ResponseEntity.ok(Map.of(
-                "username", u.getUsername(),
-                "email", u.getEmail(),
-                "fullName", u.getFullName(),
-                "createdAt", u.getCreatedAt().toString()
-            )))
-            .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "User not found")));
     }
 }

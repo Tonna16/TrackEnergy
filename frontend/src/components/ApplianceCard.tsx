@@ -1,23 +1,29 @@
-import { Trash, Edit, Zap } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext';
-import type { Appliance } from '../context/AppContext';
+// src/components/ApplianceCard.tsx
+import { Trash, Edit, Zap } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { useAppContext, Appliance } from '../context/AppContext'
 
 interface ApplianceCardProps {
-  appliance: Appliance;
+  appliance: Appliance
 }
 
 export default function ApplianceCard({ appliance }: ApplianceCardProps) {
-  const { deleteAppliance, symbol, currentRate } = useAppContext();
-  const dailyUsage =
-    (appliance.wattage * appliance.hoursPerDay * appliance.daysPerWeek) / 7 / 1000;
+  const { deleteAppliance, costFromKwh, formatCost, symbol } = useAppContext()
 
-  const dailyCost = dailyUsage * currentRate;
-  const monthlyCost = dailyCost * 30;
+  // Compute daily kWh usage
+  const dailyKwh =
+    (appliance.wattage * appliance.hoursPerDay * appliance.daysPerWeek) /
+    7 /
+    1000
 
+  // Compute cost in current currency
+  const dailyCost = costFromKwh(dailyKwh)
+  const monthlyCost = dailyCost * 30
+
+  // Efficiency badge styling
   const efficiencyClass = appliance.isHighEfficiency
     ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-    : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
+    : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
 
   return (
     <div className="card hover:shadow-md transition-shadow dark:bg-black dark:border-dark-border">
@@ -33,7 +39,9 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
             <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-dark-input dark:text-dark-text">
               {appliance.location}
             </span>
-            <span className={`px-2 py-0.5 text-xs rounded-full ${efficiencyClass}`}>
+            <span
+              className={`px-2 py-0.5 text-xs rounded-full ${efficiencyClass}`}
+            >
               {appliance.isHighEfficiency ? 'Energy Efficient' : 'Standard'}
             </span>
           </div>
@@ -60,16 +68,18 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center text-gray-700 dark:text-dark-text">
             <Zap className="h-5 w-5 text-amber-500 mr-1.5" />
-            <span>{appliance.wattage} W • {appliance.hoursPerDay} hrs/day</span>
+            <span>
+              {appliance.wattage} W • {appliance.hoursPerDay} hrs/day
+            </span>
           </div>
           <div className="text-right">
-            <p className="font-medium">{dailyUsage.toFixed(2)} kWh/day</p>
+            <p className="font-medium">{dailyKwh.toFixed(2)} kWh/day</p>
             <p className="text-sm text-emerald-600 dark:text-emerald-400">
-              ~{symbol}{monthlyCost.toFixed(2)}/mo
+              {formatCost(dailyCost * 30)}/mo
             </p>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

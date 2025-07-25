@@ -32,25 +32,43 @@ public class JwtUtil {
     private void postInit() {
         System.out.println("[JwtUtil] Access token expiration: " + accessTokenExpirationMs + "ms");
         System.out.println("[JwtUtil] Refresh token expiration: " + refreshTokenExpirationMs + "ms");
+        System.out.println("[JwtUtil] Secret (hex): " + bytesToHex(key.getEncoded())); // 👈 debug output
+
     }
 
-    public String generateAccessToken(Long userId) {
-        return generateToken(userId, accessTokenExpirationMs);
+    // ✅ Use email as subject now
+    public String generateAccessToken(String email) {
+        return generateToken(email, accessTokenExpirationMs);
     }
 
-    public String generateRefreshToken(Long userId) {
-        return generateToken(userId, refreshTokenExpirationMs);
+    public String generateRefreshToken(String email) {
+        return generateToken(email, refreshTokenExpirationMs);
     }
 
-    // Fallback generator (used by /login if user chose custom expiry)
-    public String generateToken(Long userId, long expirationMs) {
+    // Generates a JWT with email as the subject
+    public String generateToken(String email, long expirationMs) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
-                .setSubject(userId.toString())
+                .setSubject(email)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public boolean validateAccessToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            boolean isExpired = claims.getExpiration().before(new Date());
+            if (isExpired) {
+                System.out.println("[JwtUtil] Access token expired at: " + claims.getExpiration());
+                return false;
+            }
+            return true;
+        } catch (JwtException e) {
+            System.out.println("[JwtUtil] Access token invalid: " + e.getMessage());
+            return false;
+        }
     }
 
     public boolean validateRefreshToken(String token) {
@@ -68,10 +86,11 @@ public class JwtUtil {
         }
     }
 
-    public Long extractUserId(String token) {
+    // ✅ Extract email from token subject
+    public String extractEmail(String token) {
         try {
             Claims claims = parseClaims(token);
-            return Long.parseLong(claims.getSubject());
+            return claims.getSubject();
         } catch (ExpiredJwtException e) {
             System.out.println("[JwtUtil] Token expired: " + e.getClaims().getExpiration());
         } catch (JwtException | IllegalArgumentException e) {

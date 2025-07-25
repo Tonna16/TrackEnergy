@@ -1,14 +1,15 @@
-// src/context/NotificationsContext.tsx
-import React, {
+import {
   createContext,
   useContext,
   useState,
   useEffect,
   ReactNode,
+  useRef,
+  useMemo,
 } from 'react'
-import api from '../utils/api' // Adjust the import path as needed
+import api from '../utils/api'
 import { connectWebSocket, subscribeToNotifications } from '../utils/websocket'
-import { useAppContext } from './AppContext'
+import { getAuthToken } from '../utils/auth'
 
 export interface Notification {
   id: number
@@ -17,92 +18,226 @@ export interface Notification {
   message: string
   createdAt: string
   read: boolean
+  deleted: boolean // made non-optional for clarity
 }
 
 interface NotificationsContextType {
   notifications: Notification[]
   unreadCount: number
+  loading: boolean
+  addNotification: (opts: {
+    type: Notification['type']
+    title: string
+    message: string
+    weekStartDate?: string
+    actualUsage?: number
+    forecastUsage?: number
+  }) => Promise<void>
   markAsRead: (id: number) => Promise<void>
   deleteNotification: (id: number) => Promise<void>
+  notifyForecastMode: (mode: string) => Promise<void>
+  notifyHighUsageAppliance: (name: string, estimatedKWh: number) => Promise<void>
+  notifyExchangeRate: (
+    newCurrency: string,
+    exchangeRate: number,
+    electricityRate: number,
+    date: string
+  ) => Promise<void>
 }
 
 const NotificationsContext = createContext<NotificationsContextType | null>(null)
 
 export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
-  const [serverNotifications, setServerNotifications] = useState<Notification[]>([])
-  const { notifications: localNotifications } = useAppContext()
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [loading, setLoading] = useState(true)
+  const unsubscribeRef = useRef<(() => void) | undefined>()
+  const [wsConnected, setWsConnected] = useState(false)
 
-  const loadInitial = async () => {
+  const getUserIdFromToken = (): string | null => {
     try {
-      const res = await api.get<Notification[]>('/notifications')
-      setServerNotifications(res.data)
-    } catch (e) {
-      console.error('Failed to load server notifications:', e)
+      const token = getAuthToken()
+      if (!token) return null
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return payload.sub || null
+    } catch {
+      return null
     }
   }
 
-  const normalizedLocal: Notification[] = localNotifications.map((n) => ({
-    id: n.id,
-    type: n.type,
-    title: n.title || n.message,
-    message: n.message,
-    createdAt: n.createdAt,
-    read: n.read ?? false,
-  }))
-
-  const mergedNotifications = [
-    ...serverNotifications,
-    ...normalizedLocal.filter(
-      (local) => !serverNotifications.some((server) => server.id === local.id)
-    ),
-  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  const loadInitialNotifications = async () => {
+    try {
+      setLoading(true)
+      const res = await api.get<Notification[]>('notifications')
+      setNotifications(res.data)
+    } catch (e) {
+      console.error('Failed to load notifications:', e)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
-    const userId = user?.id?.toString()
-    if (!userId) return
+    const userId = getUserIdFromToken()
+    if (!userId) {
+      setLoading(false) // no user, no notifications
+      return
+    }
 
-    loadInitial()
+    const setup = async () => {
+      try {
+        setLoading(true)
+        await loadInitialNotifications()
 
-    let unsubscribe: (() => void) | undefined
+        await connectWebSocket(() => setWsConnected(true))
 
-    connectWebSocket(() => {}).then(() => {
-      unsubscribe = subscribeToNotifications(userId, (body) => {
-        try {
-          const n: Notification = JSON.parse(body)
-          setServerNotifications((prev) => [n, ...prev])
-        } catch (err) {
-          console.warn('Invalid notification payload:', err)
-        }
-      })
-    })
+        unsubscribeRef.current = subscribeToNotifications(userId, (body) => {
+          try {
+            const n: Notification = typeof body === 'string' ? JSON.parse(body) : body
+            if (!n) return
+
+            setNotifications((prev) => {
+              if (n.deleted) {
+                // Remove deleted notification
+                return prev.filter((x) => x.id !== n.id)
+              }
+              // Update existing or add new
+              const index = prev.findIndex((x) => x.id === n.id)
+              if (index !== -1) {
+                const newArr = [...prev]
+                newArr[index] = n
+                return newArr
+              }
+              return [n, ...prev]
+            })
+          } catch (err) {
+            console.warn('Invalid notification payload:', err)
+          }
+        })
+      } catch (err) {
+        console.error('WebSocket connection error:', err)
+        setWsConnected(false)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    setup()
 
     return () => {
-      if (unsubscribe) unsubscribe()
+      unsubscribeRef.current?.()
     }
   }, [])
 
+  const addNotification = async (opts: {
+    type: Notification['type']
+    title: string
+    message: string
+    weekStartDate?: string
+    actualUsage?: number
+    forecastUsage?: number
+  }) => {
+    try {
+      let res
+      if (
+        opts.weekStartDate &&
+        opts.actualUsage !== undefined &&
+        opts.forecastUsage !== undefined
+      ) {
+        res = await api.post<Notification>('notifications/weekly-comparison', {
+          weekStartDate: opts.weekStartDate,
+          actualUsage: opts.actualUsage,
+          forecastUsage: opts.forecastUsage,
+        })
+      } else {
+        res = await api.post<Notification>('notifications', {
+          type: opts.type,
+          title: opts.title,
+          message: opts.message,
+        })
+      }
+      setNotifications((prev) => [res.data, ...prev])
+    } catch (e) {
+      console.error('Failed to create notification:', e)
+    }
+  }
+
   const markAsRead = async (id: number) => {
-    await api.post(`/notifications/${id}/read`)
-    setServerNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    )
+    try {
+      await api.post(`notifications/${id}/read`)
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      )
+    } catch (e) {
+      console.error('Failed to mark notification as read:', e)
+    }
   }
 
   const deleteNotification = async (id: number) => {
-    await api.delete(`/notifications/${id}`)
-    setServerNotifications((prev) => prev.filter((n) => n.id !== id))
+    try {
+      await api.delete(`notifications/${id}`)
+      setNotifications((prev) => prev.filter((n) => n.id !== id))
+    } catch (e) {
+      console.error('Failed to delete notification:', e)
+    }
   }
 
-  const unreadCount = mergedNotifications.filter((n) => !n.read).length
+  const notifyForecastMode = async (mode: string) => {
+    try {
+      const res = await api.post<Notification>('notifications/forecast-mode', { mode })
+      setNotifications((prev) => [res.data, ...prev])
+    } catch (e) {
+      console.error('Failed to notify forecast mode:', e)
+    }
+  }
+
+  const notifyHighUsageAppliance = async (name: string, estimatedKWh: number) => {
+    try {
+      const res = await api.post<Notification>('notifications/high-usage-appliance', {
+        name,
+        estimatedKWh,
+      })
+      setNotifications((prev) => [res.data, ...prev])
+    } catch (e) {
+      console.error('Failed to notify high usage appliance:', e)
+    }
+  }
+
+  const notifyExchangeRate = async (
+    newCurrency: string,
+    exchangeRate: number,
+    electricityRate: number,
+    date: string
+  ) => {
+    try {
+      const res = await api.post<Notification>('notifications/exchange-rate', {
+        newCurrency,
+        exchangeRate,
+        electricityRate,
+        date,
+      })
+      setNotifications((prev) => [res.data, ...prev])
+    } catch (e) {
+      console.error('Failed to notify exchange rate update:', e)
+    }
+  }
+
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.read).length,
+    [notifications]
+  )
 
   return (
     <NotificationsContext.Provider
       value={{
-        notifications: mergedNotifications,
+        notifications,
         unreadCount,
+        loading,
+        addNotification,
         markAsRead,
         deleteNotification,
+        notifyForecastMode,
+        notifyHighUsageAppliance,
+        notifyExchangeRate,
       }}
     >
       {children}
@@ -112,6 +247,19 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
 
 export const useNotificationsCtx = () => {
   const ctx = useContext(NotificationsContext)
-  if (!ctx) throw new Error('useNotificationsCtx must be used within NotificationsProvider')
+  if (!ctx) {
+    // Fallback for guests: no-ops
+    return {
+      notifications: [],
+      unreadCount: 0,
+      loading: false,
+      addNotification: async () => {},
+      markAsRead: async () => {},
+      deleteNotification: async () => {},
+      notifyForecastMode: async () => {},
+      notifyHighUsageAppliance: async () => {},
+      notifyExchangeRate: async () => {},
+    }
+  }
   return ctx
 }

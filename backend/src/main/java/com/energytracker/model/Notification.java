@@ -1,61 +1,112 @@
-// src/main/java/com/energytracker/model/Notification.java
 package com.energytracker.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notifications")
 public class Notification {
 
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** The user who will receive this notification */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    /** A short title for the notification, e.g. "Energy Spike Detected" */
-    @Column(nullable = false)
     private String title;
-
-    /** Category/type, e.g. "alert" or "system" */
+  
     @Column(nullable = false)
+    private boolean deleted = false;
+
     private String type;
 
-    /** Detailed message */
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(length = 2000)
     private String message;
 
-    /** Timestamp when created */
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    /** Has the user read/viewed this notification? */
-    @Column(name = "is_read", nullable = false)
     private boolean read = false;
 
-    // ── Getters & Setters ──
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Long getId() { return id; }
+    // New fields for structured querying
+    private Long applianceId;
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    private LocalDate usageDate;
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    // Getters and setters...
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public User getUser() {
+        return user;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public boolean isRead() { return read; }
-    public void setRead(boolean read) { this.read = read; }
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getApplianceId() {
+        return applianceId;
+    }
+
+    public void setApplianceId(Long applianceId) {
+        this.applianceId = applianceId;
+    }
+
+    public LocalDate getUsageDate() {
+        return usageDate;
+    }
+
+    public void setUsageDate(LocalDate usageDate) {
+        this.usageDate = usageDate;
+    }
+    public boolean getDeleted() {
+        return deleted;
+    }   
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 }

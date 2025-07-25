@@ -8,6 +8,7 @@ public class Appliance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String email;
 
     private String name;
     private int wattage;
@@ -58,4 +59,7 @@ public class Appliance {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email;
+}
 }
