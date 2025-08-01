@@ -6,12 +6,14 @@ import com.energytracker.repository.ApplianceRepository;
 import com.energytracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ApplianceService {
+    private static final Logger logger = LoggerFactory.getLogger(ApplianceService.class);
     private final ApplianceRepository applianceRepo;
     private final UserRepository userRepo;
 
@@ -20,26 +22,47 @@ public class ApplianceService {
         this.userRepo = userRepo;
     }
 
-    /** Create a new Appliance for a given userId. */
     @Transactional
     public Appliance createAppliance(Long userId, Appliance payload) {
-        Optional<User> optUser = userRepo.findById(userId);
-        if (optUser.isEmpty()) {
-            throw new IllegalArgumentException("User not found: id=" + userId);
+        logger.info("Creating appliance for userId={}, applianceName={}", userId, payload.getName());
+        if (userId != null) {
+            User user = userRepo.findById(userId)
+                .orElseThrow(() -> {
+                    logger.error("User not found with id={}", userId);
+                    return new IllegalArgumentException("User not found: id=" + userId);
+                });
+            payload.setUser(user);
+        } else {
+            logger.info("Creating guest appliance (no user)");
+            payload.setUser(null);
         }
-        payload.setUser(optUser.get());
-        return applianceRepo.save(payload);
+        Appliance saved = applianceRepo.save(payload);
+        logger.info("Appliance created with id={}", saved.getId());
+        return saved;
     }
 
-    /** Update an existing Appliance (must belong to that user). */
     @Transactional
     public Appliance updateAppliance(Long userId, Long applianceId, Appliance updated) {
+        logger.info("Updating appliance id={} for userId={}", applianceId, userId);
         Appliance existing = applianceRepo.findById(applianceId)
-            .orElseThrow(() -> new IllegalArgumentException("Appliance not found: id=" + applianceId));
-        if (!existing.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Not authorized to update this appliance.");
+            .orElseThrow(() -> {
+                logger.error("Appliance not found with id={}", applianceId);
+                return new IllegalArgumentException("Appliance not found: id=" + applianceId);
+            });
+
+        if (userId != null) {
+            if (existing.getUser() == null || !existing.getUser().getId().equals(userId)) {
+                logger.warn("Unauthorized update attempt for appliance id={} by userId={}", applianceId, userId);
+                throw new IllegalArgumentException("Not authorized to update this appliance.");
+            }
+        } else {
+            if (existing.getUser() != null) {
+                logger.warn("Unauthorized guest update attempt for appliance id={}", applianceId);
+                throw new IllegalArgumentException("Not authorized to update this appliance.");
+            }
         }
-        // Copy fields:
+
+        // Copy fields
         existing.setName(updated.getName());
         existing.setWattage(updated.getWattage());
         existing.setHoursPerDay(updated.getHoursPerDay());
@@ -49,23 +72,48 @@ public class ApplianceService {
         existing.setType(updated.getType());
         existing.setLocation(updated.getLocation());
         existing.setHighEfficiency(updated.isHighEfficiency());
-        return applianceRepo.save(existing);
+
+        Appliance saved = applianceRepo.save(existing);
+        logger.info("Appliance id={} updated successfully", saved.getId());
+        return saved;
     }
 
-    /** Delete an appliance (only if it belongs to that user). */
     @Transactional
     public void deleteAppliance(Long userId, Long applianceId) {
+        logger.info("Deleting appliance id={} for userId={}", applianceId, userId);
         Appliance existing = applianceRepo.findById(applianceId)
-            .orElseThrow(() -> new IllegalArgumentException("Appliance not found: id=" + applianceId));
-        if (!existing.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Not authorized to delete this appliance.");
+            .orElseThrow(() -> {
+                logger.error("Appliance not found with id={}", applianceId);
+                return new IllegalArgumentException("Appliance not found: id=" + applianceId);
+            });
+
+        if (userId != null) {
+            if (existing.getUser() == null || !existing.getUser().getId().equals(userId)) {
+                logger.warn("Unauthorized delete attempt for appliance id={} by userId={}", applianceId, userId);
+                throw new IllegalArgumentException("Not authorized to delete this appliance.");
+            }
+        } else {
+            if (existing.getUser() != null) {
+                logger.warn("Unauthorized guest delete attempt for appliance id={}", applianceId);
+                throw new IllegalArgumentException("Not authorized to delete this appliance.");
+            }
         }
+
         applianceRepo.delete(existing);
+        logger.info("Appliance id={} deleted successfully", applianceId);
     }
 
-    /** Return all appliances belonging to userId. */
     @Transactional(readOnly = true)
     public List<Appliance> listUserAppliances(Long userId) {
-        return applianceRepo.findByUserId(userId);
+        logger.info("Listing appliances for userId={}", userId);
+        if (userId != null) {
+            var list = applianceRepo.findByUserId(userId);
+            logger.info("Found {} appliances for userId={}", list.size(), userId);
+            return list;
+        } else {
+            var list = applianceRepo.findByUserIsNull();
+            logger.info("Found {} guest appliances", list.size());
+            return list;
+        }
     }
 }

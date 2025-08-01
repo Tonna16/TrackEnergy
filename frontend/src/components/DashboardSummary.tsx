@@ -13,7 +13,7 @@ export default function DashboardSummary({ useEstimate }: DashboardSummaryProps)
   const [forecastedDailyCost, setForecastedDailyCost] = useState<number | null>(null)
 
   useEffect(() => {
-    api.get('/energy-usage/forecasted-daily-cost')
+    api.get('energy-usage/forecasted-daily-cost')
       .then(res => {
         if (typeof res.data === 'number') {
           setForecastedDailyCost(res.data)

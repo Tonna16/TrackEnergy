@@ -12,6 +12,7 @@ import { applianceDatabase } from '../data/applianceDatabase'
 import { getAuthToken } from '../utils/auth'
 import { generateEstimate } from '../utils/energyEstimator'
 
+const API_URL = '/api/appliances'
 const EMISSION_FACTOR_KG_PER_KWH = 0.417
 const SAVINGS_PERCENTAGE = 0.15
 const DEFAULT_USD_TO_EUR = 0.86
@@ -30,9 +31,9 @@ export type Appliance = {
   estimatedDailyKWh?: number
 }
 
-export type ApplianceInput = Omit<Appliance, 'id'>
+type ApplianceInput = Omit<Appliance, 'id'>
 
-export type UserSettings = {
+type UserSettings = {
   currency: 'USD' | 'EUR'
   householdSize: number
   darkMode: boolean
@@ -40,7 +41,7 @@ export type UserSettings = {
   exchangeRate: number
 }
 
-export type UsageLog = {
+type UsageLog = {
   date: string
   total: number
   byAppliance: Record<string, number>
@@ -48,11 +49,11 @@ export type UsageLog = {
 
 type AppMode = 'simulated' | 'live'
 
-export type AppContextType = {
+type AppContextType = {
   appliances: Appliance[]
-  addAppliance(input: ApplianceInput): void
-  updateAppliance(updated: Appliance): void
-  deleteAppliance(id: string): void
+  addAppliance(input: ApplianceInput): Promise<void>
+  updateAppliance(updated: Appliance): Promise<void>
+  deleteAppliance(id: string): Promise<void>
   getAppliance(id: string): Appliance | undefined
   forecastedDailyCost: number
 
@@ -84,47 +85,93 @@ const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
-    const saved = localStorage.getItem('appliances')
-    return saved ? JSON.parse(saved) : []
+    try {
+      const saved = localStorage.getItem('appliances')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
   })
 
   const [settings, setSettings] = useState<UserSettings>(() => {
-    const saved = localStorage.getItem('settings')
-    return saved
-      ? JSON.parse(saved)
-      : {
-          currency: 'USD',
-          householdSize: 2,
-          darkMode: false,
-          electricityRate: 0.17,
-          exchangeRate: DEFAULT_USD_TO_EUR,
-        }
+    try {
+      const saved = localStorage.getItem('settings')
+      return saved
+        ? JSON.parse(saved)
+        : {
+            currency: 'USD',
+            householdSize: 2,
+            darkMode: false,
+            electricityRate: 0.17,
+            exchangeRate: DEFAULT_USD_TO_EUR,
+          }
+    } catch {
+      return {
+        currency: 'USD',
+        householdSize: 2,
+        darkMode: false,
+        electricityRate: 0.17,
+        exchangeRate: DEFAULT_USD_TO_EUR,
+      }
+    }
   })
 
-  const [appMode, setAppMode] = useState<AppMode>(
-    localStorage.getItem('appMode') === 'live' ? 'live' : 'simulated'
-  )
+  const [appMode, setAppMode] = useState<AppMode>(() => {
+    const savedMode = localStorage.getItem('appMode')
+    return savedMode === 'live' ? 'live' : 'simulated'
+  })
 
   const [manualUsageLog, setManualUsageLog] = useState<UsageLog[]>(() => {
-    const saved = localStorage.getItem('manualUsageLog')
-    return saved ? JSON.parse(saved) : []
+    try {
+      const saved = localStorage.getItem('manualUsageLog')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
   })
 
-  // Persist to localStorage
-  useEffect(() => localStorage.setItem('appliances', JSON.stringify(appliances)), [appliances])
-  useEffect(() => localStorage.setItem('settings', JSON.stringify(settings)), [settings])
-  useEffect(() => localStorage.setItem('appMode', appMode), [appMode])
-  useEffect(() => localStorage.setItem('manualUsageLog', JSON.stringify(manualUsageLog)), [manualUsageLog])
+  useEffect(() => {
+    localStorage.setItem('appliances', JSON.stringify(appliances))
+  }, [appliances])
 
-  // If user logs out, switch to simulated
+  useEffect(() => {
+    localStorage.setItem('settings', JSON.stringify(settings))
+  }, [settings])
+
+  useEffect(() => {
+    localStorage.setItem('appMode', appMode)
+  }, [appMode])
+
+  useEffect(() => {
+    localStorage.setItem('manualUsageLog', JSON.stringify(manualUsageLog))
+  }, [manualUsageLog])
+
   useEffect(() => {
     if (!getAuthToken()) setAppMode('simulated')
   }, [])
 
-  // FX handling
-  const [fxRate, setFxRate] = useState<number>(settings.exchangeRate || DEFAULT_USD_TO_EUR)
   useEffect(() => {
-    setFxRate(settings.currency === 'EUR' ? (settings.exchangeRate || DEFAULT_USD_TO_EUR) : 1)
+    const fetchAppliances = async () => {
+      if (appMode === 'live') {
+        try {
+          const res = await fetch(API_URL, {
+            headers: { Authorization: `Bearer ${getAuthToken()}` },
+          })
+          if (res.ok) {
+            const data: Appliance[] = await res.json()
+            setAppliances(data)
+          }
+        } catch (err) {
+          console.error('Failed to fetch appliances:', err)
+        }
+      }
+    }
+    fetchAppliances()
+  }, [appMode])
+
+  const [fxRate, setFxRate] = useState<number>(settings.exchangeRate)
+  useEffect(() => {
+    setFxRate(settings.currency === 'EUR' ? settings.exchangeRate : 1)
   }, [settings.currency, settings.exchangeRate])
 
   const usdRate = settings.electricityRate
@@ -137,8 +184,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const symbol = useMemo(() => (settings.currency === 'EUR' ? '€' : '$'), [settings.currency])
 
   const currencyFormatter = useMemo(
-    () =>
-      new Intl.NumberFormat(undefined, {
+    () => new Intl.NumberFormat(undefined, {
         style: 'currency',
         currency: settings.currency,
         minimumFractionDigits: 2,
@@ -161,43 +207,30 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=EUR')
       const json = await res.json()
-      return json.rates?.EUR ?? DEFAULT_USD_TO_EUR
+      return json.rates.EUR ?? DEFAULT_USD_TO_EUR
     } catch {
       return DEFAULT_USD_TO_EUR
     }
   }, [])
 
-  // daily kWh formula
   const totalDailyUsage = useMemo(
-    () =>
-      appliances.reduce(
-        (sum, app) =>
-          sum + (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000,
-        0
-      ),
-    [appliances]
+    () => appliances.reduce(
+      (sum, app) => sum + (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000,
+      0
+    ), [appliances]
   )
 
   const forecastedDailyCost = useMemo(() => {
-    const points = generateEstimate({
-      appliances,
-      convertCost: costFromKwh,
-      count: 30,
-      daysPer: 1,
-      disableNoise: false,
-      getApplianceTypeInfo: type =>
-        applianceDatabase[type]
-          ? { averageWattage: applianceDatabase[type].defaultWattage }
-          : {},
+    const points = generateEstimate({ appliances, convertCost: costFromKwh, count: 30, daysPer: 1, disableNoise: false,
+      getApplianceTypeInfo: type => applianceDatabase[type]
+        ? { averageWattage: applianceDatabase[type].defaultWattage }
+        : {},
     })
     const total = points.reduce((sum, p) => sum + (p.total ?? 0), 0)
     return total / 30
   }, [appliances, costFromKwh])
 
-  const totalDailyCost = useMemo(() => costFromKwh(totalDailyUsage), [
-    totalDailyUsage,
-    costFromKwh,
-  ])
+  const totalDailyCost = useMemo(() => costFromKwh(totalDailyUsage), [totalDailyUsage, costFromKwh])
   const yearlyCarbonFootprint = useMemo(
     () => totalDailyUsage * 365 * EMISSION_FACTOR_KG_PER_KWH,
     [totalDailyUsage]
@@ -207,69 +240,65 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     [totalDailyCost]
   )
 
-  const dailyUsageSeries = useMemo(() => {
-    return [...manualUsageLog].sort((a, b) => a.date.localeCompare(b.date))
-  }, [manualUsageLog])
+  const dailyUsageSeries = useMemo(
+    () => [...manualUsageLog].sort((a, b) => a.date.localeCompare(b.date)),
+    [manualUsageLog]
+  )
+
+  const addAppliance = async (input: ApplianceInput) => {
+    const newApp: Appliance = { ...input, id: crypto.randomUUID?.() || Math.random().toString(36).slice(2) }
+    if (appMode === 'live') {
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+          body: JSON.stringify(newApp),
+        })
+        if (!res.ok) throw new Error('Failed to add appliance')
+        const saved: Appliance = await res.json()
+        setAppliances(prev => [saved, ...prev])
+        return
+      } catch (err) { console.error(err) }
+    }
+    setAppliances(prev => [newApp, ...prev])
+  }
+
+  const updateAppliance = async (updated: Appliance) => {
+    if (appMode === 'live') {
+      try {
+        const res = await fetch(`${API_URL}/${updated.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+          body: JSON.stringify(updated),
+        })
+        if (!res.ok) throw new Error('Failed to update appliance')
+      } catch (err) { console.error(err) }
+    }
+    setAppliances(prev => prev.map(a => (a.id === updated.id ? updated : a)))
+  }
+
+  const deleteAppliance = async (id: string) => {
+    if (appMode === 'live') {
+      try {
+        await fetch(`${API_URL}/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${getAuthToken()}` } })
+      } catch (err) { console.error(err) }
+    }
+    setAppliances(prev => prev.filter(a => a.id !== id))
+  }
 
   return (
     <AppContext.Provider
-      value={{
-        appliances,
-        forecastedDailyCost,
-        addAppliance: input => {
-          const newApp: Appliance = {
-            ...input,
-            id: crypto.randomUUID?.() || Math.random().toString(36).slice(2),
-          }
-          setAppliances(prev => [newApp, ...prev])
-        },
-        updateAppliance: u =>
-          setAppliances(prev => prev.map(a => (a.id === u.id ? u : a))),
-        deleteAppliance: id =>
-          setAppliances(prev => prev.filter(a => a.id !== id)),
-        getAppliance: id => appliances.find(a => a.id === id),
-
-        totalDailyUsage,
-        totalDailyCost,
-        yearlyCarbonFootprint,
-        estimatedAnnualSavings,
-
-        settings,
-        updateSettings: u => setSettings(prev => ({ ...prev, ...u })),
-        appMode,
-        setAppMode,
-
-        costFromKwh,
-        convertCurrency,
-        formatCost,
-        formatConvertedCost,
-        symbol,
-        currentRate,
-
-        dailyUsageSeries,
-
-        logManualUsage: log => {
-          setManualUsageLog(prev => {
-            const rest = prev.filter(e => e.date !== log.date)
-            return [...rest, log].sort((a, b) =>
-              a.date.localeCompare(b.date)
-            )
-          })
-        },
-        getApplianceTypeInfo: type =>
-          applianceDatabase[type]
-            ? { averageWattage: applianceDatabase[type].defaultWattage }
-            : undefined,
-        fetchLiveRate,
-      }}
-    >
+      value={{ appliances, addAppliance, updateAppliance, deleteAppliance, getAppliance: id => appliances.find(a => a.id === id), forecastedDailyCost,
+        totalDailyUsage, totalDailyCost, yearlyCarbonFootprint, estimatedAnnualSavings,
+        settings, updateSettings: u => setSettings(prev => ({ ...prev, ...u })), appMode, setAppMode,
+        costFromKwh, convertCurrency, formatCost, formatConvertedCost, symbol, currentRate,
+        logManualUsage: log => setManualUsageLog(prev => [...prev.filter(e => e.date !== log.date), log].sort((a, b) => a.date.localeCompare(b.date))),
+        getApplianceTypeInfo: type => applianceDatabase[type] ? { averageWattage: applianceDatabase[type].defaultWattage } : undefined,
+        fetchLiveRate, dailyUsageSeries
+      }}>
       {children}
     </AppContext.Provider>
   )
 }
 
-export const useAppContext = () => {
-  const ctx = useContext(AppContext)
-  if (!ctx) throw new Error('useAppContext must be used within AppProvider')
-  return ctx
-}
+export const useAppContext = () => { const ctx = useContext(AppContext); if (!ctx) throw new Error('useAppContext must be used within AppProvider'); return ctx }

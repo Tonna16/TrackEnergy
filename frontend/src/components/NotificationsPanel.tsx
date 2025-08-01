@@ -34,11 +34,11 @@ export default function NotificationsPanel() {
     }
   }, [])
 
-  // When the panel opens, mark all unread as read
+  // When the panel opens, mark all unread & NOT deleted as read
   useEffect(() => {
     if (open && unreadCount > 0) {
       notifications
-        .filter(n => !n.read)
+        .filter(n => !n.read && !n.deleted)  // <-- filter deleted here
         .forEach(n => markAsRead(n.id))
     }
   }, [open, notifications, unreadCount, markAsRead])
@@ -56,6 +56,9 @@ export default function NotificationsPanel() {
         return <Info className="w-4 h-4 text-gray-400 mr-1" /> // fallback icon
     }
   }
+
+  // Filter out deleted notifications before rendering
+  const visibleNotifications = notifications.filter(n => !n.deleted)
 
   return (
     <div className="relative" ref={panelRef}>
@@ -79,12 +82,12 @@ export default function NotificationsPanel() {
           style={{ overscrollBehavior: 'contain' }}
           className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-800 shadow-lg rounded z-50 border border-gray-200 dark:border-gray-600"
         >
-          {notifications.length === 0 ? (
+          {visibleNotifications.length === 0 ? (
             <div className="p-4 text-sm text-gray-600 dark:text-gray-300">
               No notifications
             </div>
           ) : (
-            notifications.map(n => (
+            visibleNotifications.map(n => (
               <div
                 role="option"
                 key={n.id}

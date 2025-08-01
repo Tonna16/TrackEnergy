@@ -22,10 +22,9 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
     costFromKwh,
     totalDailyUsage,
     forecastedDailyCost
-    // use costFromKwh to compute forecasted daily cost if backend not available
   } = useAppContext()
 
-  // Baseline national average
+  // Baseline national average for household size
   const baselineDaily = useMemo(() => {
     const bySize = nationalAverages.by_household_size
     const sizeKey = settings.householdSize >= 5 ? 5 : settings.householdSize
@@ -33,6 +32,8 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
   }, [settings.householdSize])
 
   // Efficiency %
+  // -1 means no baseline data
+  // null means no usage data
   const efficiencyPercent = useMemo(() => {
     if (baselineDaily <= 0) return -1
     if (totalDailyUsage === 0) return null
@@ -42,10 +43,10 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
 
   const [showTooltip, setShowTooltip] = useState(false)
 
-  // If backend daily cost null, compute from usage & rate
-
-
-  const displayedCost = avgDailyCostFromChart > 0 ? avgDailyCostFromChart : forecastedDailyCost
+  // Use chart average if available; otherwise backend forecast, fallback 0
+  const displayedCost = avgDailyCostFromChart > 0 
+    ? avgDailyCostFromChart 
+    : forecastedDailyCost ?? 0
 
   const formattedCost = useMemo(() => {
     return new Intl.NumberFormat(undefined, {
@@ -53,7 +54,7 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
       currency: settings.currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(displayedCost)
+    }).format(displayedCost ?? 0)
   }, [displayedCost, settings.currency])
 
   const getEfficiencyColor = (percent: number | null) => {
@@ -75,6 +76,9 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
         </div>
         <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">
           {totalDailyUsage.toFixed(2)} kWh
+        </p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          National average: {baselineDaily.toFixed(2)} kWh
         </p>
       </div>
 

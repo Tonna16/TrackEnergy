@@ -20,8 +20,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!isLoggedIn) return // Only fetch for logged-in users
-
-    api.get('/energy-usage/forecasted-daily-cost')
+  
+    api.get('energy-usage/forecasted-daily-cost')
       .then(res => {
         if (typeof res.data === 'number') {
           setForecastedDailyCost(res.data)
@@ -32,7 +32,8 @@ export default function Dashboard() {
       .catch(() => {
         setForecastedDailyCost(null) // fallback or show no data
       })
-  }, [isLoggedIn])
+  }, [isLoggedIn, appliances])  // <== Add appliances here
+  
 
   // Use backend forecast if available, otherwise fallback to chart average
   const dailyCostToShow = forecastedDailyCost ?? avgDailyCost

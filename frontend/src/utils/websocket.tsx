@@ -22,7 +22,8 @@ export function connectWebSocket(onConnected?: () => void): Promise<void> {
   client = new Client({
     webSocketFactory: () => new SockJS(sockJSUrl),
     reconnectDelay: 5000,
-    debug: () => {},
+    debug: (str) => console.log('[STOMP DEBUG]', str),
+
   })
 
   connectPromise = new Promise((resolve, reject) => {

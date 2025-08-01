@@ -28,21 +28,24 @@ function App() {
 
   return (
     <Routes>
-      {/* Public layout with accessible pages for both guest and logged-in users */}
-      <Route element={<Layout />}>
-        {/* Public pages */}
-        <Route index element={<Dashboard />} />
-        <Route path="compare" element={<Compare />} />
-        <Route path="insights" element={<Insights />} />
+    {/* Public pages - guests + users */}
+<Route element={<Layout />}>
+  <Route index element={<Dashboard />} />
+  <Route path="settings" element={<Settings />} />
 
-        {/* Protected pages - only for authenticated users */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="add-appliance" element={<ApplianceForm />} />
-          <Route path="edit-appliance/:id" element={<ApplianceForm />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="profile" element={<ProfilePage />} />
-        </Route>
-      </Route>
+  <Route path="compare" element={<Compare />} />
+  <Route path="insights" element={<Insights />} />
+
+  {/* Protected pages (only logged-in users) */}
+  <Route element={<ProtectedRoute />}>
+    <Route path="profile" element={<ProfilePage />} />
+  </Route>
+
+  {/* Pages like add-appliance and edit-appliance are accessible by guests too */}
+  <Route path="add-appliance" element={<ApplianceForm />} />
+  <Route path="edit-appliance/:id" element={<ApplianceForm />} />
+</Route>
+
 
       {/* Auth routes (login/signup) */}
       <Route path="/login" element={<LoginPage />} />

@@ -6,7 +6,8 @@ import com.energytracker.repository.NotificationRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class NotificationService {
 
     private final NotificationRepository repo;
     private final SimpMessagingTemplate messaging;
-
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
     public NotificationService(NotificationRepository repo, SimpMessagingTemplate messaging) {
         this.repo = repo;
         this.messaging = messaging;
@@ -131,10 +132,14 @@ public Notification createHighUsageNotificationIfNotExists(User user, Long appli
 
     @Transactional
     public boolean markAsReadForUser(Long notificationId, Long userId) {
+        logger.debug("markAsRead: notificationId={} for userId={}", notificationId, userId);
+
         return repo.findById(notificationId)
                    .filter(n -> n.getUser().getId().equals(userId))
                    .filter(n -> !Boolean.TRUE.equals(n.getDeleted()))
                    .map(n -> {
+                    logger.debug("  found notification.user.id={}", n.getUser().getId());
+
                        n.setRead(true);
                        repo.save(n);
                        return true;

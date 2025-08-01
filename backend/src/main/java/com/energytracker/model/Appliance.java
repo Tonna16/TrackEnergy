@@ -1,5 +1,8 @@
+// src/main/java/com/energytracker/model/Appliance.java
+
 package com.energytracker.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -8,7 +11,6 @@ public class Appliance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
 
     private String name;
     private int wattage;
@@ -20,12 +22,13 @@ public class Appliance {
     private String brand;
     private String model;
 
-    // ── NEW: link back to User ──
+    // Link back to User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
-    // ── Getters / setters omitted for brevity ──
+    // Getters & setters
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -59,7 +62,5 @@ public class Appliance {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email;
-}
+   
 }

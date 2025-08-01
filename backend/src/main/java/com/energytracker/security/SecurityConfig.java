@@ -2,6 +2,7 @@ package com.energytracker.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -32,16 +33,27 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/login",
-                    "/api/auth/signup",
-                    "/api/auth/refresh",
-                    "/api/tips/**"
-                ).permitAll()
-                .requestMatchers("/ws/**").permitAll()
-                .requestMatchers("/api/notifications/**").hasRole("USER")
-                .anyRequest().authenticated()
-            )
+            // public
+            .requestMatchers(HttpMethod.GET, "/api/energy-usage/**").permitAll()
+            .requestMatchers("/api/auth/**", "/api/appliances/**", "/api/annual-cost", "/api/forecasted-daily-cost",
+                             "/api/exchange-rate", "/api/currency/**", "/api/tips/**", "/ws/**")
+               .permitAll()
+          
+            // secure energy endpoints
+            .requestMatchers(HttpMethod.POST, "/api/energy-usage").authenticated()
+            .requestMatchers(HttpMethod.PUT, "/api/energy-usage/**").authenticated()
+            .requestMatchers(HttpMethod.DELETE, "/api/energy-usage/**").authenticated()
+          
+            // **Protect all notifications endpoints**
+            .requestMatchers("/api/notifications/**").authenticated()
+          
+            // forecast endpoints
+            .requestMatchers("/api/forecast/**").hasRole("USER")
+          
+            // all routes not listed above
+            .anyRequest().authenticated()
+          )
+          
             .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
             .httpBasic(httpBasic -> httpBasic.disable());
 
@@ -51,7 +63,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:5173"));
+        cfg.setAllowedOrigins(List.of("http://localhost:5173")); // Change for prod
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);

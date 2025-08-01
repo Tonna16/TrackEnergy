@@ -6,11 +6,10 @@ import com.energytracker.service.NotificationService;
 import com.energytracker.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -27,157 +26,170 @@ public class NotificationController {
     private final UserService userService;
 
     public NotificationController(NotificationService notificationService, UserService userService) {
-        this.userService = userService;
         this.notificationService = notificationService;
+        this.userService = userService;
     }
 
-    private User authUser(Principal principal) {
-        if (principal == null) {
+    private User getAuthenticatedUser() {
+        Object principal = SecurityContextHolder.getContext()
+                                                .getAuthentication()
+                                                .getPrincipal();
+        if (!(principal instanceof String email)) {
+            logger.error("No authenticated principal or wrong type: {}", principal);
             throw new IllegalStateException("User not authenticated");
         }
-        String email = principal.getName();
         User user = userService.getUserByEmail(email);
         if (user == null) {
+            logger.warn("Authenticated email not found in DB: {}", email);
             throw new IllegalStateException("User not found");
         }
+        logger.info("Authenticated user for notifications: {}", email);
         return user;
     }
 
     @GetMapping
-    public ResponseEntity<?> getNotifications(Principal principal) {
+    public ResponseEntity<?> getNotifications() {
         try {
-            User user = authUser(principal);
-            List<Notification> notifications = notificationService.getForUser(user.getId());
-            return ResponseEntity.ok(notifications);
+            User user = getAuthenticatedUser();
+            List<Notification> list = notificationService.getForUser(user.getId());
+            logger.debug("Returning {} notifications for user {}", list.size(), user.getEmail());
+            return ResponseEntity.ok(list);
         } catch (IllegalStateException e) {
+            logger.error("Failed to fetch notifications: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
     @GetMapping("/unread-count")
-    public ResponseEntity<?> getUnreadCount(Principal principal) {
+    public ResponseEntity<?> getUnreadCount() {
         try {
-            User user = authUser(principal);
+            User user = getAuthenticatedUser();
             long count = notificationService.getUnreadCount(user.getId());
+            logger.debug("User {} has {} unread notifications", user.getEmail(), count);
             return ResponseEntity.ok(Map.of("unreadCount", count));
         } catch (IllegalStateException e) {
+            logger.error("Failed to fetch unread count: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
     @PostMapping("/{id}/read")
-    public ResponseEntity<?> markRead(@PathVariable Long id, Principal principal) {
+    public ResponseEntity<?> markRead(@PathVariable Long id) {
         try {
-            User user = authUser(principal);
-            boolean success = notificationService.markAsReadForUser(id, user.getId());
-            if (!success) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized to mark this notification");
+            User user = getAuthenticatedUser();
+            boolean ok = notificationService.markAsReadForUser(id, user.getId());
+            if (!ok) {
+                logger.warn("User {} not authorized to mark notification {} read", user.getEmail(), id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
             }
-            logger.info("Marked notification {} as read for user {}", id, user.getId());
+            logger.info("Notification {} marked read for user {}", id, user.getEmail());
             return ResponseEntity.ok(Map.of("status", "read"));
         } catch (IllegalStateException e) {
+            logger.error("markRead failed: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
     @PostMapping("/weekly-comparison")
-    public ResponseEntity<?> createWeeklyComparisonNotification(
-            @RequestBody Map<String, Object> body,
-            Principal principal) {
+    public ResponseEntity<?> createWeeklyComparisonNotification(@RequestBody Map<String, Object> body) {
         try {
-            User user = authUser(principal);
+            User user = getAuthenticatedUser();
+            LocalDate weekStart = LocalDate.parse((String) body.get("weekStartDate"));
+            double actual = Double.parseDouble(body.get("actualUsage").toString());
+            double forecast = Double.parseDouble(body.get("forecastUsage").toString());
 
-            String weekStartStr = (String) body.get("weekStartDate");
-            Double actualUsage = Double.valueOf(body.get("actualUsage").toString());
-            Double forecastUsage = Double.valueOf(body.get("forecastUsage").toString());
-            LocalDate weekStartDate = LocalDate.parse(weekStartStr);
-
-            Notification notification = notificationService.createForecastComparisonNotification(
-                    user, weekStartDate, actualUsage, forecastUsage);
-
-            return ResponseEntity.ok(notification);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        } catch (DateTimeParseException | NullPointerException | NumberFormatException e) {
+            Notification notif = notificationService
+                .createForecastComparisonNotification(user, weekStart, actual, forecast);
+            logger.info("Weekly comparison notification created for user {}", user.getEmail());
+            return ResponseEntity.ok(notif);
+        } catch (DateTimeParseException|NullPointerException|NumberFormatException e) {
+            logger.warn("Bad request payload for weekly-comparison: {}", e.getMessage());
             return ResponseEntity.badRequest().body("Invalid request data");
+        } catch (IllegalStateException e) {
+            logger.error("Unauthorized weekly-comparison: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
     @PostMapping("/high-usage-appliance")
-    public ResponseEntity<?> notifyHighUsageAppliance(
-            @RequestBody Map<String, Object> body,
-            Principal principal) {
+    public ResponseEntity<?> notifyHighUsageAppliance(@RequestBody Map<String, Object> body) {
         try {
-            User user = authUser(principal);
-
-            String applianceName = (String) body.get("name");
-            Double estimatedKWh = Double.valueOf(body.get("estimatedKWh").toString());
-
-            if (applianceName == null || estimatedKWh == null) {
-                return ResponseEntity.badRequest().body("Missing appliance name or usage.");
-            }
-
-            Notification notification = notificationService.createHighUsageApplianceNotification(user, applianceName, estimatedKWh);
-            return ResponseEntity.ok(notification);
+            User user = getAuthenticatedUser();
+            String name = (String) body.get("name");
+            double estKWh = Double.parseDouble(body.get("estimatedKWh").toString());
+            Notification notif = notificationService
+                .createHighUsageApplianceNotification(user, name, estKWh);
+            logger.info("High-usage appliance notification for '{}' to user {}", name, user.getEmail());
+            return ResponseEntity.ok(notif);
+        } catch (IllegalStateException e) {
+            logger.error("Unauthorized high-usage-appliance: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Failed to send high-usage appliance notification", e);
+            logger.error("Error notifying high-usage-appliance", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending notification.");
         }
     }
 
     @PostMapping("/forecast-mode")
-    public ResponseEntity<?> notifyForecastMode(
-            @RequestBody Map<String, String> body,
-            Principal principal) {
+    public ResponseEntity<?> notifyForecastMode(@RequestBody Map<String, String> body) {
         try {
-            User user = authUser(principal);
+            User user = getAuthenticatedUser();
             String mode = body.get("mode");
-
             if (mode == null) {
-                return ResponseEntity.badRequest().body("Forecast mode is required.");
+                logger.warn("Missing 'mode' in forecast-mode payload");
+                return ResponseEntity.badRequest().body("Forecast mode required");
             }
-
-            Notification notification = notificationService.createForecastModeNotification(user, mode);
-            return ResponseEntity.ok(notification);
+            Notification notif = notificationService.createForecastModeNotification(user, mode);
+            logger.info("Forecast mode '{}' notification for user {}", mode, user.getEmail());
+            return ResponseEntity.ok(notif);
+        } catch (IllegalStateException e) {
+            logger.error("Unauthorized forecast-mode: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Failed to send forecast mode notification", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending forecast notification.");
+            logger.error("Error in forecast-mode", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending notification.");
         }
     }
-    @PostMapping("/exchange-rate")
-    public ResponseEntity<?> exchangeRateNotification(
-        @RequestBody Map<String, Object> body,
-        Principal principal
-    ) {
-        User user = userService.getUserByEmail(principal.getName());
-    
-        String newCurrency = (String) body.get("newCurrency");
-        double rate = ((Number) body.get("exchangeRate")).doubleValue();
-        double electricityRate = ((Number) body.get("electricityRate")).doubleValue();
-        LocalDate date = LocalDate.parse((String) body.get("date"));
-    
-        String title = "Exchange Rate Updated";
-        String msg = String.format("💱 %s rate updated. New electricity cost: %.2f/kWh.",
-            newCurrency.equals("EUR") ? "EUR/USD" : "USD/EUR", electricityRate);
-    
-        // ✅ Return the saved notification
-        Notification notification = notificationService.createAndPush(user, title, "info", msg, null, date);
-        return ResponseEntity.ok(notification);
-    }
-    
 
+    @PostMapping("/exchange-rate")
+    public ResponseEntity<?> exchangeRateNotification(@RequestBody Map<String, Object> body) {
+        try {
+            User user = getAuthenticatedUser();
+            String newCurrency = (String) body.get("newCurrency");
+            double rate = ((Number) body.get("exchangeRate")).doubleValue();
+            double elecRate = ((Number) body.get("electricityRate")).doubleValue();
+            LocalDate date = LocalDate.parse((String) body.get("date"));
+
+            String title = "Exchange Rate Updated";
+            String msg = String.format("💱 %s rate updated. New cost: %.2f/kWh",
+                                       newCurrency.equals("EUR") ? "EUR/USD" : "USD/EUR",
+                                       elecRate);
+
+            Notification notif = notificationService.createAndPush(user, title, "info", msg, null, date);
+            logger.info("Exchange rate notification for user {}", user.getEmail());
+            return ResponseEntity.ok(notif);
+        } catch (IllegalStateException e) {
+            logger.error("Unauthorized exchange-rate: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error in exchange-rate", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending notification.");
+        }
+    }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id, Principal principal) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
-            User user = authUser(principal);
-            boolean success = notificationService.deleteForUser(id, user.getId());
-            if (!success) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized to delete this notification");
+            User user = getAuthenticatedUser();
+            boolean ok = notificationService.deleteForUser(id, user.getId());
+            if (!ok) {
+                logger.warn("User {} forbidden to delete notif {}", user.getEmail(), id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
             }
-            logger.info("Deleted notification {} for user {}", id, user.getId());
+            logger.info("Deleted notification {} for user {}", id, user.getEmail());
             return ResponseEntity.ok(Map.of("status", "deleted"));
         } catch (IllegalStateException e) {
+            logger.error("Unauthorized delete notification: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }

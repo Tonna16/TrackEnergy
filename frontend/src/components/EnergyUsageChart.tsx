@@ -44,7 +44,7 @@ export default function EnergyUsageChart({ height = 480, useEstimate, onAverageC
       .get('energy-usage/projections', { params: { timeRange } })
       .then(res => setServerData(res.data))
       .catch(() => setServerData([]))
-  }, [timeRange, settings.currency])
+  }, [timeRange, settings.currency, appliances])
 
   // Local projection estimates
   const dailyEst = useMemo(() => generateEstimate({ appliances, convertCost: costFromKwh, count: 30, daysPer: 1 }), [appliances, costFromKwh])
@@ -107,10 +107,11 @@ export default function EnergyUsageChart({ height = 480, useEstimate, onAverageC
 
   // Set visible appliance on toggle
   useEffect(() => {
-    if (viewMode === 'perAppliance' && appliances.length) {
+    if (viewMode === 'perAppliance' && appliances.length && visibleApps.length === 0) {
       setVisibleApps([appliances[0].name])
     }
-  }, [viewMode, appliances])
+  }, [viewMode, appliances, visibleApps])
+  
 
   if (!appliances.length) {
     return (

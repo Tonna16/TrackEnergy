@@ -11,7 +11,8 @@ import com.energytracker.repository.EnergyUsageLogRepository;
 import com.util.TimeSeriesForecaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class EnergyUsageService {
+    private static final Logger logger = LoggerFactory.getLogger(EnergyUsageService.class);
 
     private final EnergyUsageLogRepository logRepo;
     private final ApplianceRepository applianceRepo;
@@ -34,7 +36,7 @@ public class EnergyUsageService {
         Map.entry(9, 1.00), Map.entry(10, 0.98), Map.entry(11, 1.05)
     );
     private static final double NOISE_BOUND = 0.05;
-    private static final int MIN_HISTORY_DAYS = 30;  // require at least 30 days for reliable forecast
+    private static final int MIN_HISTORY_DAYS = 30;
 
     public EnergyUsageService(
         EnergyUsageLogRepository logRepo,
@@ -52,20 +54,70 @@ public class EnergyUsageService {
         this.notificationService = notificationService;
     }
 
+    // Helper: fetch appliances for a user or guest (userId == null)
+    private List<Appliance> getAppliances(Long userId) {
+        return applianceRepo.findByUserId(userId);
+    }
+
+    // Helper: rate or default for guests
+    private double getRate(Long userId) {
+        return userSettingsService.getSettingsByUserId(userId)
+            .map(s -> s.getElectricityRatePerKWh())
+            .orElse(0.12);
+    }
+    /** 
+     * Fallback annual cost estimate for guest users without history.
+     * Returns a fixed average annual cost (USD).
+     */
+    public Double getFallbackEstimate() {
+        return 1200.0;
+    }
+
+    /** 
+     * Fallback daily cost estimate for guest users.
+     * Returns a fixed average daily cost (USD).
+     */
+    public Double getFallbackDailyCost() {
+        return 3.50;
+    }
     /** Raw usage data for charts */
     @Transactional(readOnly = true)
     public List<EnergyUsageDTO> getUsageDataByUser(Long userId, LocalDate start, LocalDate end) {
-        return logRepo.findUsageBetween(userId, start, end);
+        logger.info("getUsageDataByUser called with userId={}, start={}, end={}", userId, start, end);
+    
+        if (userId == null) {
+            logger.info("No userId provided, returning fallback usage data.");
+            return getFallbackUsageData(start, end);
+        }
+    
+        List<EnergyUsageDTO> usageData = logRepo.findUsageBetween(userId, start, end);
+        logger.info("Retrieved {} usage records for userId={}", usageData.size(), userId);
+        return usageData;
+    }
+    
+
+    /** Fallback raw usage data for guests */
+    @Transactional(readOnly = true)
+    public List<EnergyUsageDTO> getFallbackUsageData(LocalDate start, LocalDate end) {
+        LocalDate today = LocalDate.now();
+        LocalDate from = (start != null) ? start : today.minusDays(6);
+        LocalDate to = (end != null) ? end : today;
+
+        List<EnergyUsageDTO> fallback = new ArrayList<>();
+        Random rand = new Random(42);
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            double usage = 5 + rand.nextDouble() * 10;
+            fallback.add(new EnergyUsageDTO(date, null, "Fallback Estimate", usage));
+        }
+        return fallback;
     }
 
     /** Full-history summary */
     @Transactional(readOnly = true)
     public UsageSummaryDTO getUsageSummary(Long userId) {
+        if (userId == null) return getFallbackUsageSummary(30);
         var entries = logRepo.findAllByUserId(userId);
-        double rate = userSettingsService
-            .getSettingsByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Settings missing"))
-            .getElectricityRatePerKWh();
+        double rate = getRate(userId);
 
         double totalKwh = 0, totalCost = 0;
         Set<LocalDate> dates = new HashSet<>();
@@ -74,142 +126,180 @@ public class EnergyUsageService {
             totalCost += e.getKWhUsed() * rate;
             dates.add(e.getDate());
         }
-        double avgDaily = dates.isEmpty() ? 0 : totalKwh / dates.size();
-        return new UsageSummaryDTO(totalKwh, totalCost, avgDaily);
+        double avg = dates.isEmpty() ? 0 : totalKwh / dates.size();
+        return new UsageSummaryDTO(totalKwh, totalCost, avg);
+    }
+
+    /** Fallback summary */
+    public UsageSummaryDTO getFallbackUsageSummary(Integer days) {
+        double totalKwh = 100, totalCost = 120;
+        double avg = (days != null && days > 0) ? totalKwh / days : totalKwh / 30.0;
+        return new UsageSummaryDTO(totalKwh, totalCost, avg);
     }
 
     /** Last‑N‑days summary */
     @Transactional(readOnly = true)
     public UsageSummaryDTO getUsageSummaryForRange(Long userId, int days) {
+        if (userId == null) return getFallbackUsageSummary(days);
         LocalDate end = LocalDate.now();
         LocalDate start = end.minusDays(days - 1);
         var entries = logRepo.findAllByUserId(userId).stream()
             .filter(e -> !e.getDate().isBefore(start) && !e.getDate().isAfter(end))
             .collect(Collectors.toList());
 
-        double rate = userSettingsService
-            .getSettingsByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Settings missing"))
-            .getElectricityRatePerKWh();
+        double rate = getRate(userId);
+        Map<LocalDate, Double> daily = new HashMap<>();
+        for (var e : entries) daily.merge(e.getDate(), e.getKWhUsed(), Double::sum);
 
-        Map<LocalDate, Double> dailySum = new HashMap<>();
-        for (var e : entries) {
-            dailySum.merge(e.getDate(), e.getKWhUsed(), Double::sum);
-        }
-
-        double totalKwh = dailySum.values().stream().mapToDouble(Double::doubleValue).sum();
-        double avgDaily = dailySum.isEmpty() ? 0 : totalKwh / dailySum.size();
-        double totalCost = totalKwh * rate;
-        return new UsageSummaryDTO(totalKwh, totalCost, avgDaily);
+        double total = daily.values().stream().mapToDouble(d -> d).sum();
+        double avg = daily.isEmpty() ? 0 : total / daily.size();
+        return new UsageSummaryDTO(total, total * rate, avg);
     }
 
-    /** 
-     * Annual cost forecast by summing 12 monthly projections
-     * Returns null if insufficient history (less than MIN_HISTORY_DAYS)
-     */
+    /** Cost projections */
+    @Transactional(readOnly = true)
+    public List<UsageProjectionDTO> getProjections(Long userId, String timeRange) {
+        List<Appliance> apps = getAppliances(userId);
+        double rate = getRate(userId);
+        boolean forecast = userId != null;
+        return switch (timeRange.toLowerCase()) {
+            case "daily"   -> project(apps, rate, 1, 30, forecast, "yyyy-MM-dd");
+            case "weekly"  -> project(apps, rate, 7, 4, !forecast, "yyyy-MM-dd");
+            case "monthly" -> project(apps, rate, -1, 6, !forecast, "MMM yyyy");
+            default         -> throw new IllegalArgumentException("Invalid timeRange");
+        };
+    }
     @Transactional(readOnly = true)
     public Double getAnnualCostForecast(Long userId) {
-        var apps = applianceRepo.findByUserId(userId);
+        logger.info("getAnnualCostForecast called for userId={}", userId);
+    
+        if (userId == null) {
+            Double fallback = getFallbackEstimate();
+            logger.info("No userId provided, returning fallback annual cost estimate: {}", fallback);
+            return fallback;
+        }
+    
+        var apps = getAppliances(userId);
+        logger.info("Found {} appliances for userId={}", apps.size(), userId);
+    
         if (apps.isEmpty()) {
-            System.out.println("[EnergyUsageService] No appliances found for user " + userId);
+            logger.warn("No appliances found for userId={}, returning null", userId);
             return null;
         }
     
-        // Use getUserSettings to get existing or create default settings
         var settings = userSettingsService.getUserSettings(userId);
         if (settings == null) {
-            System.out.println("[EnergyUsageService] User settings returned null for user " + userId);
+            logger.warn("No user settings found for userId={}, returning null", userId);
             return null;
         }
     
         double rate = settings.getElectricityRatePerKWh();
-    
-        long historyDays = logRepo.findAllByUserId(userId).stream()
+        long hist = logRepo.findAllByUserId(userId).stream()
             .map(EnergyUsageLog::getDate).distinct().count();
+        logger.info("UserId={} has {} days of usage history", userId, hist);
     
-        boolean useForecast = historyDays >= MIN_HISTORY_DAYS;
+        boolean forecast = hist >= MIN_HISTORY_DAYS;
+        logger.info("Using forecast = {} (min required days = {})", forecast, MIN_HISTORY_DAYS);
     
-        var monthly = project(apps, rate, -1, 12, useForecast, "MMM yyyy");
+        var monthly = project(apps, rate, -1, 12, forecast, "MMM yyyy");
         double totalCost = monthly.stream().mapToDouble(UsageProjectionDTO::getTotalCost).sum();
     
-        System.out.println("[EnergyUsageService] Annual cost forecast for user " + userId + ": " + totalCost);
-    
+        logger.info("Calculated annual cost forecast for userId={} is {}", userId, totalCost);
         return totalCost;
     }
     
+    /** Forecasted daily cost */
+   /** Forecasted daily cost */
+@Transactional(readOnly = true)
+public Double getForecastedDailyCost(Long userId) {
+    logger.info("getForecastedDailyCost called for userId={}", userId);
+
+    // Handle unauthenticated users
+    if (userId == null) {
+        Double fallbackDaily = getFallbackDailyCost();
+        logger.info("No userId provided, returning fallback daily cost estimate: {}", fallbackDaily);
+        return fallbackDaily;
+    }
+
+    // Get user appliances
+    var apps = getAppliances(userId);
+    logger.info("Found {} appliances for userId={}", apps.size(), userId);
+
+    // No appliances means no cost
+    if (apps.isEmpty()) {
+        logger.warn("No appliances found for userId={}, returning 0.0", userId);
+        return 0.0;
+    }
+
+    // Calculate forecast
+    double rate = getRate(userId);
+    long hist = logRepo.findAllByUserId(userId).stream()
+        .map(EnergyUsageLog::getDate)
+        .distinct()
+        .count();
+    logger.info("UserId={} has {} days of usage history", userId, hist);
+
+    boolean forecast = hist >= MIN_HISTORY_DAYS;
+    logger.info("Using forecast = {} (min required days = {})", forecast, MIN_HISTORY_DAYS);
+
+    var next = project(apps, rate, 1, 30, forecast, "yyyy-MM-dd");
+    double avgDailyCost = next.stream()
+        .mapToDouble(UsageProjectionDTO::getTotalCost)
+        .average()
+        .orElse(0.0);
+
+    logger.info("Calculated forecasted daily cost for userId={} is {}", userId, avgDailyCost);
+    return avgDailyCost;
+}
+
     
 
-    /**
-     * ✅ NEW: Forecasted Daily Cost = average of the next 30 daily projections
-     * Returns null if no appliances or insufficient data
-     */
-    @Transactional(readOnly = true)
-    public Double getForecastedDailyCost(Long userId) {
-        var apps = applianceRepo.findByUserId(userId);
-        if (apps.isEmpty()) return null;
 
-        double rate = userSettingsService.getSettingsByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Settings missing"))
-            .getElectricityRatePerKWh();
+    @Transactional
+public EnergyUsageLog logUsage(Long applianceId, LocalDate date, double kWhUsed) {
+    logger.info("logUsage called with applianceId={}, date={}, kWhUsed={}", applianceId, date, kWhUsed);
 
-        long historyDays = logRepo.findAllByUserId(userId).stream()
-            .map(EnergyUsageLog::getDate).distinct().count();
+    var appOpt = applianceRepo.findById(applianceId);
+    if (appOpt.isEmpty()) {
+        logger.warn("Appliance not found: applianceId={}", applianceId);
+        throw new IllegalArgumentException("Appliance not found");
+    }
+    var app = appOpt.get();
 
-        boolean useForecast = historyDays >= MIN_HISTORY_DAYS;
-
-        List<UsageProjectionDTO> nextThirty = project(apps, rate, 1, 30, useForecast, "yyyy-MM-dd");
-        if (nextThirty.isEmpty()) return null;
-
-        double sumCost = nextThirty.stream()
-            .mapToDouble(UsageProjectionDTO::getTotalCost)
-            .sum();
-        return sumCost / 30.0;
+    boolean usageExists = logRepo.findByApplianceIdAndDate(applianceId, date).isPresent();
+    if (usageExists) {
+        logger.warn("Usage already logged for applianceId={} on date={}", applianceId, date);
+        throw new IllegalArgumentException("Usage already logged on " + date);
     }
 
-    /** Manual entry */
-    @Transactional
-    public EnergyUsageLog logUsage(Long applianceId, LocalDate date, double kWhUsed) {
-        if (logRepo.findByApplianceIdAndDate(applianceId, date).isPresent()) {
-            throw new IllegalArgumentException("Usage already logged on " + date);
-        }
-        var entry = new EnergyUsageLog();
-        var app = applianceRepo.findById(applianceId)
-            .orElseThrow(() -> new IllegalArgumentException("Appliance not found"));
-        entry.setAppliance(app);
-        entry.setDate(date);
-        entry.setKWhUsed(kWhUsed);
-        EnergyUsageLog saved = logRepo.save(entry);
+    var entry = new EnergyUsageLog();
+    entry.setAppliance(app);
+    entry.setDate(date);
+    entry.setKWhUsed(kWhUsed);
 
-        double baselineKwh = (app.getWattage() * app.getHoursPerDay()) / 1000.0;
-        if (kWhUsed > baselineKwh * 1.2) {
-            User user = userService.getUserById(app.getUser().getId());
+    var saved = logRepo.save(entry);
+    logger.info("Saved EnergyUsageLog with id={}", saved.getId());
+
+    if (app.getUser() != null) {
+        double base = (app.getWattage() * app.getHoursPerDay()) / 1000.0;
+        if (kWhUsed > base * 1.2) {
+            var user = userService.getUserById(app.getUser().getId());
+            logger.info("High usage detected, creating notification for userId={}, applianceId={}, date={}, usage={}",
+                        user.getId(), applianceId, date, kWhUsed);
             notificationService.createHighUsageNotificationIfNotExists(
-                user,
-                applianceId,
-                app.getName(),
-                date,
-                kWhUsed
+                user, applianceId, app.getName(), date, kWhUsed
             );
         }
-        return saved;
+    } else {
+        logger.info("No user associated with applianceId={}", applianceId);
     }
 
-    /** Cost projections (daily/weekly/monthly) */
-    @Transactional(readOnly = true)
-    public List<UsageProjectionDTO> getProjections(Long userId, String timeRange) {
-        var apps = applianceRepo.findByUserId(userId);
-        double rate = userSettingsService
-            .getSettingsByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Settings missing"))
-            .getElectricityRatePerKWh();
-        boolean useForecast = true;
-        return switch (timeRange.trim().toLowerCase()) {
-            case "daily"   -> project(apps, rate, 1, 30, useForecast, "yyyy-MM-dd");
-            case "weekly"  -> project(apps, rate, 7,  4, !useForecast, "yyyy-MM-dd");
-            case "monthly" -> project(apps, rate, -1, 6, !useForecast, "MMM yyyy");
-            default        -> throw new IllegalArgumentException("Invalid timeRange");
-        };
-    }
+    return saved;
+}
+
+    
+
+    
 
     private List<UsageProjectionDTO> project(
         List<Appliance> apps,

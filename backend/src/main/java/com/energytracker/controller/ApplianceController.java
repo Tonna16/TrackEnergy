@@ -4,6 +4,8 @@ import com.energytracker.model.Appliance;
 import com.energytracker.model.User;
 import com.energytracker.service.ApplianceService;
 import com.energytracker.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,56 +20,67 @@ public class ApplianceController {
 
     private final ApplianceService applianceService;
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(ApplianceController.class);
 
     public ApplianceController(ApplianceService applianceService, UserService userService) {
         this.applianceService = applianceService;
         this.userService = userService;
     }
 
-    private Long getUserIdFromPrincipal() {
+    private User getAuthenticatedUserOrNull() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principal instanceof String email)) {
-            throw new RuntimeException("User not authenticated");
+        if (principal instanceof String email && !"anonymousUser".equals(email)) {
+            logger.debug("Authenticated user: {}", email);
+            return userService.getUserByEmail(email);
         }
-        User user = userService.getUserByEmail(email);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-        return user.getId();
+        logger.debug("Guest user detected");
+        return null;
     }
+    
+    
+    
 
-    /** GET /api/appliances - get all appliances for authenticated user */
     @GetMapping
-    public ResponseEntity<List<Appliance>> list() {
-        Long userId = getUserIdFromPrincipal();
-        List<Appliance> appliances = applianceService.listUserAppliances(userId);
-        return ResponseEntity.ok(appliances);
+public ResponseEntity<List<Appliance>> list() {
+    User user = getAuthenticatedUserOrNull();
+    logger.debug("GET /api/appliances - userId: {}", user != null ? user.getId() : "guest");
+    List<Appliance> appliances = applianceService.listUserAppliances(user != null ? user.getId() : null);
+    logger.debug("Returning {} appliances", appliances.size());
+    return ResponseEntity.ok(appliances);
+}
+
+
+@PostMapping
+public ResponseEntity<Appliance> create(@RequestBody Appliance payload) {
+    User user = getAuthenticatedUserOrNull();
+
+    if (user != null) {
+        payload.setUser(user); // associate appliance with user
+    } else {
+        logger.warn("Guest appliance creation - consider whether this is allowed");
     }
 
-    /** POST /api/appliances - create new appliance for authenticated user */
-    @PostMapping
-    public ResponseEntity<Appliance> create(@RequestBody Appliance payload) {
-        Long userId = getUserIdFromPrincipal();
-        Appliance created = applianceService.createAppliance(userId, payload);
-        return ResponseEntity.ok(created);
-    }
+    logger.debug("POST /api/appliances - Creating appliance: {}, for userId: {}", payload.getName(), user != null ? user.getId() : "guest");
+    Appliance created = applianceService.createAppliance(user != null ? user.getId() : null, payload);
+    return ResponseEntity.ok(created);
+}
 
-    /** PUT /api/appliances/{applianceId} - update appliance for authenticated user */
-    @PutMapping("/{applianceId}")
-    public ResponseEntity<Appliance> update(
-            @PathVariable Long applianceId,
-            @RequestBody Appliance payload
-    ) {
-        Long userId = getUserIdFromPrincipal();
-        Appliance updated = applianceService.updateAppliance(userId, applianceId, payload);
-        return ResponseEntity.ok(updated);
-    }
 
-    /** DELETE /api/appliances/{applianceId} - delete appliance for authenticated user */
-    @DeleteMapping("/{applianceId}")
-    public ResponseEntity<Void> delete(@PathVariable Long applianceId) {
-        Long userId = getUserIdFromPrincipal();
-        applianceService.deleteAppliance(userId, applianceId);
-        return ResponseEntity.ok().build();
-    }
+@PutMapping("/{applianceId}")
+public ResponseEntity<Appliance> update(@PathVariable Long applianceId, @RequestBody Appliance payload) {
+    User user = getAuthenticatedUserOrNull();
+    logger.debug("PUT /api/appliances/{} - Updating appliance to: {}, for userId: {}", applianceId, payload.getName(), user != null ? user.getId() : "guest");
+    Appliance updated = applianceService.updateAppliance(user != null ? user.getId() : null, applianceId, payload);
+    return ResponseEntity.ok(updated);
+}
+
+
+@DeleteMapping("/{applianceId}")
+public ResponseEntity<Void> delete(@PathVariable Long applianceId) {
+    User user = getAuthenticatedUserOrNull();
+    logger.debug("DELETE /api/appliances/{} - for userId: {}", applianceId, user != null ? user.getId() : "guest");
+    applianceService.deleteAppliance(user != null ? user.getId() : null, applianceId);
+    return ResponseEntity.ok().build();
+}
+
 }

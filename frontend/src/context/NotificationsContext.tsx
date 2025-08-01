@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext,
   useContext,
   useState,
@@ -6,202 +6,186 @@ import {
   ReactNode,
   useRef,
   useMemo,
-} from 'react'
-import api from '../utils/api'
-import { connectWebSocket, subscribeToNotifications } from '../utils/websocket'
-import { getAuthToken } from '../utils/auth'
+} from 'react';
+import api from '../utils/api';
+import { connectWebSocket, subscribeToNotifications } from '../utils/websocket';
+import { getAuthToken } from '../utils/auth';
 
 export interface Notification {
-  id: number
-  type: 'alert' | 'system' | 'info' | 'warning' | 'success'
-  title: string
-  message: string
-  createdAt: string
-  read: boolean
-  deleted: boolean // made non-optional for clarity
+  id: number;
+  type: 'alert' | 'system' | 'info' | 'warning' | 'success';
+  title: string;
+  message: string;
+  createdAt: string;
+  read: boolean;
+  deleted: boolean;
 }
 
 interface NotificationsContextType {
-  notifications: Notification[]
-  unreadCount: number
-  loading: boolean
+  notifications: Notification[];
+  unreadCount: number;
+  loading: boolean;
   addNotification: (opts: {
-    type: Notification['type']
-    title: string
-    message: string
-    weekStartDate?: string
-    actualUsage?: number
-    forecastUsage?: number
-  }) => Promise<void>
-  markAsRead: (id: number) => Promise<void>
-  deleteNotification: (id: number) => Promise<void>
-  notifyForecastMode: (mode: string) => Promise<void>
-  notifyHighUsageAppliance: (name: string, estimatedKWh: number) => Promise<void>
+    type: Notification['type'];
+    title: string;
+    message: string;
+    weekStartDate?: string;
+    actualUsage?: number;
+    forecastUsage?: number;
+  }) => Promise<void>;
+  markAsRead: (id: number) => Promise<void>;
+  deleteNotification: (id: number) => Promise<void>;
+  notifyForecastMode: (mode: string) => Promise<void>;
+  notifyHighUsageAppliance: (name: string, estimatedKWh: number) => Promise<void>;
   notifyExchangeRate: (
     newCurrency: string,
     exchangeRate: number,
     electricityRate: number,
     date: string
-  ) => Promise<void>
+  ) => Promise<void>;
 }
 
-const NotificationsContext = createContext<NotificationsContextType | null>(null)
+const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [loading, setLoading] = useState(true)
-  const unsubscribeRef = useRef<(() => void) | undefined>()
-  const [wsConnected, setWsConnected] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const unsubscribeRef = useRef<(() => void) | undefined>();
+  const [wsConnected, setWsConnected] = useState(false);
 
   const getUserIdFromToken = (): string | null => {
     try {
-      const token = getAuthToken()
-      if (!token) return null
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      return payload.sub || null
+      const token = getAuthToken();
+      if (!token) return null;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || null;
     } catch {
-      return null
+      return null;
     }
-  }
+  };
 
   const loadInitialNotifications = async () => {
     try {
-      setLoading(true)
-      const res = await api.get<Notification[]>('notifications')
-      setNotifications(res.data)
+      setLoading(true);
+      const res = await api.get<Notification[]>('notifications');
+      setNotifications(res.data);
     } catch (e) {
-      console.error('Failed to load notifications:', e)
+      console.error('Failed to load notifications:', e);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    const userId = getUserIdFromToken()
-    if (!userId) {
-      setLoading(false) // no user, no notifications
-      return
-    }
-
-    const setup = async () => {
-      try {
-        setLoading(true)
-        await loadInitialNotifications()
-
-        await connectWebSocket(() => setWsConnected(true))
-
-        unsubscribeRef.current = subscribeToNotifications(userId, (body) => {
-          try {
-            const n: Notification = typeof body === 'string' ? JSON.parse(body) : body
-            if (!n) return
-
-            setNotifications((prev) => {
-              if (n.deleted) {
-                // Remove deleted notification
-                return prev.filter((x) => x.id !== n.id)
-              }
-              // Update existing or add new
-              const index = prev.findIndex((x) => x.id === n.id)
-              if (index !== -1) {
-                const newArr = [...prev]
-                newArr[index] = n
-                return newArr
-              }
-              return [n, ...prev]
-            })
-          } catch (err) {
-            console.warn('Invalid notification payload:', err)
-          }
-        })
-      } catch (err) {
-        console.error('WebSocket connection error:', err)
-        setWsConnected(false)
-      } finally {
-        setLoading(false)
+    const token = getAuthToken();
+    const userId = getUserIdFromToken() ?? 'guest'; // Fallback to 'guest' for anonymous users
+    let mounted = true;
+  
+    const setupWs = async () => {
+      console.log('[NotificationsProvider] Setting up for user:', userId);
+      setLoading(true);
+  
+      if (token) {
+        try {
+          await loadInitialNotifications(); // only fetch for logged-in users
+        } catch (e) {
+          console.warn('[NotificationsProvider] Failed to load initial notifications');
+        }
       }
-    }
-
-    setup()
-
+  
+      try {
+        await connectWebSocket(() => {
+          if (!mounted) return;
+          setWsConnected(true);
+          console.log('[NotificationsProvider] WebSocket connected');
+        });
+  
+        unsubscribeRef.current?.();
+        unsubscribeRef.current = subscribeToNotifications(userId, (body) => {
+          const n: Notification = typeof body === 'string' ? JSON.parse(body) : body;
+          setNotifications((prev) => {
+            if (n.deleted) return prev.filter(x => x.id !== n.id);
+            const idx = prev.findIndex(x => x.id === n.id);
+            if (idx !== -1) {
+              const copy = [...prev];
+              copy[idx] = n;
+              return copy;
+            }
+            return [n, ...prev];
+          });
+        });
+  
+        console.log('[NotificationsProvider] Subscribed to topic:', userId);
+      } catch (err) {
+        console.error('[NotificationsProvider] WebSocket error:', err);
+        setWsConnected(false);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+  
+    setupWs();
+  
     return () => {
-      unsubscribeRef.current?.()
-    }
-  }, [])
+      mounted = false;
+      unsubscribeRef.current?.();
+      console.log('[NotificationsProvider] Cleaned up subscription');
+    };
+  }, []);
+  
 
+  // Stub implementations—reuse your existing logic here:
   const addNotification = async (opts: {
-    type: Notification['type']
-    title: string
-    message: string
-    weekStartDate?: string
-    actualUsage?: number
-    forecastUsage?: number
+    type: Notification['type'];
+    title: string;
+    message: string;
+    weekStartDate?: string;
+    actualUsage?: number;
+    forecastUsage?: number;
   }) => {
     try {
-      let res
-      if (
-        opts.weekStartDate &&
-        opts.actualUsage !== undefined &&
-        opts.forecastUsage !== undefined
-      ) {
-        res = await api.post<Notification>('notifications/weekly-comparison', {
-          weekStartDate: opts.weekStartDate,
-          actualUsage: opts.actualUsage,
-          forecastUsage: opts.forecastUsage,
-        })
-      } else {
-        res = await api.post<Notification>('notifications', {
-          type: opts.type,
-          title: opts.title,
-          message: opts.message,
-        })
-      }
-      setNotifications((prev) => [res.data, ...prev])
-    } catch (e) {
-      console.error('Failed to create notification:', e)
+      await api.post('notifications', opts);
+    } catch (err) {
+      console.error('[addNotification] Failed to add notification:', err);
     }
-  }
-
+  };
   const markAsRead = async (id: number) => {
+    const notif = notifications.find(n => n.id === id);
+    if (notif?.deleted) return;  // skip deleted
     try {
-      await api.post(`notifications/${id}/read`)
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-      )
-    } catch (e) {
-      console.error('Failed to mark notification as read:', e)
+      await api.patch(`notifications/${id}/read`);
+    } catch (err) {
+      console.error(`[markAsRead] Failed to mark notification ${id} as read:`, err);
     }
-  }
-
+  };
+  
   const deleteNotification = async (id: number) => {
+    const notif = notifications.find(n => n.id === id);
+    if (notif?.deleted) return;  // skip deleted
     try {
-      await api.delete(`notifications/${id}`)
-      setNotifications((prev) => prev.filter((n) => n.id !== id))
-    } catch (e) {
-      console.error('Failed to delete notification:', e)
+      await api.delete(`notifications/${id}`);
+    } catch (err) {
+      console.error(`[deleteNotification] Failed to delete notification ${id}:`, err);
     }
-  }
-
+  };
+  
   const notifyForecastMode = async (mode: string) => {
     try {
-      const res = await api.post<Notification>('notifications/forecast-mode', { mode })
-      setNotifications((prev) => [res.data, ...prev])
-    } catch (e) {
-      console.error('Failed to notify forecast mode:', e)
+      await api.post('notifications/forecast-mode', { mode });
+    } catch (err) {
+      console.error('[notifyForecastMode] Failed to notify:', err);
     }
-  }
-
+  };
   const notifyHighUsageAppliance = async (name: string, estimatedKWh: number) => {
     try {
-      const res = await api.post<Notification>('notifications/high-usage-appliance', {
-        name,
+      await api.post('notifications/high-usage', {
+        appliance: name,
         estimatedKWh,
-      })
-      setNotifications((prev) => [res.data, ...prev])
-    } catch (e) {
-      console.error('Failed to notify high usage appliance:', e)
+      });
+    } catch (err) {
+      console.error('[notifyHighUsageAppliance] Failed to notify:', err);
     }
-  }
-
+  };
   const notifyExchangeRate = async (
     newCurrency: string,
     exchangeRate: number,
@@ -209,22 +193,18 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     date: string
   ) => {
     try {
-      const res = await api.post<Notification>('notifications/exchange-rate', {
+      await api.post('notifications/exchange-rate', {
         newCurrency,
         exchangeRate,
         electricityRate,
         date,
-      })
-      setNotifications((prev) => [res.data, ...prev])
-    } catch (e) {
-      console.error('Failed to notify exchange rate update:', e)
+      });
+    } catch (err) {
+      console.error('[notifyExchangeRate] Failed to notify:', err);
     }
-  }
-
-  const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.read).length,
-    [notifications]
-  )
+  };
+  
+  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
 
   return (
     <NotificationsContext.Provider
@@ -242,13 +222,13 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     >
       {children}
     </NotificationsContext.Provider>
-  )
-}
+  );
+};
 
 export const useNotificationsCtx = () => {
-  const ctx = useContext(NotificationsContext)
+  const ctx = useContext(NotificationsContext);
   if (!ctx) {
-    // Fallback for guests: no-ops
+    // guest fallback
     return {
       notifications: [],
       unreadCount: 0,
@@ -259,7 +239,7 @@ export const useNotificationsCtx = () => {
       notifyForecastMode: async () => {},
       notifyHighUsageAppliance: async () => {},
       notifyExchangeRate: async () => {},
-    }
+    };
   }
-  return ctx
-}
+  return ctx;
+};
