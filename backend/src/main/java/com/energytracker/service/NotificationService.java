@@ -37,7 +37,7 @@ public class NotificationService {
         n.setRead(false);
         n.setDeleted(false);
         Notification saved = repo.save(n);
-        messaging.convertAndSend("/topic/notifications/" + user.getId(), saved);
+        messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
         return saved;
     }
 
@@ -129,33 +129,32 @@ public Notification createHighUsageNotificationIfNotExists(User user, Long appli
     }
 
     // ----------------- UPDATE / DELETE -----------------
-
     @Transactional
     public boolean markAsReadForUser(Long notificationId, Long userId) {
-        logger.debug("markAsRead: notificationId={} for userId={}", notificationId, userId);
-
         return repo.findById(notificationId)
-                   .filter(n -> n.getUser().getId().equals(userId))
-                   .filter(n -> !Boolean.TRUE.equals(n.getDeleted()))
-                   .map(n -> {
-                    logger.debug("  found notification.user.id={}", n.getUser().getId());
-
-                       n.setRead(true);
-                       repo.save(n);
-                       return true;
-                   })
-                   .orElse(false);
+            .filter(n -> n.getUser().getId().equals(userId))
+            .filter(n -> !Boolean.TRUE.equals(n.getDeleted()))
+            .map(n -> {
+                n.setRead(true);
+                Notification saved = repo.save(n);
+                User user = n.getUser();
+                messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
+                return true;
+            })
+            .orElse(false);
     }
-
+    
     @Transactional
     public boolean deleteForUser(Long notificationId, Long userId) {
         return repo.findById(notificationId)
-                   .filter(n -> n.getUser().getId().equals(userId))
-                   .map(n -> {
-                       n.setDeleted(true);
-                       repo.save(n);
-                       return true;
-                   })
-                   .orElse(false);
+            .filter(n -> n.getUser().getId().equals(userId))
+            .map(n -> {
+                n.setDeleted(true);
+                Notification saved = repo.save(n);
+                User user = n.getUser();
+                messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
+                return true;
+            })
+            .orElse(false);
     }
 }

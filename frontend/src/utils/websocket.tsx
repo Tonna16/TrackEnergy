@@ -1,11 +1,11 @@
 import { Client, Message } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-import { getAuthToken } from './auth'
+import { refreshAccessTokenIfNeeded } from './auth'
 
 let client: Client | null = null
 let connectPromise: Promise<void> | null = null
 
-export function connectWebSocket(onConnected?: () => void): Promise<void> {
+export async function connectWebSocket(onConnected?: () => void): Promise<void> {
   if (client && client.connected) {
     onConnected?.()
     return Promise.resolve()
@@ -14,16 +14,15 @@ export function connectWebSocket(onConnected?: () => void): Promise<void> {
     return connectPromise
   }
 
-  const token = getAuthToken()
-  if (!token) return Promise.reject(new Error('No auth token found for WebSocket connection'))
+  const token = await refreshAccessTokenIfNeeded()
+  if (!token) return Promise.reject(new Error('No valid token found for WebSocket connection'))
 
-  const sockJSUrl = `/ws?token=${encodeURIComponent(token)}`
+  const sockJSUrl = `http://localhost:8080/ws?token=${encodeURIComponent(token)}`
 
   client = new Client({
     webSocketFactory: () => new SockJS(sockJSUrl),
     reconnectDelay: 5000,
     debug: (str) => console.log('[STOMP DEBUG]', str),
-
   })
 
   connectPromise = new Promise((resolve, reject) => {
@@ -31,19 +30,21 @@ export function connectWebSocket(onConnected?: () => void): Promise<void> {
       onConnected?.()
       resolve()
     }
+
     client!.onStompError = (err) => {
       console.error('STOMP error', err)
       reject(err)
     }
+
     client!.onWebSocketError = (err) => {
       console.error('WebSocket error', err)
     }
+
     client!.onDisconnect = () => {
       connectPromise = null
       client = null
     }
 
-    // Use non-null assertion because client is definitely assigned here
     if (!client!.active && !client!.connected) {
       client!.activate()
     }

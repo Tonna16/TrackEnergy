@@ -5,9 +5,10 @@ import ApplianceCard from '../components/ApplianceCard'
 import EnergyUsageChart from '../components/EnergyUsageChart'
 import UsageSummary from '../components/UsageSummary'
 import { useEffect, useState } from 'react'
-import api from '../utils/api' // Assuming you have api instance set up
+import api from '../utils/api'
+
 export default function Dashboard() {
-  const { appliances, dailyUsageSeries, totalDailyUsage } = useAppContext()
+  const { appliances, dailyUsageSeries, totalDailyUsage, convertCurrency } = useAppContext()
   const navigate = useNavigate()
   const isLoggedIn = Boolean(localStorage.getItem('accessToken'))
   const hasLimitedData = dailyUsageSeries.length < 5
@@ -15,24 +16,32 @@ export default function Dashboard() {
   // State for average daily cost from chart
   const [avgDailyCost, setAvgDailyCost] = useState(0)
 
-  // State for backend forecasted stable daily cost
+  // State for backend forecasted stable daily cost (in user currency)
   const [forecastedDailyCost, setForecastedDailyCost] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!isLoggedIn) return // Only fetch for logged-in users
+    if (!isLoggedIn) return
+  
+    if (appliances.length === 0) {
+      setForecastedDailyCost(0)
+      return
+    }
   
     api.get('energy-usage/forecasted-daily-cost')
       .then(res => {
-        if (typeof res.data === 'number') {
-          setForecastedDailyCost(res.data)
-        } else if (res.data.forecastedDailyCost) {
-          setForecastedDailyCost(res.data.forecastedDailyCost)
+        let cost = typeof res.data === 'number' ? res.data : res.data.forecastedDailyCost
+        if (cost != null) {
+          console.log('Backend cost raw:', cost)
+console.log('Backend cost converted:', convertCurrency(cost))
+
+          const convertedCost = convertCurrency(cost)
+          setForecastedDailyCost(convertedCost)
         }
       })
       .catch(() => {
-        setForecastedDailyCost(null) // fallback or show no data
+        setForecastedDailyCost(null)
       })
-  }, [isLoggedIn, appliances])  // <== Add appliances here
+  }, [isLoggedIn, appliances, convertCurrency])
   
 
   // Use backend forecast if available, otherwise fallback to chart average
@@ -62,8 +71,8 @@ export default function Dashboard() {
           onAverageCostChange={setAvgDailyCost}
         />
       </div>
-     
-     <div>
+
+      <div>
         <h2 className="text-lg font-medium mb-4">Your Appliances</h2>
         {appliances.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -55,9 +55,10 @@ public class EnergyUsageService {
     }
 
     // Helper: fetch appliances for a user or guest (userId == null)
-    private List<Appliance> getAppliances(Long userId) {
-        return applianceRepo.findByUserId(userId);
+    public List<Appliance> getAppliances(Long userId) {
+        return applianceRepo.findAllByUserIdAndActiveTrue(userId);
     }
+    
 
     // Helper: rate or default for guests
     private double getRate(Long userId) {

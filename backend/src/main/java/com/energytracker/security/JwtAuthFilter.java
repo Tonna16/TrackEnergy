@@ -45,17 +45,17 @@ protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res,
 
     boolean valid = jwtUtil.validateAccessToken(token);
     if (!valid) {
-        System.out.println("[JwtAuthFilter] ❌ JWT invalid or expired - skipping auth");
-        SecurityContextHolder.clearContext();
-        chain.doFilter(req, res);
-        return;
+        System.out.println("[JwtAuthFilter] ❌ JWT invalid or expired - sending 401 Unauthorized");
+        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        res.getWriter().write("{\"error\":\"Invalid or expired token\"}");
+        return; // Do NOT proceed further.
     }
 
     String email = jwtUtil.extractEmail(token);
     if (email == null) {
-        System.out.println("[JwtAuthFilter] ❌ Failed to extract email from token - skipping auth");
-        SecurityContextHolder.clearContext();
-        chain.doFilter(req, res);
+        System.out.println("[JwtAuthFilter] ❌ Failed to extract email from token - sending 401 Unauthorized");
+        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        res.getWriter().write("{\"error\":\"Invalid token\"}");
         return;
     }
 
@@ -69,5 +69,4 @@ protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res,
     chain.doFilter(req, res);
     System.out.println("[JwtAuthFilter] ✅ Finished filtering " + req.getRequestURI());
 }
-
 }

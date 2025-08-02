@@ -150,20 +150,20 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     }
   };
   const markAsRead = async (id: number) => {
-    const notif = notifications.find(n => n.id === id);
-    if (notif?.deleted) return;  // skip deleted
     try {
-      await api.patch(`notifications/${id}/read`);
+      await api.post(`notifications/${id}/read`);
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, read: true } : n))
+      );
     } catch (err) {
       console.error(`[markAsRead] Failed to mark notification ${id} as read:`, err);
     }
   };
   
   const deleteNotification = async (id: number) => {
-    const notif = notifications.find(n => n.id === id);
-    if (notif?.deleted) return;  // skip deleted
     try {
       await api.delete(`notifications/${id}`);
+      setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (err) {
       console.error(`[deleteNotification] Failed to delete notification ${id}:`, err);
     }

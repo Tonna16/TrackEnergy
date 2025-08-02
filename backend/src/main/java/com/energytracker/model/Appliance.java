@@ -22,6 +22,10 @@ public class Appliance {
     private String brand;
     private String model;
 
+    @Column(nullable = false)
+private boolean active = true;
+
+
     // Link back to User
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -62,5 +66,14 @@ public class Appliance {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    
+    public boolean isActive() {
+        return active;
+    }
+    
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    
    
 }

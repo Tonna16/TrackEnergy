@@ -12,6 +12,7 @@ public interface ApplianceRepository extends JpaRepository<Appliance, Long> {
     boolean existsByName(String name); // For duplicate prevention
 
     List<Appliance> findByUserId(Long userId);
+    List<Appliance> findAllByUserIdAndActiveTrue(Long userId);  // ✅ ADD THIS
 
     // For guest appliances (no user associated)
     List<Appliance> findByUserIsNull();
