@@ -2,14 +2,13 @@
 import { Trash, Edit, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAppContext, Appliance } from '../context/AppContext'
-
 interface ApplianceCardProps {
   appliance: Appliance
 }
 
 export default function ApplianceCard({ appliance }: ApplianceCardProps) {
   const { deleteAppliance, costFromKwh, formatCost, symbol } = useAppContext()
-
+  
   // Compute daily kWh usage
   const dailyKwh =
     (appliance.wattage * appliance.hoursPerDay * appliance.daysPerWeek) /

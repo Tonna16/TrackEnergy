@@ -1,3 +1,4 @@
+// src/components/ApplianceForm.tsx
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
@@ -18,6 +19,7 @@ type FormData = {
   model: string
   estimatedDailyKWh: string
 }
+type FormErrors = Record<keyof FormData, string>
 
 export default function ApplianceForm() {
   const { id } = useParams<{ id: string }>()
@@ -28,8 +30,8 @@ export default function ApplianceForm() {
     updateAppliance,
     getAppliance,
     getApplianceTypeInfo,
+    settings,
   } = useAppContext()
-
   const { addNotification, notifyHighUsageAppliance } = useNotificationsCtx()
 
   const [formData, setFormData] = useState<FormData>({
@@ -44,167 +46,197 @@ export default function ApplianceForm() {
     model: '',
     estimatedDailyKWh: '',
   })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [errors, setErrors] = useState<FormErrors>({} as FormErrors)
+  const [globalError, setGlobalError] = useState<string>()
+  const [loading, setLoading] = useState(false)
   const THRESHOLD_KWH = 10
+  const MAX_WATTAGE = 10000
+  const MAX_KWH_PER_DAY = 30
 
-  // Populate when editing
+
+  // Load existing appliance into form when editing
   useEffect(() => {
-    if (id) {
-      const existing = getAppliance(id)
-      console.log(`[ApplianceForm] Editing appliance loaded:`, existing)
-
-      if (existing) {
-        setFormData({
-          name: existing.name,
-          type: existing.type,
-          wattage: existing.wattage.toString(),
-          hoursPerDay: existing.hoursPerDay.toString(),
-          daysPerWeek: existing.daysPerWeek.toString(),
-          isHighEfficiency: existing.isHighEfficiency,
-          location: existing.location,
-          brand: existing.brand || '',
-          model: existing.model || '',
-          estimatedDailyKWh: existing.estimatedDailyKWh != null
-            ? existing.estimatedDailyKWh.toString()
-            : '',
-        })
-      }
+    if (!id) return
+  
+    const idNum = Number(id)
+    if (isNaN(idNum)) {
+      // Optional: handle invalid id, e.g. redirect or show error
+      return navigate('/')
     }
-  }, [id, getAppliance])
+  
+    const existing = getAppliance(idNum)
+    if (!existing) return navigate('/')
+  
+    setFormData({
+      name: existing.name,
+      type: existing.type,
+      wattage: existing.wattage.toString(),
+      hoursPerDay: existing.hoursPerDay.toString(),
+      daysPerWeek: existing.daysPerWeek.toString(),
+      isHighEfficiency: existing.isHighEfficiency,
+      location: existing.location,
+      brand: existing.brand ?? '',
+      model: existing.model ?? '',
+      estimatedDailyKWh: existing.estimatedDailyKWh?.toString() ?? '',
+    })
+  }, [id, getAppliance, navigate])
+  
 
-  // Default wattage on type change when adding
+  // Auto-fill wattage average on type change (new only)
   useEffect(() => {
-    if (!id && formData.type) {
-      const info = getApplianceTypeInfo(formData.type)
-      if (info) {
-        console.log(`[ApplianceForm] Default wattage set for type ${formData.type}: ${info.averageWattage}`)
-
-        setFormData(f => ({
-          ...f,
-          wattage: info.averageWattage.toString(),
-        }))
-      }
+    if (id) return
+    const info = getApplianceTypeInfo(formData.type)
+    if (info) {
+      setFormData(f => ({ ...f, wattage: info.averageWattage.toString() }))
     }
   }, [formData.type, getApplianceTypeInfo, id])
 
-  const handleChange = (
+  function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  ) {
     const { name, type, value, checked } = e.target as HTMLInputElement
-    console.log(`[ApplianceForm] Input changed: ${name} = ${type === 'checkbox' ? checked : value}`)
-
     setFormData(f => ({
       ...f,
       [name]: type === 'checkbox' ? checked : value,
     }))
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
+    if (errors[name as keyof FormData]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+    setGlobalError(undefined)
   }
 
-  const validate = () => {
-    const errs: Record<string, string> = {}
-    const trimmed = formData.name.trim()
-    if (!trimmed) errs.name = 'Name is required'
+  function validate(): boolean {
+    const errs = {} as FormErrors
+  
+    const trimmedName = formData.name.trim()
+    if (!trimmedName) errs.name = 'Name is required'
+  
     if (
       !id &&
-      appliances.some(
-        a => (a.name ?? '').trim().toLowerCase() === trimmed.toLowerCase()
-      )
+      appliances.some(a => a.name.toLowerCase() === trimmedName.toLowerCase())
     ) {
       errs.name = 'You already have an appliance by that name'
     }
-    
+  
     const w = parseFloat(formData.wattage)
-    if (isNaN(w) || w <= 0) errs.wattage = 'Wattage must be > 0'
-    const h = parseFloat(formData.hoursPerDay)
-    if (isNaN(h) || h < 0 || h > 24) errs.hoursPerDay = 'Hours/Day 0–24'
-    const d = parseFloat(formData.daysPerWeek)
-    if (isNaN(d) || d < 0 || d > 7) errs.daysPerWeek = 'Days/Week 0–7'
-    if (formData.estimatedDailyKWh) {
-      const e = parseFloat(formData.estimatedDailyKWh)
-      if (isNaN(e) || e < 0) errs.estimatedDailyKWh = 'Must be ≥ 0'
+    if (isNaN(w) || w <= 0) {
+      errs.wattage = 'Wattage must be > 0'
+    } else if (w > MAX_WATTAGE) {
+      errs.wattage = `Wattage must be ≤ ${MAX_WATTAGE.toLocaleString()}`
     }
-    console.log(`[ApplianceForm] Validation errors:`, errs)
-
+  
+    const h = parseFloat(formData.hoursPerDay)
+    if (isNaN(h) || h < 0 || h > 24) {
+      errs.hoursPerDay = 'Hours/Day must be 0–24'
+    }
+  
+    const d = parseFloat(formData.daysPerWeek)
+    if (isNaN(d) || d < 0 || d > 7) {
+      errs.daysPerWeek = 'Days/Week must be 0–7'
+    }
+  
+    if (formData.estimatedDailyKWh) {
+      const eVal = parseFloat(formData.estimatedDailyKWh)
+      if (isNaN(eVal) || eVal < 0) {
+        errs.estimatedDailyKWh = 'Must be ≥ 0'
+      }
+    }
+  
+    // ✅ New: Daily kWh usage limit (e.g., 30 kWh/day max)
+    const MAX_KWH_PER_DAY = 30
+    if (!isNaN(w) && w > 0 && !isNaN(h) && h > 0) {
+      const dailyKwh = (w * h) / 1000
+      if (dailyKwh > MAX_KWH_PER_DAY) {
+        errs.hoursPerDay = `Daily usage exceeds ${MAX_KWH_PER_DAY} kWh/day limit`
+      }
+    }
+  
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
+  
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    console.log('[ApplianceForm] Form submit triggered with data:', formData)
-
-    if (!validate()) {
-      console.log('[ApplianceForm] Validation failed, aborting submit.')
-      return
-    } 
-
-    const finalAppliance: Omit<Appliance, 'id'> = {
-      name: formData.name.trim(),
-      type: formData.type,
-      wattage: parseFloat(formData.wattage),
-      hoursPerDay: parseFloat(formData.hoursPerDay),
-      daysPerWeek: parseFloat(formData.daysPerWeek),
-      isHighEfficiency: formData.isHighEfficiency,
-      location: formData.location,
-      brand: formData.brand.trim() || undefined,
-      model: formData.model.trim() || undefined,
-      estimatedDailyKWh: formData.estimatedDailyKWh !== ''
-        ? parseFloat(formData.estimatedDailyKWh)
-        : undefined,
-    }
-
-    // Compute new daily usage
-    const newUsage = finalAppliance.estimatedDailyKWh ??
-      (finalAppliance.wattage * finalAppliance.hoursPerDay * finalAppliance.daysPerWeek) / 1000
-
+    if (!validate()) return
+    setLoading(true)
     try {
+      const base: Omit<Appliance, 'id'> = {
+        name: formData.name.trim(),
+        type: formData.type,
+        wattage: +formData.wattage,
+        hoursPerDay: +formData.hoursPerDay,
+        daysPerWeek: +formData.daysPerWeek,
+        isHighEfficiency: formData.isHighEfficiency,
+        location: formData.location,
+        brand: formData.brand.trim() || undefined,
+        model: formData.model.trim() || undefined,
+        estimatedDailyKWh:
+          formData.estimatedDailyKWh !== ''
+            ? +formData.estimatedDailyKWh
+            : undefined,
+      }
+      // compute daily usage
+      const newUsage =
+        base.estimatedDailyKWh ??
+        (base.wattage * base.hoursPerDay * base.daysPerWeek) / 1000
+      // edit or add flow
       if (id) {
-        // Editing existing appliance
-        const existing = getAppliance(id)!
-        const oldUsage = existing.estimatedDailyKWh ??
-          (existing.wattage * existing.hoursPerDay * existing.daysPerWeek) / 1000
-
-        updateAppliance({ id, ...finalAppliance })
-
-        // If crossed threshold upward
+        const idNum = Number(id)
+        if (isNaN(idNum)) {
+          // Handle invalid id (optional)
+          return
+        }
+        const old = getAppliance(idNum)!
+        const oldUsage =
+          old.estimatedDailyKWh ??
+          (old.wattage * old.hoursPerDay * old.daysPerWeek) / 1000
+        updateAppliance({ id: idNum, ...base })
         if (oldUsage <= THRESHOLD_KWH && newUsage > THRESHOLD_KWH) {
           addNotification({
             type: 'warning',
             title: 'Appliance Usage Increased',
-            message: `Your "${finalAppliance.name}" now uses ${newUsage.toFixed(2)} kWh/day—over the ${THRESHOLD_KWH} kWh threshold.`,
+            message: `"${base.name}" now uses ${newUsage.toFixed(
+              2
+            )} kWh/day—over the ${THRESHOLD_KWH} kWh threshold.`,
           })
-          await notifyHighUsageAppliance(finalAppliance.name, newUsage)
-        }
-      } else {
-        // Adding new – save to backend
-        const res = await api.post<Appliance>('appliances', finalAppliance)
-        const saved = res.data
-
-        addAppliance(saved)
-
-        // Log usage to backend
-        const today = new Date().toISOString().split('T')[0]
-        await api.post('energy-usage', null, {
-          params: {
-            applianceId: saved.id,
-            date: today,
-            kWhUsed: newUsage,
-          },
-        })
-
-        if (newUsage > THRESHOLD_KWH) {
-          addNotification({
-            type: 'warning',
-            title: 'High Energy Appliance Added',
-            message: `"${finalAppliance.name}" uses ${newUsage.toFixed(2)} kWh/day—over the ${THRESHOLD_KWH} kWh threshold.`,
-          })
-          await notifyHighUsageAppliance(finalAppliance.name, newUsage)
+          await notifyHighUsageAppliance(base.name, newUsage)
         }
       }
-
+      else {
+        const saved = await addAppliance(base)  // call context function once, no direct POST here
+      
+        if (saved) {
+          // log today's usage after successful add
+          const today = new Date().toISOString().slice(0, 10)
+          await api.post('energy-usage', null, {
+            params: {
+              applianceId: saved.id,
+              date: today,
+              kWhUsed: newUsage,
+            },
+          })
+      
+          if (newUsage > THRESHOLD_KWH) {
+            addNotification({
+              type: 'warning',
+              title: 'High Energy Appliance Added',
+              message: `"${base.name}" uses ${newUsage.toFixed(
+                2
+              )} kWh/day—over ${THRESHOLD_KWH} kWh threshold.`,
+            })
+            await notifyHighUsageAppliance(base.name, newUsage)
+          }
+        }
+      }
+      
       navigate('/')
-    } catch (error: any) {
-      console.error('Failed to add/update appliance:', error)
+    } catch (err: any) {
+      console.error(err)
+      setGlobalError('Failed to save. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -214,7 +246,6 @@ export default function ApplianceForm() {
         <button
           onClick={() => navigate(-1)}
           className="p-1 mr-2 text-gray-500 hover:text-gray-700 dark:text-gray-400"
-          aria-label="Back"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -224,6 +255,10 @@ export default function ApplianceForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="card space-y-6">
+        {globalError && (
+          <div className="text-red-600 text-center">{globalError}</div>
+        )}
+
         {/* Name */}
         <div>
           <label className="block text-sm font-medium dark:text-gray-300">
@@ -231,55 +266,57 @@ export default function ApplianceForm() {
           </label>
           <input
             name="name"
-            type="text"
             value={formData.name}
             onChange={handleChange}
-            className={`mt-1 block w-full rounded-md ${
+            className={`mt-1 block w-full rounded-md border ${
               errors.name ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="e.g. Living Room TV"
+            disabled={loading}
           />
           {errors.name && (
             <p className="mt-1 text-sm text-red-500">{errors.name}</p>
           )}
         </div>
 
-        {/* Type */}
-        <div>
-          <label className="block text-sm font-medium dark:text-gray-300">
-            Appliance Type *
-          </label>
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300"
-          >
-            {applianceTypes.map(o => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Location */}
-        <div>
-          <label className="block text-sm font-medium dark:text-gray-300">
-            Location *
-          </label>
-          <select
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300"
-          >
-            {locationOptions.map(loc => (
-              <option key={loc} value={loc}>
-                {loc}
-              </option>
-            ))}
-          </select>
+        {/* Type & Location */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium dark:text-gray-300">
+              Appliance Type *
+            </label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300"
+              disabled={loading}
+            >
+              {applianceTypes.map(o => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium dark:text-gray-300">
+              Location *
+            </label>
+            <select
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300"
+              disabled={loading}
+            >
+              {locationOptions.map(loc => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Brand & Model */}
@@ -290,11 +327,11 @@ export default function ApplianceForm() {
             </label>
             <input
               name="brand"
-              type="text"
               value={formData.brand}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300"
               placeholder="e.g. Samsung"
+              disabled={loading}
             />
           </div>
           <div>
@@ -303,17 +340,17 @@ export default function ApplianceForm() {
             </label>
             <input
               name="model"
-              type="text"
               value={formData.model}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300"
               placeholder="e.g. QN90B"
+              disabled={loading}
             />
           </div>
         </div>
 
         {/* Power & Usage */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4 items-end">
           <div>
             <label className="block text-sm font-medium dark:text-gray-300">
               Power (Watts) *
@@ -324,9 +361,10 @@ export default function ApplianceForm() {
               min={1}
               value={formData.wattage}
               onChange={handleChange}
-              className={`mt-1 block w-full rounded-md ${
+              className={`mt-1 block w-full rounded-md border ${
                 errors.wattage ? 'border-red-500' : 'border-gray-300'
               }`}
+              disabled={loading}
             />
             {errors.wattage && (
               <p className="mt-1 text-sm text-red-500">{errors.wattage}</p>
@@ -344,12 +382,15 @@ export default function ApplianceForm() {
               max={24}
               value={formData.hoursPerDay}
               onChange={handleChange}
-              className={`mt-1 block w-full rounded-md ${
+              className={`mt-1 block w-full rounded-md border ${
                 errors.hoursPerDay ? 'border-red-500' : 'border-gray-300'
               }`}
+              disabled={loading}
             />
             {errors.hoursPerDay && (
-              <p className="mt-1 text-sm text-red-500">{errors.hoursPerDay}</p>
+              <p className="mt-1 text-sm text-red-500">
+                {errors.hoursPerDay}
+              </p>
             )}
           </div>
           <div>
@@ -363,27 +404,35 @@ export default function ApplianceForm() {
               max={7}
               value={formData.daysPerWeek}
               onChange={handleChange}
-              className={`mt-1 block w-full rounded-md ${
+              className={`mt-1 block w-full rounded-md border ${
                 errors.daysPerWeek ? 'border-red-500' : 'border-gray-300'
               }`}
+              disabled={loading}
             />
             {errors.daysPerWeek && (
-              <p className="mt-1 text-sm text-red-500">{errors.daysPerWeek}</p>
+              <p className="mt-1 text-sm text-red-500">
+                {errors.daysPerWeek}
+              </p>
             )}
-          </div>
-          <div className="flex items-center space-x-2">
-            <input
-              name="isHighEfficiency"
-              type="checkbox"
-              checked={formData.isHighEfficiency}
-              onChange={handleChange}
-              className="h-4 w-4 rounded border-gray-300"
-            />
-            <label className="text-sm dark:text-gray-300">High‑efficiency</label>
           </div>
         </div>
 
-        {/* Estimated Daily kWh (add only) */}
+        {/* High-efficiency */}
+        <div className="flex items-center space-x-2">
+          <input
+            name="isHighEfficiency"
+            type="checkbox"
+            checked={formData.isHighEfficiency}
+            onChange={handleChange}
+            className="h-4 w-4 rounded border-gray-300"
+            disabled={loading}
+          />
+          <label className="text-sm dark:text-gray-300">
+            High-efficiency
+          </label>
+        </div>
+
+        {/* Estimated kWh (add only) */}
         {!id && (
           <div>
             <label className="block text-sm font-medium dark:text-gray-300">
@@ -396,13 +445,18 @@ export default function ApplianceForm() {
               min={0}
               value={formData.estimatedDailyKWh}
               onChange={handleChange}
-              className={`mt-1 block w-full rounded-md ${
-                errors.estimatedDailyKWh ? 'border-red-500' : 'border-gray-300'
+              className={`mt-1 block w-full rounded-md border ${
+                errors.estimatedDailyKWh
+                  ? 'border-red-500'
+                  : 'border-gray-300'
               }`}
               placeholder="e.g. 1.5"
+              disabled={loading}
             />
             {errors.estimatedDailyKWh && (
-              <p className="mt-1 text-sm text-red-500">{errors.estimatedDailyKWh}</p>
+              <p className="mt-1 text-sm text-red-500">
+                {errors.estimatedDailyKWh}
+              </p>
             )}
           </div>
         )}
@@ -413,11 +467,22 @@ export default function ApplianceForm() {
             type="button"
             onClick={() => navigate(-1)}
             className="btn btn-outline"
+            disabled={loading}
           >
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary">
-            {id ? 'Update Appliance' : 'Add Appliance'}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+          >
+            {loading
+              ? id
+                ? 'Updating…'
+                : 'Adding…'
+              : id
+              ? 'Update Appliance'
+              : 'Add Appliance'}
           </button>
         </div>
       </form>

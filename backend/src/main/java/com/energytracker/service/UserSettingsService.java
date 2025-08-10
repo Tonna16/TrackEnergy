@@ -37,11 +37,4 @@ public class UserSettingsService {
     public UserSettings getUserSettings(Long userId) {
         return getOrCreateDefaultSettings(userId);
     }
-
-    public UserSettings updateLocation(Long userId, String location) {
-        var settings = settingsRepository.findByUserId(userId)
-            .orElseThrow(() -> new RuntimeException("Settings not found"));
-        settings.setLocation(location);
-        return settingsRepository.save(settings);
-    }
 }

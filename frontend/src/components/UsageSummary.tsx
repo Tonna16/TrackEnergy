@@ -48,14 +48,22 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
     ? avgDailyCostFromChart 
     : forecastedDailyCost ?? 0
 
-  const formattedCost = useMemo(() => {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: settings.currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(displayedCost ?? 0)
-  }, [displayedCost, settings.currency])
+    const formattedCost = useMemo(() => {
+      const currencyCode = settings?.currency || 'USD' // fallback to USD
+      try {
+        return new Intl.NumberFormat(undefined, {
+          style: 'currency',
+          currency: currencyCode,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(displayedCost ?? 0)
+      } catch (err) {
+        console.error('Invalid currency code:', currencyCode, err)
+        // fallback plain number formatting if currency fails
+        return `${displayedCost?.toFixed(2) ?? '0.00'} ${currencyCode}`
+      }
+    }, [displayedCost, settings?.currency])
+    
 
   const getEfficiencyColor = (percent: number | null) => {
     if (percent === null || percent < 0) return 'text-gray-400'

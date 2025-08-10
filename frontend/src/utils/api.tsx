@@ -16,16 +16,22 @@ const api = axios.create({
   withCredentials: false, // Set true if backend requires cookies for refresh
 })
 
+// src/utils/api.tsx (or api.tsx)
 api.interceptors.request.use(config => {
-  const token = getAuthToken()
-  console.log("[api.tsx] Using token:", token); // 👈 Add this line
-
-  if (token) {
-    config.headers = config.headers ?? {}
-    config.headers.Authorization = `Bearer ${token}`
+  // Only log in development and do NOT print the token value.
+  if (import.meta.env.MODE === 'development') {
+    // show which endpoint is being called to help debug loops without exposing token
+    console.debug('[api] request', config.method, config.url);
   }
-  return config
-})
+
+  const token = getAuthToken();
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 
 api.interceptors.response.use(
   res => res,

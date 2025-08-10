@@ -34,15 +34,13 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
             // public
-            .requestMatchers(HttpMethod.GET, "/api/energy-usage/**").permitAll()
-            .requestMatchers("/api/auth/**", "/api/appliances/**", "/api/annual-cost", "/api/forecasted-daily-cost",
-                             "/api/exchange-rate", "/api/currency/**", "/api/tips/**", "/ws/**")
+            .requestMatchers( "/api/energy-usage/**").permitAll()
+            .requestMatchers("/api/auth/**", "/api/appliances/**", 
+                             "/api/exchange-rate","/api/forecast", "/api/currency/**", "/api/tips/**", "/ws/**")
                .permitAll()
           
             // secure energy endpoints
-            .requestMatchers(HttpMethod.POST, "/api/energy-usage").authenticated()
-            .requestMatchers(HttpMethod.PUT, "/api/energy-usage/**").authenticated()
-            .requestMatchers(HttpMethod.DELETE, "/api/energy-usage/**").authenticated()
+
           
             // **Protect all notifications endpoints**
             .requestMatchers("/api/notifications/**").authenticated()
@@ -51,7 +49,7 @@ public class SecurityConfig {
             .requestMatchers("/api/forecast/**").hasRole("USER")
           
             // all routes not listed above
-            .anyRequest().authenticated()
+            .anyRequest().permitAll()
           )
           
             .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)

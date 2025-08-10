@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [react()],
   define: {
     // Opt-in to the v7 relativeSplatPath future flag
-    'process.env.REACT_ROUTER_FUTURE_FLAGS': JSON.stringify({ v7_relativeSplatPath: true })
+    'process.env.REACT_ROUTER_FUTURE_FLAGS': JSON.stringify({ v7_relativeSplatPath: true }),
+    'process.env': {}
+
   },
   server: {
     proxy: {

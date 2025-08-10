@@ -18,11 +18,14 @@ export default function Dashboard() {
 
   // State for backend forecasted stable daily cost (in user currency)
   const [forecastedDailyCost, setForecastedDailyCost] = useState<number | null>(null)
+  const dailyCostToShow = forecastedDailyCost ?? avgDailyCost
 
   useEffect(() => {
+    console.log('Dashboard mounted or appliances changed, loggedIn:', isLoggedIn, 'Appliances count:', appliances.length)
     if (!isLoggedIn) return
   
     if (appliances.length === 0) {
+      console.log('No appliances - setting forecastedDailyCost to 0')
       setForecastedDailyCost(0)
       return
     }
@@ -32,20 +35,23 @@ export default function Dashboard() {
         let cost = typeof res.data === 'number' ? res.data : res.data.forecastedDailyCost
         if (cost != null) {
           console.log('Backend cost raw:', cost)
-console.log('Backend cost converted:', convertCurrency(cost))
-
+          console.log('Backend cost converted:', convertCurrency(cost))
+  
           const convertedCost = convertCurrency(cost)
           setForecastedDailyCost(convertedCost)
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('Error fetching forecasted daily cost:', err)
         setForecastedDailyCost(null)
       })
   }, [isLoggedIn, appliances, convertCurrency])
   
+  console.log('Dashboard rendering, dailyCostToShow:', dailyCostToShow)
+  
+  
 
   // Use backend forecast if available, otherwise fallback to chart average
-  const dailyCostToShow = forecastedDailyCost ?? avgDailyCost
 
   return (
     <div className="space-y-6 pb-16 sm:pb-0">

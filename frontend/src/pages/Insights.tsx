@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
+// src/pages/Insights.tsx
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useAppContext, Appliance } from '../context/AppContext'
 import EnergyUsageChart from '../components/EnergyUsageChart'
 import { Info } from 'lucide-react'
@@ -7,8 +8,10 @@ import { getAuthToken } from '../utils/auth'
 import { useNotificationsCtx } from '../context/NotificationsContext'
 import { estimateAnnualFromAppliances } from '../utils/energyEstimator'
 import { formatCurrency } from '../utils/formatCurrency'
-
+import TopConsumers from '../components/TopConsumers'
+import WeeklyForecastCard from '../components/WeeklyForecastCard'
 const DEFAULT_CO2_FACTOR = 0.92 // kg CO₂ per kWh
+const GUEST_PROJECTION_RATE = 0.12 // server uses 0.12 USD/kWh for guest projections
 
 function formatNumber(num: number) {
   return num.toFixed(2)
@@ -17,7 +20,7 @@ function formatNumber(num: number) {
 function getStartOfWeek(): string {
   const now = new Date()
   const day = now.getDay()
-  const diff = now.getDate() - day + (day === 0 ? -6 : 1)
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1) // Monday as start
   const monday = new Date(now)
   monday.setDate(diff)
   return monday.toISOString().split('T')[0]
@@ -38,59 +41,75 @@ function useWeeklyComparison(
   const [usedFallback, setUsedFallback] = useState(false)
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      // Guest: use fallback prediction only, no actual data
-      const fallbackKwh = appliances.reduce((sum, a) => {
+    let cancelled = false
+
+    const computeClientFallbackKwh = () =>
+      appliances.reduce<number>((sum, a) => {
         const avgW = getApplianceTypeInfo?.(a.type)?.averageWattage ?? a.wattage
         const wattage = a.isHighEfficiency ? avgW * 0.8 : avgW
         const dailyKwh = (wattage * a.hoursPerDay * a.daysPerWeek) / 7 / 1000
         return sum + dailyKwh * 7
       }, 0)
-      setActual('insufficient')
-      setPredicted(fallbackKwh)
-      setUsedFallback(true)
-      return
-    }
 
-    // Logged in — fetch actual usage
-    api
-      .get<{ kWhUsed: number }[]>('energy-usage', {
-        params: { startDate: getStartOfWeek() },
-      })
-      .then(res => {
-        if (res.data.length > 0) {
-          const total = res.data.reduce((sum, e) => sum + e.kWhUsed, 0)
-          setActual(total)
-        } else {
+    const fetchData = async () => {
+      if (!isLoggedIn) {
+        const fallbackKwh = computeClientFallbackKwh()
+        if (!cancelled) {
           setActual('insufficient')
+          setPredicted(fallbackKwh)
+          setUsedFallback(true)
         }
-      })
-      .catch(() => setActual('insufficient'))
+        return
+      }
 
-    // Fetch predicted usage from backend projections
-    api
-      .get<{ totalCost: number }[]>('energy-usage/projections', {
-        params: { timeRange: 'weekly' },
-      })
-      .then(res => {
-        if (res.data.length > 0 && typeof res.data[0].totalCost === 'number') {
-          setPredicted(res.data[0].totalCost / electricityRate)
+      // Authenticated: fetch actual usage
+      try {
+        const res = await api.get<{ kWhUsed?: number }[]>('energy-usage', {
+          params: { startDate: getStartOfWeek() },
+        })
+        if (!cancelled) {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            const total = res.data.reduce<number>((sum, e) => sum + (e.kWhUsed ?? 0), 0)
+            setActual(total)
+          } else {
+            setActual('insufficient')
+          }
+        }
+      } catch (err) {
+        if (!cancelled) setActual('insufficient')
+      }
+
+      // Authenticated: try GET projections (server-side projections)
+      try {
+        const resProj = await api.get<{ totalCost?: number }[]>('energy-usage/projections', {
+          params: { timeRange: 'weekly' },
+        })
+        if (cancelled) return
+
+        const arr = Array.isArray(resProj.data) ? resProj.data : []
+        if (arr.length > 0 && typeof arr[0].totalCost === 'number' && electricityRate > 0) {
+          // backend totalCost likely in USD — convert to kWh by dividing by electricityRate
+          setPredicted(arr[0].totalCost / electricityRate)
           setUsedFallback(false)
         } else {
-          throw new Error('Fallback')
+          // fallback
+          const fallbackKwh = computeClientFallbackKwh()
+          setPredicted(fallbackKwh)
+          setUsedFallback(true)
         }
-      })
-      .catch(() => {
-        // fallback to estimate
-        const fallbackKwh = appliances.reduce((sum, a) => {
-          const avgW = getApplianceTypeInfo?.(a.type)?.averageWattage ?? a.wattage
-          const wattage = a.isHighEfficiency ? avgW * 0.8 : avgW
-          const dailyKwh = (wattage * a.hoursPerDay * a.daysPerWeek) / 7 / 1000
-          return sum + dailyKwh * 7
-        }, 0)
-        setPredicted(fallbackKwh)
-        setUsedFallback(true)
-      })
+      } catch (err) {
+        if (!cancelled) {
+          const fallbackKwh = computeClientFallbackKwh()
+          setPredicted(fallbackKwh)
+          setUsedFallback(true)
+        }
+      }
+    }
+
+    fetchData()
+    return () => {
+      cancelled = true
+    }
   }, [appliances, electricityRate, getApplianceTypeInfo, isLoggedIn])
 
   return { actual, predicted, usedFallback }
@@ -120,11 +139,7 @@ export default function Insights() {
     costFromKwh,
     convertCurrency,
   } = useAppContext()
-  const {
-    addNotification,
-    notifyForecastMode,
-    notifyHighUsageAppliance,
-  } = useNotificationsCtx()
+  const { addNotification, notifyForecastMode, notifyHighUsageAppliance } = useNotificationsCtx()
 
   const isLoggedIn = Boolean(getAuthToken())
 
@@ -140,9 +155,9 @@ export default function Insights() {
   const prevCurrency = useRef(settings.currency)
   const isFirstHighUsageRun = useRef(true)
 
-  const safeGetApplianceTypeInfo = (type: string) => getApplianceTypeInfo(type) || {}
+  const safeGetApplianceTypeInfo = useCallback((type: string) => getApplianceTypeInfo(type) || {}, [getApplianceTypeInfo])
 
-  // Weekly kWh vs forecast
+  // Weekly comparison
   const { actual, predicted, usedFallback } = useWeeklyComparison(
     appliances,
     settings.electricityRate,
@@ -152,44 +167,80 @@ export default function Insights() {
 
   const needFallback = forecastedAnnualCost == null || forecastedAnnualCost <= 0
 
-  // Fetch 30-day summary & annual-cost from backend or fallback for guests
+  // Fetch summary & annual cost (only when logged in). Guests will fall back to estimate below.
   useEffect(() => {
-    if (!isLoggedIn) {
-      // Guest mode - no backend, clear summary & forecast to use fallback
-      setSummary(null)
-      setForecastedAnnualCost(null)
-      return
+    let cancelled = false
+
+    const fetchSummaryAndAnnual = async () => {
+      if (!isLoggedIn) {
+        if (!cancelled) {
+          setSummary(null)
+          setForecastedAnnualCost(null)
+        }
+        return
+      }
+
+      // Summary
+      try {
+        const res = await api.get<{
+          totalKwh?: number
+          totalCost?: number
+          averageDailyUsage?: number
+        }>('energy-usage/summary', { params: { days: 30 } })
+        if (!cancelled) setSummary((res.data as any) ?? null)
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[Insights] Failed to fetch summary:', err)
+          setSummary(null)
+        }
+      }
+
+  // inside the fetchSummaryAndAnnual() try { ... } for annual cost
+// inside fetchSummaryAndAnnual()
+try {
+  const resAnnual = await api.get<{ annualCost?: number }>('energy-usage/annual-cost');
+  if (cancelled) return;
+
+  const raw = resAnnual.data?.annualCost;
+  console.debug('[Insights] annual-cost raw response:', resAnnual.data);
+
+  if (typeof raw === 'number') {
+    // Use context convertCurrency to convert backend USD -> selected currency
+    const converted = convertCurrency(raw);
+    if (Number.isFinite(converted)) {
+      setForecastedAnnualCost(converted);
+      console.debug('[Insights] forecastedAnnualCost set to', converted);
+    } else {
+      console.warn('[Insights] converted annual cost not finite:', converted);
+      setForecastedAnnualCost(null);
     }
 
-    // Logged-in user mode: fetch summary & annual cost
-    api
-      .get<{
-        totalKwh: number
-        totalCost: number
-        averageDailyUsage: number
-      }>('energy-usage/summary', { params: { days: 30 } })
-      .then(res => setSummary(res.data))
-      .catch(() => setSummary(null))
+    if (prevCurrency.current !== settings.currency) {
+      addNotification({
+        type: 'info',
+        title: `Currency switched to ${settings.currency}`,
+        message: `All cost forecasts now show ${settings.currency} rates.`,
+      });
+      prevCurrency.current = settings.currency;
+    }
+  } else {
+    setForecastedAnnualCost(null);
+  }
+} catch (err) {
+  if (!cancelled) {
+    console.error('[Insights] Failed to fetch annual cost:', err);
+    setForecastedAnnualCost(null);
+  }
+}
 
-    api
-      .get<{ annualCost: number }>('energy-usage/annual-cost')
-      .then(res => {
-        const converted = convertCurrency(res.data.annualCost)
-        setForecastedAnnualCost(converted)
+    }
+    fetchSummaryAndAnnual()
+    return () => {
+      cancelled = true
+    }
+  }, [settings.currency, settings.exchangeRate, addNotification, isLoggedIn])
 
-        if (prevCurrency.current !== settings.currency) {
-          addNotification({
-            type: 'info',
-            title: `Currency switched to ${settings.currency}`,
-            message: `All cost forecasts now show ${settings.currency} rates.`,
-          })
-          prevCurrency.current = settings.currency
-        }
-      })
-      .catch(() => setForecastedAnnualCost(null))
-  }, [settings.currency, settings.exchangeRate, addNotification, convertCurrency, isLoggedIn])
-
-  // Fallback annual estimate
+  // Fallback annual estimate computed from appliances
   const fallback = useMemo(() => {
     if (!needFallback) return null
     return estimateAnnualFromAppliances({
@@ -198,30 +249,21 @@ export default function Insights() {
       getApplianceTypeInfo: safeGetApplianceTypeInfo,
       convertCost: costFromKwh,
     })
-  }, [needFallback, appliances, settings.electricityRate, costFromKwh, getApplianceTypeInfo])
+  }, [needFallback, appliances, settings.electricityRate, costFromKwh, safeGetApplianceTypeInfo])
 
-  // Compute display values
+  // display values
   const avgDailyUsage = summary?.averageDailyUsage ?? totalDailyUsage
-  const annualCost = needFallback
-    ? fallback?.annualCost ?? NaN
-    : forecastedAnnualCost ?? NaN
-  const annualCarbon = needFallback
-    ? fallback?.annualCarbon ?? 0
-    : avgDailyUsage * 365 * DEFAULT_CO2_FACTOR
+  const annualCost = needFallback ? fallback?.annualCost ?? NaN : forecastedAnnualCost ?? NaN
+  const annualCarbon = needFallback ? fallback?.annualCarbon ?? 0 : avgDailyUsage * 365 * DEFAULT_CO2_FACTOR
 
-  // Notify when switching from fallback to advanced (only logged in)
+  // notifications + high-usage logic unchanged
   useEffect(() => {
-    if (
-      prevUsedFallback.current === true &&
-      usedFallback === false &&
-      isLoggedIn
-    ) {
+    if (prevUsedFallback.current === true && usedFallback === false && isLoggedIn) {
       notifyForecastMode('advanced').catch(console.error)
     }
     prevUsedFallback.current = usedFallback
   }, [usedFallback, notifyForecastMode, isLoggedIn])
 
-  // Track “high-usage” appliances & send notifications (only logged in)
   const appliancesByUsage = useMemo(
     () =>
       appliances
@@ -239,18 +281,13 @@ export default function Insights() {
     if (!isLoggedIn) return
 
     if (isFirstHighUsageRun.current) {
-      prevHighRef.current = appliancesByUsage
-        .filter(u => u.usage > u.avgUsage)
-        .map(u => u.name)
+      prevHighRef.current = appliancesByUsage.filter(u => u.usage > u.avgUsage).map(u => u.name)
       isFirstHighUsageRun.current = false
       return
     }
 
-    const currentlyHigh = appliancesByUsage
-      .filter(u => u.usage > u.avgUsage)
-      .map(u => u.name)
+    const currentlyHigh = appliancesByUsage.filter(u => u.usage > u.avgUsage).map(u => u.name)
 
-    // Send “back to normal” alerts
     prevHighRef.current.forEach(name => {
       if (!currentlyHigh.includes(name)) {
         addNotification({
@@ -261,7 +298,6 @@ export default function Insights() {
       }
     })
 
-    // Send new high-usage alerts
     currentlyHigh.forEach(name => {
       if (!prevHighRef.current.includes(name)) {
         const app = appliances.find(a => a.name === name)!
@@ -273,13 +309,8 @@ export default function Insights() {
     prevHighRef.current = currentlyHigh
   }, [appliancesByUsage, addNotification, notifyHighUsageAppliance, appliances, isLoggedIn])
 
-  // Weekly vs forecast notification (only logged in)
   useEffect(() => {
-    if (
-      typeof actual === 'number' &&
-      typeof predicted === 'number' &&
-      isLoggedIn
-    ) {
+    if (typeof actual === 'number' && typeof predicted === 'number' && isLoggedIn) {
       addNotification({
         weekStartDate: getStartOfWeek(),
         actualUsage: actual,
@@ -297,42 +328,50 @@ export default function Insights() {
   if (!needFallback && summary === null && isLoggedIn) {
     return <div className="text-center text-gray-600 mt-10">Loading insights…</div>
   }
+  console.log("annualCost:", annualCost, "currency:", settings.currency);
 
   return (
     <div className="space-y-6 pb-16 sm:pb-0">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Energy Insights
-      </h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Energy Insights</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card">
-          <h2>Daily Energy Usage</h2>
-          <p className="text-2xl font-semibold mt-1">
-            {formatNumber(avgDailyUsage)} kWh
+        <div className="card p-4 bg-white dark:bg-gray-800 border rounded-lg">
+          <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300">Daily Energy Usage</h2>
+          <p className="text-2xl font-semibold mt-1 text-gray-900 dark:text-white">{formatNumber(avgDailyUsage)} kWh</p>
+        </div>
+
+        <div className="card p-4 bg-white dark:bg-gray-800 border rounded-lg">
+          <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+            Annual Cost <InfoTooltip text="Based on 30-day trends & fallback" />
+          </h2>
+          <p className="text-2xl font-semibold mt-1 text-gray-900 dark:text-white">
+            {/* show dash only when we truly don't have a number or currency setting */}
+            {Number.isFinite(annualCost) ? formatCurrency(annualCost, settings.currency ?? 'USD') : '—'}
+
+
           </p>
         </div>
-        <div className="card">
-          <h2>
-            Annual Cost <InfoTooltip text="Based on 30‑day trends & fallback" />
+
+        <div className="card p-4 bg-white dark:bg-gray-800 border rounded-lg">
+          <h2 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+            Carbon Footprint <InfoTooltip text="0.92 kg CO₂/kWh" />
           </h2>
-          <p className="text-2xl font-semibold mt-1">
-            {isNaN(annualCost)
-              ? '—'
-              : formatCurrency(annualCost, settings.currency)}
-          </p>
-        </div>
-        <div className="card">
-          <h2>
-            Carbon Footprint <InfoTooltip text="0.92 kg CO₂/kWh" />
-          </h2>
-          <p className="text-2xl font-semibold mt-1">
-            {formatNumber(annualCarbon)} kg CO₂
-          </p>
+          <p className="text-2xl font-semibold mt-1 text-gray-900 dark:text-white">{formatNumber(annualCarbon)} kg CO₂</p>
         </div>
       </div>
 
-      <div className="card">
-        <h2 className="font-medium mb-4">Your Energy Trends</h2>
+      <div className="card p-4 bg-white dark:bg-gray-800 border rounded-lg mt-4">
+        <TopConsumers topN={5} />
+      </div>
+      {isLoggedIn && (
+  <div className="card p-4 bg-white dark:bg-gray-800 border rounded-lg mt-4">
+    <WeeklyForecastCard />
+  </div>
+)}
+
+
+      <div className="card p-4 bg-white dark:bg-gray-800 border rounded-lg mt-4">
+        <h2 className="font-medium mb-4 text-gray-700 dark:text-gray-300">Your Energy Trends</h2>
         <EnergyUsageChart useEstimate={needFallback} />
       </div>
     </div>

@@ -1,13 +1,13 @@
 import type { Appliance } from '../context/AppContext'
-
+import { isVisibleAppliance } from '../context/AppContext'
 // 1. Static monthly seasonal multipliers
 const SEASONAL: Record<number, number> = {
   0: 1.05, 1: 1.02, 2: 0.98, 3: 0.95,
-  4: 1.0,  5: 1.1,  6: 1.15, 7: 1.15,
+  4: 0.95,  5: 1.1,  6: 1.15, 7: 1.15,
   8: 1.05, 9: 1.0,  10: 0.98, 11: 1.05,
 }
 
-const NOISE_BOUND = 0.05
+const NOISE_BOUND = 0.02
 const DEFAULT_CO2_FACTOR = 0.92 // kg CO₂ per kWh
 
 /** 
@@ -23,7 +23,6 @@ export function getKwhPerDay(
   // Multiply by fraction of week appliance is used (daysPerWeek / 7)
   return (wattage * app.hoursPerDay * (app.daysPerWeek / 7)) / 1000
 }
-
 
 /** 
  * FNV‑1a hash, used to seed PRNG 
@@ -68,6 +67,9 @@ export function generateEstimate({
   monthly = false,
   disableNoise = false,
   getApplianceTypeInfo,
+  mode,
+  seasonalAdjust = true,
+  includeInactive = false,
 }: {
   appliances: Appliance[]
   convertCost: (kwh: number) => number
@@ -76,7 +78,11 @@ export function generateEstimate({
   monthly?: boolean
   disableNoise?: boolean
   getApplianceTypeInfo?: (type: string) => { averageWattage?: number }
+  mode?: 'simulated' | 'live'
+  seasonalAdjust?: boolean
+  includeInactive?: boolean
 }): ChartPoint[] {
+
   const today = new Date()
   return Array.from({ length: count }, (_, i) => {
     const d = new Date(today)
@@ -91,12 +97,18 @@ export function generateEstimate({
     const byApp: Record<string, number> = {}
 
     appliances.forEach(app => {
-      if ((!app.wattage && !getApplianceTypeInfo?.(app.type)?.averageWattage) || !app.hoursPerDay || !app.daysPerWeek) return
+      if (
+        (!app.wattage && !getApplianceTypeInfo?.(app.type)?.averageWattage) || 
+        !app.hoursPerDay || 
+        !app.daysPerWeek
+      ) return
+    
+      if (!includeInactive && (!app.active || app.deleted)) return
 
       const baseDaily = getKwhPerDay(app, getApplianceTypeInfo)
       const intervalKwh = baseDaily * (monthly ? d.getDate() : daysPer)
 
-      const season = SEASONAL[d.getMonth()] ?? 1
+      const season = seasonalAdjust ? (SEASONAL[d.getMonth()] ?? 1) : 1
       const noise = disableNoise
         ? 1
         : 1 + (mulberry32(xfnv1a(`${app.id}-${label}`))() * 2 * NOISE_BOUND - NOISE_BOUND)
@@ -130,8 +142,10 @@ export function estimateAnnualFromAppliances({
   let totalKwhPerDay = 0
 
   for (const app of appliances) {
+    if (!app.active || app.deleted) continue
     totalKwhPerDay += getKwhPerDay(app, getApplianceTypeInfo)
   }
+  
 
   const month = new Date().getMonth()
   const noise = disableNoise

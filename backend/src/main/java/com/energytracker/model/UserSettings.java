@@ -16,7 +16,6 @@ public class UserSettings {
 
     private double electricityRatePerKWh;
 
-    private String location;
 
     // Add more fields if needed
 
@@ -43,13 +42,5 @@ public class UserSettings {
 
     public void setElectricityRatePerKWh(double electricityRatePerKWh) {
         this.electricityRatePerKWh = electricityRatePerKWh;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 }

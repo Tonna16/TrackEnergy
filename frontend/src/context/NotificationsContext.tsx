@@ -178,7 +178,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   };
   const notifyHighUsageAppliance = async (name: string, estimatedKWh: number) => {
     try {
-      await api.post('notifications/high-usage', {
+      await api.post('notifications/high-usage-appliance', {
         appliance: name,
         estimatedKWh,
       });

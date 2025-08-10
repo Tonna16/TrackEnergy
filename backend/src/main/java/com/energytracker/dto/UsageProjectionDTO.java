@@ -10,18 +10,18 @@ import java.util.Map;
  */
 public class UsageProjectionDTO {
 
-    private final String label;
+    private final String date;
     private final double totalCost;
     private final Map<String, Double> byAppCost;
 
-    public UsageProjectionDTO(String label, double totalCost, Map<String, Double> byAppCost) {
-        this.label = label;
+    public UsageProjectionDTO(String date, double totalCost, Map<String, Double> byAppCost) {
+        this.date = date;
         this.totalCost = totalCost;
         this.byAppCost = byAppCost;
     }
 
-    public String getLabel() {
-        return label;
+    public String getDate() {
+        return date;
     }
 
     public double getTotalCost() {

@@ -11,30 +11,37 @@ type DashboardSummaryProps = {
 export default function DashboardSummary({ useEstimate }: DashboardSummaryProps) {
   const [avgDailyCostFromChart, setAvgDailyCostFromChart] = useState(0)
   const [forecastedDailyCost, setForecastedDailyCost] = useState<number | null>(null)
+  const costToShow = forecastedDailyCost ?? avgDailyCostFromChart
 
+
+  
   useEffect(() => {
+    console.log('DashboardSummary mounted, fetching forecasted daily cost')
     api.get('energy-usage/forecasted-daily-cost')
       .then(res => {
-        if (typeof res.data === 'number') {
-          setForecastedDailyCost(res.data)
-        } else if (res.data.forecastedDailyCost) {
-          setForecastedDailyCost(res.data.forecastedDailyCost)
-        }
+        const cost = typeof res.data === 'number' ? res.data : res.data.forecastedDailyCost
+        console.log('DashboardSummary backend cost:', cost)
+        setForecastedDailyCost(cost)
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('DashboardSummary fetch error:', err)
         setForecastedDailyCost(null)
       })
   }, [])
+  
+  console.log('DashboardSummary rendering, costToShow:', costToShow)
+  
 
   // Only pass backend forecast to UsageSummary
-  const costToShow = forecastedDailyCost ?? avgDailyCostFromChart
 
   return (
     <div className="space-y-6">
-      <EnergyUsageChart
-        useEstimate={useEstimate}
-        onAverageCostChange={setAvgDailyCostFromChart}
-      />
+     <EnergyUsageChart
+  useEstimate={useEstimate}
+  onAverageCostChange={setAvgDailyCostFromChart}
+  backendForecast={forecastedDailyCost ?? undefined} // ✅ pass this down
+/>
+
       <UsageSummary avgDailyCostFromChart={costToShow} />
     </div>
   )

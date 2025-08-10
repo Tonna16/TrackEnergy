@@ -7,18 +7,39 @@ import React, {
   useMemo,
   useCallback,
   ReactNode,
+  useRef,
 } from 'react'
 import { applianceDatabase } from '../data/applianceDatabase'
 import { getAuthToken } from '../utils/auth'
 import { generateEstimate } from '../utils/energyEstimator'
+import api from '../utils/api'
 
-const API_URL = '/api/appliances'
 const EMISSION_FACTOR_KG_PER_KWH = 0.417
 const SAVINGS_PERCENTAGE = 0.15
 const DEFAULT_USD_TO_EUR = 0.86
+const MAX_WATTAGE = 10000 // max wattage for household appliances
+const MAX_KWH_PER_DAY = 30 // max kWh per day for a single appliance
+
+function sanitizeSettings(partial: Partial<UserSettings> | undefined): UserSettings {
+  const base: UserSettings = {
+    currency: 'USD',
+    householdSize: 2,
+    darkMode: false,
+    electricityRate: 0.17,
+    exchangeRate: DEFAULT_USD_TO_EUR,
+  };
+  if (!partial) return base;
+  return {
+    currency: partial.currency === 'EUR' ? 'EUR' : 'USD',
+    householdSize: typeof partial.householdSize === 'number' ? partial.householdSize : base.householdSize,
+    darkMode: typeof partial.darkMode === 'boolean' ? partial.darkMode : base.darkMode,
+    electricityRate: typeof partial.electricityRate === 'number' ? partial.electricityRate : base.electricityRate,
+    exchangeRate: typeof partial.exchangeRate === 'number' ? partial.exchangeRate : base.exchangeRate,
+  };
+}
 
 export type Appliance = {
-  id: string
+  id: number
   name: string
   wattage: number
   hoursPerDay: number
@@ -29,6 +50,8 @@ export type Appliance = {
   location: string
   isHighEfficiency: boolean
   estimatedDailyKWh?: number
+  active?: boolean
+  deleted?: boolean
 }
 
 type ApplianceInput = Omit<Appliance, 'id'>
@@ -37,7 +60,7 @@ type UserSettings = {
   currency: 'USD' | 'EUR'
   householdSize: number
   darkMode: boolean
-  electricityRate: number
+  electricityRate: number         // frontend field (maps to backend electricityRatePerKWh)
   exchangeRate: number
 }
 
@@ -51,10 +74,10 @@ type AppMode = 'simulated' | 'live'
 
 type AppContextType = {
   appliances: Appliance[]
-  addAppliance(input: ApplianceInput): Promise<void>
+  addAppliance(input: ApplianceInput): Promise<Appliance | undefined>
   updateAppliance(updated: Appliance): Promise<void>
-  deleteAppliance(id: string): Promise<void>
-  getAppliance(id: string): Appliance | undefined
+  deleteAppliance(id: number): Promise<void>
+  getAppliance(id: number): Appliance | undefined
   forecastedDailyCost: number
 
   totalDailyUsage: number
@@ -63,7 +86,7 @@ type AppContextType = {
   estimatedAnnualSavings: number
 
   settings: UserSettings
-  updateSettings(updates: Partial<UserSettings>): void
+  updateSettings(updates: Partial<UserSettings>): Promise<void>
   appMode: AppMode
   setAppMode(mode: AppMode): void
 
@@ -83,38 +106,51 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
+// Validate an appliance object and ensure it's not deleted/inactive
+const isValidAppliance = (a: Appliance): boolean => {
+  if (!a || typeof a !== 'object') return false
+  if (a.deleted === true) return false
+  if (a.active === false) return false
+  if (!a.name || typeof a.name !== 'string') return false
+  if (isNaN(a.wattage) || a.wattage <= 0 || a.wattage > MAX_WATTAGE) return false
+  if (isNaN(a.hoursPerDay) || a.hoursPerDay < 0 || a.hoursPerDay > 24) return false
+  if (isNaN(a.daysPerWeek) || a.daysPerWeek < 0 || a.daysPerWeek > 7) return false
+  const dailyKwh = (a.wattage * a.hoursPerDay) / 1000
+  if (dailyKwh > MAX_KWH_PER_DAY) return false
+  return true
+}
+
+const isValidLog = (log: UsageLog): boolean => {
+  return (
+    typeof log.date === 'string' &&
+    !isNaN(Date.parse(log.date)) &&
+    typeof log.total === 'number' &&
+    log.total >= 0 &&
+    typeof log.byAppliance === 'object' &&
+    Object.values(log.byAppliance).every(val => typeof val === 'number' && val >= 0)
+  )
+}
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [forecastedDailyCostLive, setForecastedDailyCostLive] = useState<number | null>(null)
+
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
     try {
       const saved = localStorage.getItem('appliances')
-      return saved ? JSON.parse(saved) : []
+      return saved ? JSON.parse(saved).filter(isValidAppliance) : []
     } catch {
       return []
     }
   })
-
   const [settings, setSettings] = useState<UserSettings>(() => {
     try {
-      const saved = localStorage.getItem('settings')
-      return saved
-        ? JSON.parse(saved)
-        : {
-            currency: 'USD',
-            householdSize: 2,
-            darkMode: false,
-            electricityRate: 0.17,
-            exchangeRate: DEFAULT_USD_TO_EUR,
-          }
+      const saved = localStorage.getItem('settings');
+      return sanitizeSettings(saved ? JSON.parse(saved) : undefined);
     } catch {
-      return {
-        currency: 'USD',
-        householdSize: 2,
-        darkMode: false,
-        electricityRate: 0.17,
-        exchangeRate: DEFAULT_USD_TO_EUR,
-      }
+      return sanitizeSettings(undefined);
     }
-  })
+  });
+  
 
   const [appMode, setAppMode] = useState<AppMode>(() => {
     const savedMode = localStorage.getItem('appMode')
@@ -142,27 +178,109 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('appMode', appMode)
   }, [appMode])
 
+  // If logged in, fetch persisted settings from SettingsController
+  useEffect(() => {
+    const token = getAuthToken()
+    if (!token) return
+
+    (async () => {
+      try {
+        const res = await api.get<any>('/settings')
+        const serverShape = {
+          currency: res.data?.currency, // optional if you extend server
+          householdSize: res.data?.householdSize,
+          darkMode: res.data?.darkMode,
+          electricityRate: res.data?.electricityRatePerKWh ?? res.data?.electricityRate,
+          exchangeRate: res.data?.exchangeRate ?? DEFAULT_USD_TO_EUR,
+        };
+        setSettings(prev => ({ ...prev, ...sanitizeSettings(serverShape) }));
+      } catch (err) {
+        console.error('Failed to load user settings', err)
+      }
+    })()
+  }, [])
+
+  // Fetch forecasted daily cost from backend (robust to response shape)
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchForecastedDailyCost = async () => {
+      if (appMode !== 'live' || !getAuthToken()) {
+        if (!cancelled) setForecastedDailyCostLive(null);
+        return;
+      }
+
+      try {
+        const response = await api.get('energy-usage/forecasted-daily-cost')
+        // backend might return a number or an object { forecastedDailyCost }
+        const val =
+          typeof response.data === 'number'
+            ? response.data
+            : response.data?.forecastedDailyCost ?? null
+
+        if (!cancelled) {
+          if (typeof val === 'number') {
+            setForecastedDailyCostLive(val)
+            console.debug('[AppContext] Fetched forecastedDailyCostLive:', val)
+          } else {
+            console.warn('[AppContext] Unexpected response for forecasted daily cost:', response.data)
+            setForecastedDailyCostLive(null)
+          }
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('[AppContext] Error fetching forecasted daily cost:', error)
+          setForecastedDailyCostLive(null)
+        }
+      }
+    }
+
+    fetchForecastedDailyCost()
+
+    return () => {
+      cancelled = true
+    }
+  }, [appMode, appliances])
+
   useEffect(() => {
     localStorage.setItem('manualUsageLog', JSON.stringify(manualUsageLog))
   }, [manualUsageLog])
 
+  // Set appMode to live when token present (helpful on page reload)
   useEffect(() => {
-    if (!getAuthToken()) setAppMode('simulated')
+    if (getAuthToken()) {
+      setAppMode('live')
+    } else {
+      setAppMode('simulated')
+    }
   }, [])
 
+  // Fetch appliances from backend when in live mode.
+  // Only keep active && not deleted items.
   useEffect(() => {
     const fetchAppliances = async () => {
       if (appMode === 'live') {
         try {
-          const res = await fetch(API_URL, {
-            headers: { Authorization: `Bearer ${getAuthToken()}` },
-          })
-          if (res.ok) {
-            const data: Appliance[] = await res.json()
-            setAppliances(data)
-          }
+          const res = await api.get<Appliance[]>('appliances')
+          const visible = res.data
+            .filter(a => a && a.active !== false && a.deleted !== true)
+            .filter(isValidAppliance)
+          setAppliances(visible)
         } catch (err) {
           console.error('Failed to fetch appliances:', err)
+        }
+      } else {
+        // Load from localStorage for simulated mode (existing behavior)
+        const saved = localStorage.getItem('appliances')
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved)
+            setAppliances(parsed.filter(isValidAppliance))
+          } catch {
+            setAppliances([])
+          }
+        } else {
+          setAppliances([])
         }
       }
     }
@@ -180,23 +298,28 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const costFromKwh = useCallback((kwh: number) => kwh * currentRate, [currentRate])
   const convertCurrency = useCallback((usd: number) => usd * currencyRate, [currencyRate])
-
   const symbol = useMemo(() => (settings.currency === 'EUR' ? '€' : '$'), [settings.currency])
 
+  const currencyCode = settings.currency && (settings.currency === 'USD' || settings.currency === 'EUR')
+    ? settings.currency
+    : 'USD'
+
   const currencyFormatter = useMemo(
-    () => new Intl.NumberFormat(undefined, {
+    () =>
+      new Intl.NumberFormat(undefined, {
         style: 'currency',
-        currency: settings.currency,
+        currency: currencyCode,
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
-    [settings.currency]
+    [currencyCode]
   )
 
   const formatCost = useCallback(
     (usd: number) => currencyFormatter.format(usd * currencyRate),
     [currencyFormatter, currencyRate]
   )
+
   const formatConvertedCost = useCallback(
     (val: number) => currencyFormatter.format(val),
     [currencyFormatter]
@@ -214,27 +337,46 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   const totalDailyUsage = useMemo(
-    () => appliances.reduce(
-      (sum, app) => sum + (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000,
-      0
-    ), [appliances]
+    () =>
+      appliances.reduce(
+        (sum, app) => sum + (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000,
+        0
+      ),
+    [appliances]
   )
 
+  const seasonalAdjust = true
+
+  // Use backend live forecast if available, otherwise client estimate
   const forecastedDailyCost = useMemo(() => {
-    const points = generateEstimate({ appliances, convertCost: costFromKwh, count: 30, daysPer: 1, disableNoise: false,
-      getApplianceTypeInfo: type => applianceDatabase[type]
-        ? { averageWattage: applianceDatabase[type].defaultWattage }
-        : {},
+    if (appMode === 'live' && forecastedDailyCostLive !== null) {
+      return forecastedDailyCostLive
+    }
+
+    const visibleAppliances = appliances.filter(a => a.active !== false && a.deleted !== true)
+
+    const points = generateEstimate({
+      appliances: visibleAppliances,
+      convertCost: costFromKwh,
+      count: 30,
+      daysPer: 1,
+      mode: appMode,
+      seasonalAdjust,
+      disableNoise: false,
+      includeInactive: false,
     })
+
     const total = points.reduce((sum, p) => sum + (p.total ?? 0), 0)
     return total / 30
-  }, [appliances, costFromKwh])
+  }, [appliances, costFromKwh, appMode, forecastedDailyCostLive])
 
   const totalDailyCost = useMemo(() => costFromKwh(totalDailyUsage), [totalDailyUsage, costFromKwh])
+
   const yearlyCarbonFootprint = useMemo(
     () => totalDailyUsage * 365 * EMISSION_FACTOR_KG_PER_KWH,
     [totalDailyUsage]
   )
+
   const estimatedAnnualSavings = useMemo(
     () => totalDailyCost * 365 * SAVINGS_PERCENTAGE,
     [totalDailyCost]
@@ -245,60 +387,157 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     [manualUsageLog]
   )
 
-  const addAppliance = async (input: ApplianceInput) => {
-    const newApp: Appliance = { ...input, id: crypto.randomUUID?.() || Math.random().toString(36).slice(2) }
+  const addAppliance = async (input: ApplianceInput): Promise<Appliance | undefined> => {
+    if (!isValidAppliance({ ...input, id: 0 } as Appliance)) {
+      console.warn('Rejected appliance due to invalid input', input)
+      return undefined
+    }
+
     if (appMode === 'live') {
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
-          body: JSON.stringify(newApp),
-        })
-        if (!res.ok) throw new Error('Failed to add appliance')
-        const saved: Appliance = await res.json()
-        setAppliances(prev => [saved, ...prev])
-        return
-      } catch (err) { console.error(err) }
+        const res = await api.post<Appliance>('appliances', input) // backend assigns ID
+        if (res.data && res.data.active !== false && res.data.deleted !== true && isValidAppliance(res.data)) {
+          setAppliances(prev => [res.data, ...prev])
+        }
+        return res.data
+      } catch (err) {
+        console.error('Failed to add appliance:', err)
+        return undefined
+      }
+    } else {
+      const newApp: Appliance = {
+        ...input,
+        id: Math.floor(Math.random() * 1_000_000_000),
+      }
+      setAppliances(prev => [newApp, ...prev])
+      return newApp
     }
-    setAppliances(prev => [newApp, ...prev])
   }
 
   const updateAppliance = async (updated: Appliance) => {
+    if (!isValidAppliance(updated)) {
+      console.warn('Rejected appliance due to invalid input', updated)
+      return
+    }
+
     if (appMode === 'live') {
       try {
-        const res = await fetch(`${API_URL}/${updated.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
-          body: JSON.stringify(updated),
-        })
-        if (!res.ok) throw new Error('Failed to update appliance')
-      } catch (err) { console.error(err) }
+        await api.put(`appliances/${updated.id}`, updated)
+        setAppliances(prev => prev.map(a => (a.id === updated.id ? updated : a)))
+      } catch (err) {
+        console.error('Failed to update appliance:', err)
+      }
+    } else {
+      setAppliances(prev => prev.map(a => (a.id === updated.id ? updated : a)))
     }
-    setAppliances(prev => prev.map(a => (a.id === updated.id ? updated : a)))
   }
 
-  const deleteAppliance = async (id: string) => {
+  const deleteAppliance = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this appliance?")) return
     if (appMode === 'live') {
       try {
-        await fetch(`${API_URL}/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${getAuthToken()}` } })
-      } catch (err) { console.error(err) }
+        await api.delete(`appliances/${id}`)
+        setAppliances(prev => prev.filter(a => a.id !== id))
+      } catch (err) {
+        console.error('Failed to delete appliance', err)
+        alert('Failed to delete appliance. Please try again.')
+      }
+    } else {
+      setAppliances(prev => prev.filter(a => a.id !== id))
     }
-    setAppliances(prev => prev.filter(a => a.id !== id))
   }
+
+  const settingsRef = useRef(settings)
+
+  useEffect(() => {
+    settingsRef.current = settings
+  }, [settings])
+  
+  // updateSettings: update local state immediately, persist when user is logged in
+  const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
+    setSettings(prev => ({ ...prev, ...updates }))
+
+    if (!getAuthToken()) {
+      // guest: nothing to persist server-side
+      return
+    }
+
+    try {
+      // merge with latest
+      const mergedFrontend = { ...settingsRef.current, ...updates }
+
+      // server expects electricityRatePerKWh
+      const serverPayload: any = {
+        electricityRatePerKWh: mergedFrontend.electricityRate,
+        // optionally include other server-side fields (location) if you add them to frontend
+      }
+
+      const res = await api.put<any>('settings', serverPayload)
+
+      // Map server response back to frontend shape; fallback to mergedFrontend
+      const serverRate = res.data?.electricityRatePerKWh ?? res.data?.electricityRate ?? mergedFrontend.electricityRate;
+      setSettings(prev => ({
+        ...prev,
+        electricityRate: serverRate,
+        // preserve current currency/exchangeRate/householdSize/darkMode
+        currency: prev.currency ?? 'USD',
+        exchangeRate: prev.exchangeRate ?? DEFAULT_USD_TO_EUR,
+        householdSize: prev.householdSize ?? 2,
+        darkMode: prev.darkMode ?? false,
+      }));
+      
+    } catch (err) {
+      console.error('Failed to save settings', err)
+    }
+  }, [])
 
   return (
     <AppContext.Provider
-      value={{ appliances, addAppliance, updateAppliance, deleteAppliance, getAppliance: id => appliances.find(a => a.id === id), forecastedDailyCost,
-        totalDailyUsage, totalDailyCost, yearlyCarbonFootprint, estimatedAnnualSavings,
-        settings, updateSettings: u => setSettings(prev => ({ ...prev, ...u })), appMode, setAppMode,
-        costFromKwh, convertCurrency, formatCost, formatConvertedCost, symbol, currentRate,
-        logManualUsage: log => setManualUsageLog(prev => [...prev.filter(e => e.date !== log.date), log].sort((a, b) => a.date.localeCompare(b.date))),
-        getApplianceTypeInfo: type => applianceDatabase[type] ? { averageWattage: applianceDatabase[type].defaultWattage } : undefined,
-        fetchLiveRate, dailyUsageSeries
-      }}>
+      value={{
+        appliances,
+        addAppliance,
+        updateAppliance,
+        deleteAppliance,
+        getAppliance: id => appliances.find(a => a.id === id),
+        forecastedDailyCost,
+        totalDailyUsage,
+        totalDailyCost,
+        yearlyCarbonFootprint,
+        estimatedAnnualSavings,
+        settings,
+        updateSettings,
+        appMode,
+        setAppMode,
+        costFromKwh,
+        convertCurrency,
+        formatCost,
+        formatConvertedCost,
+        symbol,
+        currentRate,
+        logManualUsage: log =>
+          setManualUsageLog(prev =>
+            [...prev.filter(e => e.date !== log.date), log].sort((a, b) => a.date.localeCompare(b.date))
+          ),
+        getApplianceTypeInfo: type =>
+          applianceDatabase[type]
+            ? { averageWattage: applianceDatabase[type].defaultWattage }
+            : undefined,
+        fetchLiveRate,
+        dailyUsageSeries,
+      }}
+    >
       {children}
     </AppContext.Provider>
   )
 }
+export function isVisibleAppliance(app: Appliance, includeInactive: boolean) {
+  if (!includeInactive && (!app.active || app.deleted)) return false
+  return true
+}
 
-export const useAppContext = () => { const ctx = useContext(AppContext); if (!ctx) throw new Error('useAppContext must be used within AppProvider'); return ctx }
+
+export const useAppContext = () => {
+  const ctx = useContext(AppContext)
+  if (!ctx) throw new Error('useAppContext must be used within AppProvider')
+  return ctx
+}

@@ -13,7 +13,7 @@ public class EnergyUsageLog {
     private Long id;
 
     // The date this usage was recorded
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate date;
 
     // The kWh used for that appliance on that date
@@ -22,7 +22,7 @@ public class EnergyUsageLog {
 
     // Many UsageLogs → one Appliance
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appliance_id", nullable = false)
+    @JoinColumn(name = "appliance_id", nullable = true)
     private Appliance appliance;
 
     public Long getId() {

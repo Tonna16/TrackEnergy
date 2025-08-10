@@ -20,7 +20,7 @@ public class Notification {
 
     private String title;
   
-    @Column(nullable = false)
+    @Column(nullable = true)
     private boolean deleted = false;
 
     private String type;
