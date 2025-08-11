@@ -76,18 +76,19 @@ public interface EnergyUsageLogRepository extends JpaRepository<EnergyUsageLog, 
     List<EnergyUsageLog> findByApplianceIdAndDateBetween(
         @Param("applianceId") Long applianceId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate
     );
-  @Query("""
-        SELECT new com.energytracker.dto.UsageStats(
-            AVG(u.kWhUsed)
-        )
-        FROM EnergyUsageLog u
-        JOIN u.appliance a
-        JOIN a.user user
-        WHERE user.householdSize = :householdSize
+    @Query("""
+      SELECT new com.energytracker.dto.UsageStats(
+          AVG(u.kWhUsed)
+      )
+      FROM EnergyUsageLog u
+      JOIN u.appliance a
+      JOIN a.user user
+      WHERE user.householdSize >= :minHouseholdSize
         AND a.active = true
         AND a.deleted = false
-    """)
-    List<UsageStats> findCommunityStats(@Param("householdSize") int householdSize);
+  """)
+  List<UsageStats> findCommunityStatsGreaterOrEqual(@Param("minHouseholdSize") int minHouseholdSize);
+  
     @Modifying
     @Transactional
     @Query("DELETE FROM EnergyUsageLog e WHERE e.appliance.id = :applianceId")

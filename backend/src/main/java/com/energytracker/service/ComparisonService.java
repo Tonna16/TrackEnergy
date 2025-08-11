@@ -22,7 +22,7 @@ public class ComparisonService {
     }
 
     public CommunityComparisonDTO getCommunityComparison(int householdSize, UserDetails user) {
-        List<UsageStats> communityStats = usageRepository.findCommunityStats(householdSize);
+        List<UsageStats> communityStats = usageRepository.findCommunityStatsGreaterOrEqual(householdSize);
 
         if (communityStats.size() < 5) {
             Optional<Double> eiaAvgOpt = eiaService.getNationalAverageUsage();
