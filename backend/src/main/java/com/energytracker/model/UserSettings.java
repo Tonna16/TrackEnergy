@@ -16,6 +16,8 @@ public class UserSettings {
 
     private double electricityRatePerKWh;
 
+    private int householdSize;// Default household size
+
 
     // Add more fields if needed
 
@@ -42,5 +44,11 @@ public class UserSettings {
 
     public void setElectricityRatePerKWh(double electricityRatePerKWh) {
         this.electricityRatePerKWh = electricityRatePerKWh;
+    }
+    public int getHouseholdSize() {
+        return householdSize;
+    }   
+    public void setHouseholdSize(int householdSize) {
+        this.householdSize = householdSize;
     }
 }

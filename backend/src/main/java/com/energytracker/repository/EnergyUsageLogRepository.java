@@ -1,6 +1,7 @@
 package com.energytracker.repository;
 
 import com.energytracker.dto.EnergyUsageDTO;
+import com.energytracker.dto.UsageStats;
 import com.energytracker.model.EnergyUsageLog;
 
 import jakarta.transaction.Transactional;
@@ -75,7 +76,18 @@ public interface EnergyUsageLogRepository extends JpaRepository<EnergyUsageLog, 
     List<EnergyUsageLog> findByApplianceIdAndDateBetween(
         @Param("applianceId") Long applianceId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate
     );
-
+  @Query("""
+        SELECT new com.energytracker.dto.UsageStats(
+            AVG(u.kWhUsed)
+        )
+        FROM EnergyUsageLog u
+        JOIN u.appliance a
+        JOIN a.user user
+        WHERE user.householdSize = :householdSize
+        AND a.active = true
+        AND a.deleted = false
+    """)
+    List<UsageStats> findCommunityStats(@Param("householdSize") int householdSize);
     @Modifying
     @Transactional
     @Query("DELETE FROM EnergyUsageLog e WHERE e.appliance.id = :applianceId")
