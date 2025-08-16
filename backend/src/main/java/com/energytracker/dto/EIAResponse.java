@@ -3,36 +3,24 @@ package com.energytracker.dto;
 import java.util.List;
 
 public class EIAResponse {
+    private EIAResponseData response;
 
-    private List<Series> series;
+    public EIAResponseData getResponse() { return response; }
+    public void setResponse(EIAResponseData response) { this.response = response; }
 
-    public List<Series> getSeries() {
-        return series;
-    }
-
-    public void setSeries(List<Series> series) {
-        this.series = series;
+    public static class EIAResponseData {
+        private List<Series> data;
+        public List<Series> getData() { return data; }
+        public void setData(List<Series> data) { this.data = data; }
     }
 
     public static class Series {
-
         private String series_id;
         private List<List<Object>> data;
-
-        public String getSeries_id() {
-            return series_id;
-        }
-
-        public void setSeries_id(String series_id) {
-            this.series_id = series_id;
-        }
-
-        public List<List<Object>> getData() {
-            return data;
-        }
-
-        public void setData(List<List<Object>> data) {
-            this.data = data;
-        }
+        public String getSeries_id() { return series_id; }
+        public void setSeries_id(String series_id) { this.series_id = series_id; }
+        public List<List<Object>> getData() { return data; }
+        public void setData(List<List<Object>> data) { this.data = data; }
     }
 }
+

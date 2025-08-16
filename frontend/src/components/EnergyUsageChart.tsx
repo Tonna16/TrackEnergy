@@ -81,53 +81,65 @@ export default function EnergyUsageChart({
     [appliances, costFromKwh]
   )
 
-  // Fetch server projections for authenticated users
- // inside EnergyUsageChart (or wherever you fetch projections)
-useEffect(() => {
-  const token = getAuthToken();
-  const isLoggedIn = Boolean(token);
-
-  // If guest — we will POST their appliances as JSON so the backend can do guest projection
-  if (!isLoggedIn) {
-    if (import.meta.env.MODE === 'development') {
-      console.log('No auth token, using client-side fallback projections (or guest POST).');
+  useEffect(() => {
+    const token = getAuthToken();
+    const isLoggedIn = Boolean(token);
+  
+    if (!isLoggedIn) {
+      // Guest / simulated mode → do not call backend
+      if (import.meta.env.MODE === 'development') {
+        console.log('Guest detected, using client-side fallback estimates only.');
+      }
+      setServerData([]); // triggers generateEstimate in chartData
+      return; // exit early
     }
-
-    // If you want purely client-side fallback, uncomment the next line and return:
-    // setServerData([]); return;
-
-    // Guest POST with appliances array body
-    api.post('energy-usage/projections', appliances ?? [], {
-      params: { timeRange },
-      headers: { 'Content-Type': 'application/json' },
-    })
-      .then(res => {
-        if (Array.isArray(res.data)) setServerData(res.data);
-        else if (res.data && Array.isArray(res.data.projections)) setServerData(res.data.projections);
-        else setServerData([]);
-      })
-      .catch(err => {
-        console.error('Error fetching guest projections:', err?.response?.data ?? err?.message ?? err);
+  
+    let cancelled = false;
+  
+    const fetchProjections = async () => {
+      try {
+        const res = await api.get('energy-usage/projections', { params: { timeRange } });
+  
+        if (cancelled) return;
+  
+        if (Array.isArray(res.data)) {
+          setServerData(res.data);
+        } else if (res.data && Array.isArray(res.data.projections)) {
+          setServerData(res.data.projections);
+        } else {
+          setServerData([]);
+        }
+      } catch (err: unknown) {
+        if (cancelled) return;
+  
+        let errorMsg: string;
+  
+        if (err instanceof Error) {
+          errorMsg = err.message;
+        } else if (
+          typeof err === 'object' &&
+          err !== null &&
+          'response' in err &&
+          (err as any).response
+        ) {
+          errorMsg = (err as any).response?.data ?? 'Unknown server error';
+        } else {
+          errorMsg = String(err);
+        }
+  
+        console.error('Error fetching authenticated projections:', errorMsg);
         setServerData([]);
-      });
+      }
+    };
+  
+    fetchProjections();
+  
+    return () => {
+      cancelled = true;
+    };
+  }, [timeRange, appliances]);
+  
 
-    return;
-  }
-
-  // Authenticated users -> call GET (no body)
-  api.get('energy-usage/projections', {
-    params: { timeRange },
-  })
-    .then(res => {
-      if (Array.isArray(res.data)) setServerData(res.data);
-      else if (res.data && Array.isArray(res.data.projections)) setServerData(res.data.projections);
-      else setServerData([]);
-    })
-    .catch(err => {
-      console.error('Error fetching authenticated projections:', err?.response?.data ?? err?.message ?? err);
-      setServerData([]);
-    });
-}, [timeRange, appliances]);
 
 
   const chartData: ChartPoint[] = useMemo(() => {

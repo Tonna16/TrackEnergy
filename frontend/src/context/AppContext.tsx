@@ -10,7 +10,7 @@ import React, {
   useRef,
 } from 'react'
 import { applianceDatabase } from '../data/applianceDatabase'
-import { getAuthToken } from '../utils/auth'
+import { getAuthToken, refreshAccessTokenIfNeeded } from '../utils/auth'
 import { generateEstimate } from '../utils/energyEstimator'
 import api from '../utils/api'
 
@@ -150,7 +150,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       return sanitizeSettings(undefined);
     }
   });
-  
+
+  // auth readiness: prevents early API calls before token refresh attempt
+  const [authReady, setAuthReady] = useState(false)
 
   const [appMode, setAppMode] = useState<AppMode>(() => {
     const savedMode = localStorage.getItem('appMode')
@@ -178,14 +180,41 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('appMode', appMode)
   }, [appMode])
 
-  // If logged in, fetch persisted settings from SettingsController
+  // --- NEW: Attempt to refresh access token on app start, then mark authReady ---
   useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        // Attempt to refresh token if needed. If it fails that's fine: we set authReady anyway.
+        await refreshAccessTokenIfNeeded()
+      } catch (err) {
+        // swallow - we still mark authReady so the app can continue as guest
+        if (import.meta.env.MODE === 'development') {
+          console.debug('[AppContext] refreshAccessTokenIfNeeded failed:', err)
+        }
+      } finally {
+        if (mounted) setAuthReady(true)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
+
+  // If authReady becomes true, set appMode depending on presence of token
+  useEffect(() => {
+    if (!authReady) return
+    setAppMode(getAuthToken() ? 'live' : 'simulated')
+  }, [authReady])
+
+  // If logged in and authReady, fetch persisted settings from SettingsController
+  useEffect(() => {
+    if (!authReady) return
+
     const token = getAuthToken()
     if (!token) return
 
     (async () => {
       try {
-        const res = await api.get<any>('/settings')
+        const res = await api.get<any>('settings')
         const serverShape = {
           currency: res.data?.currency, // optional if you extend server
           householdSize: res.data?.householdSize,
@@ -198,67 +227,58 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         console.error('Failed to load user settings', err)
       }
     })()
-  }, [])
+  }, [authReady])
 
   // Fetch forecasted daily cost from backend (robust to response shape)
   useEffect(() => {
     let cancelled = false;
 
     const fetchForecastedDailyCost = async () => {
-      if (appMode !== 'live' || !getAuthToken()) {
+      // require authReady to avoid racing before token refresh attempt
+      if (!authReady) {
+        if (!cancelled) setForecastedDailyCostLive(null)
+        return
+      }
+
+      const token = getAuthToken();
+      const isLoggedIn = Boolean(token);
+
+      // Early return for guests / simulated mode
+      if (appMode !== 'live' || !isLoggedIn) {
         if (!cancelled) setForecastedDailyCostLive(null);
         return;
       }
 
       try {
-        const response = await api.get('energy-usage/forecasted-daily-cost')
-        // backend might return a number or an object { forecastedDailyCost }
+        const response = await api.get('energy-usage/forecasted-daily-cost');
         const val =
           typeof response.data === 'number'
             ? response.data
-            : response.data?.forecastedDailyCost ?? null
+            : response.data?.forecastedDailyCost ?? null;
 
         if (!cancelled) {
-          if (typeof val === 'number') {
-            setForecastedDailyCostLive(val)
-            console.debug('[AppContext] Fetched forecastedDailyCostLive:', val)
-          } else {
-            console.warn('[AppContext] Unexpected response for forecasted daily cost:', response.data)
-            setForecastedDailyCostLive(null)
-          }
+          if (typeof val === 'number') setForecastedDailyCostLive(val);
+          else setForecastedDailyCostLive(null);
         }
       } catch (error) {
-        if (!cancelled) {
-          console.error('[AppContext] Error fetching forecasted daily cost:', error)
-          setForecastedDailyCostLive(null)
-        }
+        if (!cancelled) setForecastedDailyCostLive(null);
       }
-    }
+    };
 
-    fetchForecastedDailyCost()
+    fetchForecastedDailyCost();
 
-    return () => {
-      cancelled = true
-    }
-  }, [appMode, appliances])
+    return () => { cancelled = true; };
+  }, [authReady, appMode, appliances]);
 
   useEffect(() => {
     localStorage.setItem('manualUsageLog', JSON.stringify(manualUsageLog))
   }, [manualUsageLog])
 
-  // Set appMode to live when token present (helpful on page reload)
-  useEffect(() => {
-    if (getAuthToken()) {
-      setAppMode('live')
-    } else {
-      setAppMode('simulated')
-    }
-  }, [])
-
-  // Fetch appliances from backend when in live mode.
-  // Only keep active && not deleted items.
+  // Fetch appliances from backend when in live mode (wait for authReady)
   useEffect(() => {
     const fetchAppliances = async () => {
+      if (!authReady) return // wait until auth refresh attempt finishes
+
       if (appMode === 'live') {
         try {
           const res = await api.get<Appliance[]>('appliances')
@@ -285,7 +305,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     }
     fetchAppliances()
-  }, [appMode])
+  }, [authReady, appMode])
 
   const [fxRate, setFxRate] = useState<number>(settings.exchangeRate)
   useEffect(() => {

@@ -20,7 +20,9 @@ public class User {
     private String password;
     private String username;
     private String fullName;
-
+    @Column(name = "household_size")
+    private Integer householdSize;
+    
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
@@ -55,4 +57,6 @@ public class User {
 
     public List<Appliance> getAppliances() { return appliances; }
     public void setAppliances(List<Appliance> appliances) { this.appliances = appliances; }
+    public int getHouseholdSize() { return householdSize; }
+    public void setHouseholdSize(Integer householdSize) { this.householdSize = householdSize; }
 }

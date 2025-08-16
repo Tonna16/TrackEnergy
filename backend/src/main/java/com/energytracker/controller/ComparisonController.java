@@ -2,6 +2,7 @@ package com.energytracker.controller;
 
 import com.energytracker.dto.CommunityComparisonDTO;
 import com.energytracker.service.ComparisonService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -10,11 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Exposes community comparison endpoints used by the frontend.
- *
- * Frontend expects: GET /api/comparisons?householdSize=2
- */
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/comparisons")
 public class ComparisonController {
@@ -26,16 +24,8 @@ public class ComparisonController {
         this.comparisonService = comparisonService;
     }
 
-    /**
-     * Return community comparison data for a given household size.
-     * If the user is authenticated, their identity is passed to the service; otherwise null is passed.
-     *
-     * Example:
-     *   GET /api/comparisons?householdSize=2
-     */
     @GetMapping
     public ResponseEntity<?> getCommunityComparison(@RequestParam(defaultValue = "2") int householdSize) {
-        // Try to extract UserDetails from the SecurityContext if the user is authenticated.
         UserDetails userDetails = null;
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -44,8 +34,7 @@ public class ComparisonController {
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
                     logger.debug("ComparisonController: authenticated user={}", userDetails.getUsername());
-                } else if (principal instanceof String) {
-                    // Principal might be a String username depending on your JwtAuthFilter; service can handle null or adapt.
+                } else {
                     logger.debug("ComparisonController: principal is String: {}", principal);
                 }
             } else {
@@ -53,11 +42,13 @@ public class ComparisonController {
             }
         } catch (Exception ex) {
             logger.warn("ComparisonController: error reading authentication: {}", ex.getMessage());
-            // continue with userDetails == null
         }
 
-        // Delegate to service (it will return EIA fallback when community data is insufficient)
         CommunityComparisonDTO dto = comparisonService.getCommunityComparison(householdSize, userDetails);
-        return ResponseEntity.ok(dto);
+        // Frontend expects { householdAvg: number } in many flows — include that
+        return ResponseEntity.ok(Map.of(
+            "householdAvg", dto.getAverageUsage(),
+            "someOtherMetric", dto.getSomeOtherMetric()
+        ));
     }
 }

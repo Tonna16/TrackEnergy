@@ -1,9 +1,10 @@
-// src/main/java/com/energytracker/service/UserService.java
 package com.energytracker.service;
 
 import com.energytracker.model.User;
 import com.energytracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -14,29 +15,26 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    /**
-     * Given a user's email (from Principal.getName()), return their database ID.
-     * Throws IllegalArgumentException if not found.
-     */
-    public  Long  getUserIdByEmail(String email) {
-        User u = userRepo.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found for email: " + email));
-        return u.getId();
-    }
-
-    /**
-     * Fetch the full User object by email.
-     */
     public User getUserByEmail(String email) {
-        return userRepo.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found for email: " + email));
+        return userRepo.findByEmail(email).orElse(null);
+    }
+
+    public Optional<User> findById(Long id) {
+        return userRepo.findById(id);
+    }
+
+    public User getUserById(Long id) {
+        return userRepo.findById(id).orElse(null);
     }
 
     /**
-     * Fetch the full User object by ID.
+     * Update just the household size for the given userId (returns the updated user).
      */
-    public User getUserById(Long id) {
-        return userRepo.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("User not found for id: " + id));
+    public User updateHouseholdSize(Long userId, Integer householdSize) {
+        if (userId == null || householdSize == null) return null;
+        User u = userRepo.findById(userId).orElse(null);
+        if (u == null) return null;
+        u.setHouseholdSize(householdSize);
+        return userRepo.save(u);
     }
 }

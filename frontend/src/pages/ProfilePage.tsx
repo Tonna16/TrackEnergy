@@ -95,10 +95,7 @@ export default function ProfilePage() {
         </p>
       </div>
 
-      {/* Optional future enhancement */}
-      {/* <Link to="/edit-profile" className="btn btn-outline w-full mt-4 text-center">
-        Edit Profile
-      </Link> */}
+    
 
       <button
         className="logout-button mt-8 w-full flex items-center justify-center space-x-2 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition"

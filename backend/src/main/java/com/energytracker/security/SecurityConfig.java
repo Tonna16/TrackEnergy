@@ -34,7 +34,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
             // public
-            .requestMatchers( "/api/energy-usage/**").permitAll()
+            .requestMatchers( "/api/energy-usage/**").authenticated()
             .requestMatchers("/api/auth/**", "/api/appliances/**", 
                              "/api/exchange-rate","/api/forecast", "/api/currency/**", "/api/tips/**", "/ws/**")
                .permitAll()

@@ -12,6 +12,7 @@ public class EnergyUsageLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     // The date this usage was recorded
     @Column(nullable = true)
     private LocalDate date;
