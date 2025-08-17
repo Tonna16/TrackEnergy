@@ -1,26 +1,35 @@
-# EnergyIQ 
+EnergyIQ
 
 EnergyIQ is a full-stack web app that helps users monitor and forecast household energy consumption, providing actionable insights and real-time alerts for smarter, eco-friendly living.
 
----
+🌟 Key Features
 
-## 🌟 Key Features
+Appliance Management – Add, edit, and track devices with estimated energy usage.
 
-- **Appliance Management** – Add, edit, and track devices with estimated energy usage.  
-- **Real-Time Notifications** – Alerts for high usage, currency changes, and forecast updates.  
-- **Energy Forecasting** – Daily & weekly predictions based on historical data.  
-- **Interactive Charts** – Visualize trends over time.  
-- **Responsive Design** – Sidebar navigation works on mobile and desktop.  
-- **Guest & Auth Users** – Try the app without signing up, or log in for full features.  
+Real-Time Notifications – Alerts for high usage, currency changes, and forecast updates.
 
----
+Energy Forecasting – Provides daily and weekly predictions using both historical data and appliance-based simulations:
 
-## 🛠️ Technologies
+Backend forecasting uses historical energy logs per appliance, applying Holt Linear or Holt-Winters additive time-series methods with weekly seasonality to predict actual usage.
 
-- **Frontend:** React, TypeScript, Tailwind CSS, Recharts, Lucide Icons  
-- **Backend:** Spring Boot, Java, JPA/Hibernate  
-- **Database:** H2 (demo) / PostgreSQL (production)  
-- **Real-Time:** WebSockets (SimpMessagingTemplate)  
-- **Authentication:** JWT  
+Fallback estimates are used when there is insufficient data, incorporating appliance wattage, hours used, seasonal adjustments, and minor random noise.
 
----
+Frontend projections simulate energy usage for charting, cost, and carbon estimates, using appliance parameters, monthly seasonal multipliers, and optional noise to produce realistic forecasts.
+
+Interactive Charts – Visualize energy trends, projected costs, and carbon footprint over time.
+
+Responsive Design – Sidebar navigation works on both mobile and desktop.
+
+Guest & Auth Users – Try the app without signing up, or log in for full features.
+
+🛠️ Technologies
+
+Frontend: React, TypeScript, Tailwind CSS, Recharts, Lucide Icons
+
+Backend: Spring Boot, Java, JPA/Hibernate
+
+Database: H2 (demo) / PostgreSQL (production)
+
+Real-Time: WebSockets (SimpMessagingTemplate)
+
+Authentication: JWT
