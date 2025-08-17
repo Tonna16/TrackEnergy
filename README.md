@@ -1,4 +1,4 @@
-# EnergyIQ – College Demo
+# EnergyIQ 
 
 EnergyIQ is a full-stack web app that helps users monitor and forecast household energy consumption, providing actionable insights and real-time alerts for smarter, eco-friendly living.
 
