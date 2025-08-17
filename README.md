@@ -7,7 +7,7 @@ EnergyIQ is a full-stack web app that helps users monitor and forecast household
 ## 🌟 Key Features
 
 - **Appliance Management** – Add, edit, and track devices with estimated energy usage.  
-- **Real-Time Notifications** – Alerts for high usage, energy spikes, and forecast comparisons.  
+- **Real-Time Notifications** – Alerts for high usage, currency changes, and forecast updates.  
 - **Energy Forecasting** – Daily & weekly predictions based on historical data.  
 - **Interactive Charts** – Visualize trends over time.  
 - **Responsive Design** – Sidebar navigation works on mobile and desktop.  
