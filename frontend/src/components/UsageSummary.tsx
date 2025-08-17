@@ -19,7 +19,6 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
   const {
     appliances,
     settings,
-    costFromKwh,
     totalDailyUsage,
     forecastedDailyCost
   } = useAppContext()
@@ -31,14 +30,10 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
     return bySize[sizeKey] ?? nationalAverages.daily
   }, [settings.householdSize])
 
-  // Efficiency %
-  // -1 means no baseline data
-  // null means no usage data
+  // Efficiency % (match Compare.tsx: positive = worse, negative = better)
   const efficiencyPercent = useMemo(() => {
-    if (baselineDaily <= 0) return -1
-    if (totalDailyUsage === 0) return null
-    const ratio = (baselineDaily - totalDailyUsage) / baselineDaily
-    return Math.round(Math.max(0, Math.min(100, ratio * 100)))
+    if (!totalDailyUsage || !baselineDaily) return null
+    return Math.round(((totalDailyUsage - baselineDaily) / baselineDaily) * 100)
   }, [baselineDaily, totalDailyUsage])
 
   const [showTooltip, setShowTooltip] = useState(false)
@@ -48,28 +43,26 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
     ? avgDailyCostFromChart 
     : forecastedDailyCost ?? 0
 
-    const formattedCost = useMemo(() => {
-      const currencyCode = settings?.currency || 'USD' // fallback to USD
-      try {
-        return new Intl.NumberFormat(undefined, {
-          style: 'currency',
-          currency: currencyCode,
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(displayedCost ?? 0)
-      } catch (err) {
-        console.error('Invalid currency code:', currencyCode, err)
-        // fallback plain number formatting if currency fails
-        return `${displayedCost?.toFixed(2) ?? '0.00'} ${currencyCode}`
-      }
-    }, [displayedCost, settings?.currency])
-    
+  const formattedCost = useMemo(() => {
+    const currencyCode = settings?.currency || 'USD'
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(displayedCost ?? 0)
+    } catch (err) {
+      console.error('Invalid currency code:', currencyCode, err)
+      return `${displayedCost?.toFixed(2) ?? '0.00'} ${currencyCode}`
+    }
+  }, [displayedCost, settings?.currency])
 
   const getEfficiencyColor = (percent: number | null) => {
-    if (percent === null || percent < 0) return 'text-gray-400'
-    if (percent < 50) return 'text-red-600 dark:text-red-400'
-    if (percent <= 80) return 'text-yellow-600 dark:text-yellow-400'
-    return 'text-green-600 dark:text-green-400'
+    if (percent === null) return 'text-gray-400'
+    if (percent < 0) return 'text-green-600 dark:text-green-400' // better than average
+    if (percent <= 20) return 'text-yellow-600 dark:text-yellow-400' // slightly worse
+    return 'text-red-600 dark:text-red-400' // much worse
   }
 
   return (
@@ -129,8 +122,6 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
 
         {efficiencyPercent === null ? (
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No exact value</p>
-        ) : efficiencyPercent < 0 ? (
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No baseline data</p>
         ) : (
           <p className={`mt-2 text-2xl font-semibold ${getEfficiencyColor(efficiencyPercent)}`}>
             {efficiencyPercent}%

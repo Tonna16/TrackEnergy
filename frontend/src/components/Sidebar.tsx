@@ -1,3 +1,4 @@
+// src/components/Sidebar.tsx
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
@@ -11,6 +12,7 @@ import {
   Zap,
   Circle,
   LogIn,
+  Menu
 } from 'lucide-react';
 import api from '../utils/api';
 import { getAuthToken } from '../utils/auth';
@@ -54,11 +56,9 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       .finally(() => setLoading(false));
   }, [isLoggedIn]);
 
-  // Fall back to estimate when API is not available
   const usingEstimate = todayKwh == null || todayKwh <= 0;
   const displayKwh = usingEstimate ? totalDailyUsage : todayKwh!;
 
-  // % change vs yesterday
   const percentageChange = useMemo(() => {
     if (
       todayKwh == null ||
@@ -71,14 +71,12 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
     return Math.round((delta / yesterdayKwh) * 100);
   }, [displayKwh, todayKwh, yesterdayKwh]);
 
-  // Background color based on trend
   const cardColor = percentageChange == null
     ? 'bg-gray-100 dark:bg-gray-700'
     : percentageChange > 0
       ? 'bg-red-100 dark:bg-red-800'
       : 'bg-emerald-50 dark:bg-emerald-800';
 
-  // Friendly status message
   let trendText: string;
   if (loading) trendText = 'Loading…';
   else if (usingEstimate) trendText = 'Estimated usage';
@@ -88,14 +86,12 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
   else if (displayKwh <= 0) trendText = 'No usage data today';
   else trendText = 'Same usage as yesterday';
 
-  // Sidebar nav: everyone gets Dashboard, Compare, Insights, Settings.
-  // Authenticated users get Add Appliance; guests see Login.
   const navigation = useMemo(() => {
     const base = [
-      { name: 'Dashboard', icon: Home,   href: '/' },
-      { name: 'Compare',   icon: BarChart2, href: '/compare' },
-      { name: 'Insights',  icon: Activity,  href: '/insights' },
-      { name: 'Settings',  icon: Settings,  href: '/settings' },
+      { name: 'Dashboard', icon: Home, href: '/' },
+      { name: 'Compare', icon: BarChart2, href: '/compare' },
+      { name: 'Insights', icon: Activity, href: '/insights' },
+      { name: 'Settings', icon: Settings, href: '/settings' },
     ];
     if (isLoggedIn) {
       base.splice(1, 0, { name: 'Add Appliance', icon: Plus, href: '/add-appliance' });
@@ -107,6 +103,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
 
   return (
     <>
+      {/* Overlay for mobile */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 md:hidden"
@@ -114,16 +111,18 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           aria-hidden="true"
         />
       )}
+
+      {/* Sidebar */}
       <aside
         className={`
           fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-bg
-          shadow-lg transform transition-transform duration-300 md:translate-x-0
+          shadow-lg transform transition-transform duration-300
           ${open ? 'translate-x-0' : '-translate-x-full'}
           border-r border-gray-200 dark:border-dark-border
         `}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
+          {/* Logo + Close */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-dark-border">
             <Link to="/" className="flex items-center space-x-2">
               <Zap className="h-6 w-6 text-emerald-500" />
@@ -132,8 +131,10 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
               </span>
             </Link>
             <button
-              className="md:hidden text-gray-500 dark:text-gray-400"
+              className="text-gray-500 dark:text-gray-400 md:hidden"
               onClick={() => setOpen(false)}
+              aria-label="Close sidebar"
+              title="Close"
             >
               <X className="h-6 w-6" />
             </button>
@@ -168,7 +169,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
             })}
           </nav>
 
-          {/* Current Usage Card (always shown) */}
+          {/* Current Usage */}
           <div className="p-4 mt-auto border-t border-gray-200 dark:border-dark-border">
             <div className={`${cardColor} p-3 rounded-lg`}>
               <h4 className="text-sm font-medium text-gray-800 dark:text-white">
@@ -193,6 +194,19 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           </div>
         </div>
       </aside>
+
+      {/* Desktop Hamburger — visible on md+ only, placed to the right of a full-width open sidebar (left-72)
+          NOTE: 'hidden md:block' must be used so the md rule applies correctly. */}
+      {!open && (
+        <button
+          aria-label="Open sidebar"
+          title="Open sidebar"
+          onClick={() => setOpen(true)}
+          className="hidden md:block fixed top-4 left-72 z-50 p-2 rounded-md bg-white dark:bg-dark-bg shadow-lg"
+        >
+          <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />
+        </button>
+      )}
     </>
   );
 }

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class NotificationService {
@@ -17,6 +18,7 @@ public class NotificationService {
     private final NotificationRepository repo;
     private final SimpMessagingTemplate messaging;
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+
     public NotificationService(NotificationRepository repo, SimpMessagingTemplate messaging) {
         this.repo = repo;
         this.messaging = messaging;
@@ -37,7 +39,15 @@ public class NotificationService {
         n.setRead(false);
         n.setDeleted(false);
         Notification saved = repo.save(n);
-        messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
+
+        try {
+            String channel = "/topic/notifications/" + (user != null && user.getEmail() != null ? user.getEmail() : "unknown");
+            messaging.convertAndSend(channel, saved);
+        } catch (Exception ex) {
+            // don't fail the transaction if websockets fail; log for visibility
+            logger.warn("[NotificationService] websocket send failed: {}", ex.getMessage(), ex);
+        }
+
         return saved;
     }
 
@@ -62,19 +72,29 @@ public class NotificationService {
 
     // ----------------- CREATE NOTIFICATIONS -----------------
 
+    /**
+     * Create a "High Usage Appliance Added" notification.
+     * Defensive: if applianceName is null/blank we fallback to "an appliance".
+     */
     @Transactional
     public Notification createHighUsageApplianceNotification(User user, String applianceName, double estimatedKWh) {
+        String safeName = safeApplianceName(applianceName);
         String title = "High Usage Appliance Added";
         String msg = String.format(
             "⚠️ You added \"%s\" which is estimated to use %.2f kWh/day. Consider more efficient alternatives.",
-            applianceName, estimatedKWh
+            safeName, estimatedKWh
         );
         return createAndPush(user, title, "warning", msg, null, LocalDate.now());
     }
 
+    /**
+     * Same as above but checks for duplicates today first.
+     */
     @Transactional
     public Notification createHighUsageApplianceNotificationIfNotExists(User user, String applianceName, double estimatedKWh) {
+        if (user == null) return null;
         if (existsHighUsageApplianceNotificationToday(user.getId())) {
+            logger.debug("[NotificationService] skipping duplicate High Usage Appliance notification for userId={}", user.getId());
             return null; // Skip duplicate
         }
         return createHighUsageApplianceNotification(user, applianceName, estimatedKWh);
@@ -83,28 +103,34 @@ public class NotificationService {
     @Transactional
     public Notification createForecastModeNotification(User user, String mode) {
         String title = "Forecast Mode Activated";
-        String msg = String.format("📊 Forecasting is now based on your recent energy patterns (%s mode).", mode);
+        String msg = String.format("📊 Forecasting is now based on your recent energy patterns (%s mode).", safeString(mode));
         return createAndPush(user, title, "info", msg, null, LocalDate.now());
     }
+
     @Transactional
-public Notification createHighUsageNotificationIfNotExists(User user, Long applianceId, String applianceName, LocalDate date, double kWhUsed) {
-    boolean exists = existsHighUsageNotification(user.getId(), applianceId, date);
-    if (exists) {
-        return null;
+    public Notification createHighUsageNotificationIfNotExists(User user, Long applianceId, String applianceName, LocalDate date, double kWhUsed) {
+        if (user == null) return null;
+        boolean exists = existsHighUsageNotification(user.getId(), applianceId, date);
+        if (exists) {
+            logger.debug("[NotificationService] skipping duplicate High Power Usage notification for applianceId={} userId={}", applianceId, user.getId());
+            return null;
+        }
+
+        String safeName = safeApplianceName(applianceName);
+        String title = "High Power Usage Detected";
+        String msg = String.format(
+            "⚡ %s used %.2f kWh on %s, which exceeds typical usage. Consider checking for unusual consumption.",
+            safeName, kWhUsed, date
+        );
+
+        return createAndPush(user, title, "warning", msg, applianceId, date);
     }
-
-    String title = "High Power Usage Detected";
-    String msg = String.format(
-        "⚡ %s used %.2f kWh on %s, which exceeds typical usage. Consider checking for unusual consumption.",
-        applianceName, kWhUsed, date
-    );
-
-    return createAndPush(user, title, "warning", msg, applianceId, date);
-}
 
     @Transactional
     public Notification createForecastComparisonNotification(User user, LocalDate weekStartDate, double actualUsage, double forecastUsage) {
+        if (user == null) return null;
         if (existsForecastComparisonNotification(user.getId(), weekStartDate)) {
+            logger.debug("[NotificationService] skipping duplicate Forecast Comparison notification for userId={}", user.getId());
             return null; // Skip duplicate
         }
 
@@ -138,12 +164,16 @@ public Notification createHighUsageNotificationIfNotExists(User user, Long appli
                 n.setRead(true);
                 Notification saved = repo.save(n);
                 User user = n.getUser();
-                messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
+                try {
+                    messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
+                } catch (Exception ex) {
+                    logger.warn("[NotificationService] websocket send failed: {}", ex.getMessage(), ex);
+                }
                 return true;
             })
             .orElse(false);
     }
-    
+
     @Transactional
     public boolean deleteForUser(Long notificationId, Long userId) {
         return repo.findById(notificationId)
@@ -152,9 +182,25 @@ public Notification createHighUsageNotificationIfNotExists(User user, Long appli
                 n.setDeleted(true);
                 Notification saved = repo.save(n);
                 User user = n.getUser();
-                messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
+                try {
+                    messaging.convertAndSend("/topic/notifications/" + user.getEmail(), saved);
+                } catch (Exception ex) {
+                    logger.warn("[NotificationService] websocket send failed: {}", ex.getMessage(), ex);
+                }
                 return true;
             })
             .orElse(false);
+    }
+
+    // ----------------- Helpers -----------------
+
+    private static String safeApplianceName(String name) {
+        if (name == null) return "an appliance";
+        String trimmed = name.trim();
+        return trimmed.isEmpty() ? "an appliance" : trimmed;
+    }
+
+    private static String safeString(String v) {
+        return v == null ? "" : v;
     }
 }

@@ -51,7 +51,6 @@ export default function Dashboard() {
   
   
 
-  // Use backend forecast if available, otherwise fallback to chart average
 
   return (
     <div className="space-y-6 pb-16 sm:pb-0">

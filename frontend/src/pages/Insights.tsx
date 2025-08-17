@@ -79,7 +79,6 @@ function useWeeklyComparison(
         if (!cancelled) setActual('insufficient')
       }
 
-      // Authenticated: try GET projections (server-side projections)
       try {
         const resProj = await api.get<{ totalCost?: number }[]>('energy-usage/projections', {
           params: { timeRange: 'weekly' },

@@ -57,6 +57,6 @@ public class User {
 
     public List<Appliance> getAppliances() { return appliances; }
     public void setAppliances(List<Appliance> appliances) { this.appliances = appliances; }
-    public int getHouseholdSize() { return householdSize; }
+    public Integer getHouseholdSize() { return householdSize; }
     public void setHouseholdSize(Integer householdSize) { this.householdSize = householdSize; }
 }

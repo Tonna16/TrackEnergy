@@ -25,17 +25,25 @@ export default function Settings() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement
+    const target = e.target as HTMLInputElement;
+    const { name, value, type, checked } = target;
+  
+    // Convert select values for numeric fields (householdSize) to numbers
+    const parsed =
+      name === 'householdSize'
+        ? parseInt(String(value), 10)
+        : type === 'checkbox'
+        ? checked
+        : type === 'number'
+        ? parseFloat(value)
+        : value;
+  
     setFormData(prev => ({
       ...prev,
-      [name]:
-        type === 'checkbox'
-          ? checked
-          : type === 'number'
-          ? parseFloat(value)
-          : value,
-    }))
+      [name]: parsed,
+    }));
   }
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

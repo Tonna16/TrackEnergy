@@ -1,4 +1,4 @@
-export  const applianceDatabase: Record<string, { defaultWattage: number, efficiencyTips: string[] }> = {
+export const applianceDatabase: Record<string, { defaultWattage: number, efficiencyTips: string[] }> = {
   'refrigerator': {
     defaultWattage: 150,
     efficiencyTips: [
@@ -112,11 +112,11 @@ export const nationalAverages = {
   monthly: 900, // kWh per month
   by_household_size: {
     1: 20,
-    2: 30,
-    3: 40,
-    4: 45,
-    5: 50
-  } as Record<number, number>, // <-- This fixes the typing issue
+    2: 21,  // more realistic per-day estimate for a 2-person household
+    3: 25,
+    4: 28,
+    5: 32
+  } as Record<number, number>,
   by_appliance: {
     refrigerator: 1.5,
     'air-conditioner': 15,
@@ -130,5 +130,3 @@ export const nationalAverages = {
     microwave: 0.3
   }
 };
-
- 

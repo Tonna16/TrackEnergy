@@ -33,3 +33,4 @@ Database: H2 (demo) / PostgreSQL (production)
 Real-Time: WebSockets (SimpMessagingTemplate)
 
 Authentication: JWT
+

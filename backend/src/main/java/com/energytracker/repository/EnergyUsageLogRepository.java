@@ -76,29 +76,32 @@ public interface EnergyUsageLogRepository extends JpaRepository<EnergyUsageLog, 
     List<EnergyUsageLog> findByApplianceIdAndDateBetween(
         @Param("applianceId") Long applianceId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate
     );
-@Query("""
-  SELECT new com.energytracker.dto.UsageStats(
-      AVG(u.kWhUsed)
-  )
-  FROM EnergyUsageLog u
-  JOIN u.appliance a
-  JOIN a.user usr
-  WHERE (
-      (:householdSize < 5 AND usr.householdSize = :householdSize)
-      OR (:householdSize = 5 AND usr.householdSize >= 5)
-  )
-    AND a.active = true
-    AND a.deleted = false
-  GROUP BY usr.id
-""")
-List<UsageStats> findCommunityStatsByHouseholdSize(@Param("householdSize") int householdSize);
 
-    
+    /**
+     * Native query: for the given householdSize bucket (1..5 where 5 means 5+),
+     * compute each user's daily total (sum of kwh_used per day) and return the
+     * average of those daily totals.
+     *
+     * This prevents tiny averages caused by averaging across individual appliance logs.
+     */
+    @Query(value = """
+        WITH user_day AS (
+          SELECT usr.id AS user_id,
+                 date(e.date) AS day,
+                 SUM(e.kwh_used) AS total_kwh
+          FROM energy_usage_logs e
+          JOIN appliances a ON a.id = e.appliance_id
+          JOIN users usr ON usr.id = a.user_id
+          WHERE ((:householdSize < 5 AND usr.household_size = :householdSize)
+                 OR (:householdSize = 5 AND usr.household_size >= 5))
+            AND a.active = true
+            AND a.deleted = false
+          GROUP BY usr.id, date(e.date)
+        )
+        SELECT AVG(total_kwh) FROM user_day
+        """, nativeQuery = true)
+    Double findCommunityDailyAverageByHouseholdSize(@Param("householdSize") int householdSize);
 
-    
-  
-  
-  
     @Modifying
     @Transactional
     @Query("DELETE FROM EnergyUsageLog e WHERE e.appliance.id = :applianceId")

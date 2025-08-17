@@ -3,6 +3,7 @@ package com.energytracker.service;
 import com.energytracker.model.User;
 import com.energytracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -30,6 +31,7 @@ public class UserService {
     /**
      * Update just the household size for the given userId (returns the updated user).
      */
+    @Transactional
     public User updateHouseholdSize(Long userId, Integer householdSize) {
         if (userId == null || householdSize == null) return null;
         User u = userRepo.findById(userId).orElse(null);

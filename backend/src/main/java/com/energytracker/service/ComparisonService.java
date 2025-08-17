@@ -26,6 +26,10 @@ public class ComparisonService {
 
     /**
      * Return a CommunityComparisonDTO for the requested household size or the authenticated user's household size.
+     * Prefers local DB-derived daily-average (per-user daily totals averaged across users). Falls back to EIA.
+     *
+     * @param requestedHouseholdSize 1..5 (5 = 5+)
+     * @param user optional authenticated principal (may be null)
      */
     public CommunityComparisonDTO getCommunityComparison(Integer requestedHouseholdSize, UserDetails user) {
         Integer householdSize = requestedHouseholdSize;
@@ -45,22 +49,17 @@ public class ComparisonService {
         int normalized = householdSize >= 5 ? 5 : householdSize;
         logger.debug("[ComparisonService] using household size {} (normalized {})", householdSize, normalized);
 
-        List<UsageStats> communityStats = null;
+        Double dbAvg = null;
         try {
-            communityStats = usageRepository.findCommunityStatsByHouseholdSize(normalized);
+            dbAvg = usageRepository.findCommunityDailyAverageByHouseholdSize(normalized);
         } catch (Exception ex) {
             logger.warn("[ComparisonService] error querying community stats: {}", ex.getMessage());
-            communityStats = null;
+            dbAvg = null;
         }
 
-        // If DB returned any rows, average them and use that
-        if (communityStats != null && !communityStats.isEmpty()) {
-            double avgUsage = communityStats.stream()
-                                           .mapToDouble(UsageStats::getTotalKwh)
-                                           .average()
-                                           .orElse(0.0);
-            logger.info("[ComparisonService] using local DB avgUsage={} kWh/day (householdSize={})", avgUsage, normalized);
-            return new CommunityComparisonDTO(avgUsage, 0.0);
+        if (dbAvg != null && dbAvg > 0.0) {
+            logger.info("[ComparisonService] using local DB avgUsage={} kWh/day (householdSize={})", dbAvg, normalized);
+            return new CommunityComparisonDTO(dbAvg, 0.0);
         }
 
         // No DB results -> fall back to EIA

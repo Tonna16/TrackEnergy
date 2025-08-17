@@ -476,40 +476,45 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // updateSettings: update local state immediately, persist when user is logged in
   const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
     setSettings(prev => ({ ...prev, ...updates }))
-
+  
     if (!getAuthToken()) {
       // guest: nothing to persist server-side
       return
     }
-
+  
     try {
       // merge with latest
       const mergedFrontend = { ...settingsRef.current, ...updates }
-
-      // server expects electricityRatePerKWh
+  
+      // server expects electricityRatePerKWh and householdSize
       const serverPayload: any = {
         electricityRatePerKWh: mergedFrontend.electricityRate,
-        // optionally include other server-side fields (location) if you add them to frontend
+        householdSize: mergedFrontend.householdSize
+        // optionally include other server-side fields (location) if needed
       }
-
+  
       const res = await api.put<any>('settings', serverPayload)
-
+  
       // Map server response back to frontend shape; fallback to mergedFrontend
-      const serverRate = res.data?.electricityRatePerKWh ?? res.data?.electricityRate ?? mergedFrontend.electricityRate;
+      const serverRate = res.data?.electricityRatePerKWh ?? res.data?.electricityRate ?? mergedFrontend.electricityRate
+      const serverHouseholdSize = typeof res.data?.householdSize === 'number'
+        ? res.data.householdSize
+        : mergedFrontend.householdSize
+  
       setSettings(prev => ({
         ...prev,
         electricityRate: serverRate,
-        // preserve current currency/exchangeRate/householdSize/darkMode
+        householdSize: serverHouseholdSize,
+        // preserve currency/exchangeRate/darkMode that are only frontend-managed
         currency: prev.currency ?? 'USD',
         exchangeRate: prev.exchangeRate ?? DEFAULT_USD_TO_EUR,
-        householdSize: prev.householdSize ?? 2,
         darkMode: prev.darkMode ?? false,
       }));
-      
     } catch (err) {
       console.error('Failed to save settings', err)
     }
   }, [])
+  
 
   return (
     <AppContext.Provider
