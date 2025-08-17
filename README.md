@@ -8,7 +8,7 @@ Appliance Management – Add, edit, and track devices with estimated energy usag
 
 Real-Time Notifications – Alerts for high usage, currency changes, and forecast updates.
 
-Energy Forecasting – Provides daily and weekly predictions using both historical data and appliance-based simulations:
+Energy Forecasting – Provides daily,weekly, monthly, and annual predictions using both historical data and appliance-based simulations:
 
 Backend forecasting uses historical energy logs per appliance, applying Holt Linear or Holt-Winters additive time-series methods with weekly seasonality to predict actual usage.
 
