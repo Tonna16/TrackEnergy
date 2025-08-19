@@ -24,13 +24,15 @@ Guest & Auth Users – Try the app without signing up, or log in for full featur
 
 🛠️ Technologies
 
-Frontend: React, TypeScript, Tailwind CSS, Recharts, Lucide Icons
+Frontend: React, TypeScript, Tailwind CSS, Recharts, Lucide Icons, to run it, the command is npm run dev
 
-Backend: Spring Boot, Java, JPA/Hibernate
+Backend: Spring Boot, Java, JPA/Hibernate, to run it, the command is mvn spring-boot:run
 
 Database: H2 (demo) / PostgreSQL (production)
 
 Real-Time: WebSockets (SimpMessagingTemplate)
 
 Authentication: JWT
+
+I have also included a demo video, about 5 minutes long, the file is called "energyiq-demo.mp4)
 
