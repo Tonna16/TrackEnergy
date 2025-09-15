@@ -24,13 +24,6 @@ EnergyIQ predicts household energy usage to help users save money and reduce the
 3. **Trend & Seasonality:** Usage trends (increasing or decreasing) and weekly/seasonal cycles are considered.
 4. **Fallback Estimates:** For new users or appliances with insufficient data, the app estimates energy use based on appliance parameters and seasonal adjustments.
 
-**Visual Example:**
-- Blue line: Actual usage
-- Orange line: Predicted usage based on trends and appliance schedules
-
-This ensures accurate projections for both registered users and guests, giving actionable insights for energy-efficient living.
-
----
 
 ## 🛠️ Technologies
 
