@@ -14,16 +14,21 @@ EnergyIQ is a full-stack web app that helps users monitor and forecast household
 
 ---
 
-## 🧠 Energy Forecasting Logic
+EnergyIQ uses time series forecasting to predict household energy consumption for each appliance. The goal is to provide users with actionable insights to reduce costs and carbon footprint.
 
-EnergyIQ predicts household energy usage to help users save money and reduce their carbon footprint. 
+### Forecasting Models Used:
+- **Holt Linear Trend**: Applied when limited historical data is available. Captures level and trend but not seasonality.
+- **Holt-Winters Additive Model**: Used when sufficient data exists. Captures level, trend, and seasonality (weekly cycles).
+- **Fallback Estimation**: For new appliances or users, estimates are based on wattage × hours/day with seasonal multipliers and random noise.
 
-**How it works:**
-1. **Historical Usage:** The app analyzes past energy logs for each appliance to identify trends.
-2. **Appliance Details:** Appliance wattage, hours of use, and seasonal patterns are incorporated.
-3. **Trend & Seasonality:** Usage trends (increasing or decreasing) and weekly/seasonal cycles are considered.
-4. **Fallback Estimates:** For new users or appliances with insufficient data, the app estimates energy use based on appliance parameters and seasonal adjustments.
+### Design Decisions:
+- **Season Length**: Set to 7 days to capture weekly usage patterns.
+- **Manual Implementation**: Forecasting algorithms are implemented from scratch for transparency and customization.
+- **Noise Injection**: Adds realism to fallback estimates to avoid flat predictions.
+- **Data Grouping**: Historical logs are grouped by date and summed to form the time series.
+- **Tolerance Thresholds**: Used to detect anomalies and cap unrealistic estimates.
 
+This approach balances accuracy, interpretability, and responsiveness for real-time energy forecasting.
 
 ## 🛠️ Technologies
 
