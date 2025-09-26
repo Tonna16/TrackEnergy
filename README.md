@@ -9,7 +9,6 @@ EnergyIQ is a full-stack web app that helps users monitor and forecast household
 - **Real-Time Notifications** – Alerts for high usage, currency changes, and forecast updates.
 - **Energy Forecasting** – Provides daily, weekly, monthly, and annual predictions using both historical data and appliance-based simulations.
 - **Interactive Charts** – Visualize energy trends, projected costs, and carbon footprint over time.
-- **Responsive Design** – Sidebar navigation works on both mobile and desktop.
 - **Guest & Auth Users** – Try the app without signing up, or log in for full features.
 
 ---
