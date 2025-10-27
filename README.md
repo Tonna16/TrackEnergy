@@ -13,7 +13,7 @@ EnergyIQ is a full‑stack web application that helps households monitor, foreca
 
 ---
 
-### Key features (high level)
+### Key features
 - **Appliance Management** — store device metadata (wattage, typical hours/day, category) and view per‑appliance and aggregated usage.  
 - **Forecasting Engine** — combines historical logs and appliance simulations to produce interpretable predictions.  
 - **Anomaly Detection & Tolerance Caps** — detect unrealistic spikes and cap extreme estimates to keep forecasts realistic.  
@@ -52,11 +52,11 @@ This combination balances accuracy for frequent users, reasonable default behavi
 ---
 
 ### Demo
-A 5‑minute demo video (energyiq-demo.mp4) demonstrates appliance management, forecasting workflows, and real‑time notifications. Add hosted link or embed here for reviewers.
+A 5‑minute demo video can be viewed on youtube with this link: https://www.youtube.com/watch?v=tlNz26ZmPZE 
 
 ---
 
-### Getting started (quick)
+### Getting started 
 1. Clone the repository.  
 2. Start the backend: `mvn spring-boot:run` (configure PostgreSQL or use H2 for demo).  
 3. Start the frontend: `npm install` then `npm run dev`.  
@@ -64,7 +64,7 @@ A 5‑minute demo video (energyiq-demo.mp4) demonstrates appliance management, f
 
 ---
 
-### Roadmap / next steps
+### Future goals / next steps
 - Improve Guest mode functionality to ensure access and proper usage for both authenticated and unauthenticated users.
 - Integrate real energy APIs or smart‑plug telemetry.  
 - Add adaptive ML models that learn per‑home profiles.  
