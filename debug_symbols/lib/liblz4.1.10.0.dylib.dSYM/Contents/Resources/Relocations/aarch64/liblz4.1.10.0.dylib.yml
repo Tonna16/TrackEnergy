@@ -1,5 +1,0 @@
----
-triple:          'arm64-apple-darwin'
-binary-path:     './lib/liblz4.1.10.0.dylib'
-relocations:     []
-...
