@@ -72,6 +72,7 @@ A 5‑minute demo video can be viewed on youtube with this link: https://www.you
 - Public beta to collect real user data and validate forecasts.
 
 ---
+I created a webpage that has the demo video, and explains the forecasting models and their usages in more detail, and also includes API testing instructions, here is the link: https://tonna16.github.io/energyiq-site/ 
 
 ### Contact & credits
 **Author:** Tonna Agburu    
