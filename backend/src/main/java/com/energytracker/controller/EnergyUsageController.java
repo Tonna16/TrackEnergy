@@ -87,7 +87,6 @@ public class EnergyUsageController {
             default -> 30;
         };
     }
-    // inside EnergyUsageController (add this method)
 @GetMapping("/projections")
 public ResponseEntity<?> getProjectionsGet(@RequestParam(defaultValue = "daily") String timeRange) {
     String range = timeRange.toLowerCase(Locale.ROOT);
