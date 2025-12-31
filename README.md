@@ -13,7 +13,7 @@ EnergyIQ is a full‑stack web application that helps households monitor, foreca
 
 ---
 
-### Key features
+### features
 - **Appliance Management** — store device metadata (wattage, typical hours/day, category) and view per‑appliance and aggregated usage.  
 - **Forecasting Engine** — combines historical logs and appliance simulations to produce interpretable predictions.  
 - **Anomaly Detection & Tolerance Caps** — detect unrealistic spikes and cap extreme estimates to keep forecasts realistic.  
@@ -23,7 +23,7 @@ EnergyIQ is a full‑stack web application that helps households monitor, foreca
 
 ---
 
-### Forecasting: approach and models
+### forecasting
 EnergyIQ prioritizes interpretability and responsiveness while handling sparse and uneven home energy data.
 
 - **Holt Linear Trend** — used when historical data is limited; models level and trend but not seasonality.  
