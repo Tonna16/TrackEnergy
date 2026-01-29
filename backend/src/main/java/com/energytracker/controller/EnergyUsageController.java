@@ -72,7 +72,7 @@ public class EnergyUsageController {
         }
     }
 
-    // — Projections
+    // — the Projections
     private int getDaysPerRange(String range) {
         return switch (range.toLowerCase()) {
             case "weekly" -> 7;
