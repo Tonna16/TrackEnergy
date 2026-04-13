@@ -64,6 +64,22 @@ A 5‑minute demo video can be viewed on youtube with this link: https://www.you
 
 ---
 
+### Responsive QA checklist (sidebar/header)
+- **~768px (md breakpoint):**
+  - Confirm the sidebar can be opened from the header menu button and stays visible without overlapping main content.
+  - Confirm the main content shifts right when the sidebar is open and shifts back when closed.
+  - Confirm there is only one trigger path for mobile (`Header` menu) and no duplicate floating toggles.
+- **~1024px (lg breakpoint):**
+  - Confirm the desktop open control appears in the header when the sidebar is collapsed.
+  - Confirm the sidebar close control is available inside the sidebar on desktop.
+  - Confirm navigation links do not unexpectedly close the sidebar on desktop.
+- **Keyboard focus behavior (both widths):**
+  - Tab to the header sidebar trigger and activate it with `Enter`/`Space`.
+  - After opening, tab to the sidebar close button and activate it with `Enter`/`Space`.
+  - Verify focus order remains logical (header controls → main content when closed, sidebar controls included when open).
+
+---
+
 ### Future goals / next steps
 - Improve Guest mode functionality to ensure access and proper usage for both authenticated and unauthenticated users.
 - Integrate real energy APIs or smart‑plug telemetry.  
