@@ -20,7 +20,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/energy-usage")
-@CrossOrigin(origins = "http://localhost:5173")
 public class EnergyUsageController {
     private static final Logger logger = LoggerFactory.getLogger(EnergyUsageController.class);
 

@@ -16,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/settings")
-@CrossOrigin(origins = "http://localhost:5173")
 public class SettingsController {
     private static final Logger logger = LoggerFactory.getLogger(SettingsController.class);
 
