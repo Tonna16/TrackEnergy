@@ -3,9 +3,12 @@ import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext, Appliance } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
+import { toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
 
 type ProjectionDTO = {
   date: string // "yyyy-MM-dd" or "MMM yyyy"
+  weekStart?: string
+  weekEnd?: string
   totalCost: number
   byAppCost?: Record<string, number>
 }
@@ -20,16 +23,6 @@ function isoDate(d: Date) {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
-}
-
-function tryParseToIso(dateStr?: string): string | null {
-  if (!dateStr) return null
-  const parsed = new Date(dateStr)
-  if (!isNaN(parsed.getTime())) return isoDate(parsed)
-  const prefix = (dateStr || '').slice(0, 10)
-  const parsed2 = new Date(prefix)
-  if (!isNaN(parsed2.getTime())) return isoDate(parsed2)
-  return null
 }
 
 /**
@@ -146,15 +139,7 @@ export default function WeeklyForecastCard() {
       sum += usageByDate.get(isoDate(d)) ?? 0
     }
   
-    // Build projection map keyed by normalized ISO date (yyyy-MM-dd)
-    const projMap = new Map<string, number>()
-    for (const p of projections) {
-      const key = tryParseToIso(p.date)
-      if (!key) continue
-      const raw = p.totalCost
-      const converted = Number.isFinite(raw) ? convertCurrency(raw) : NaN
-      projMap.set(key, converted)
-    }
+    const projMap = toWeeklyProjectionMap(projections, convertCurrency)
   
     // Check for server projection for current week
     const projVal = projMap.get(isoDate(currentWeekStart))
