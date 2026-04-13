@@ -26,7 +26,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/appliances")
-@CrossOrigin(origins = "http://localhost:5173")
 public class ApplianceController {
     private static final Logger logger = LoggerFactory.getLogger(ApplianceController.class);
 
