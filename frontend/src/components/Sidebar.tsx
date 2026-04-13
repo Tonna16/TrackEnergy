@@ -11,8 +11,7 @@ import {
   X,
   Zap,
   Circle,
-  LogIn,
-  Menu
+  LogIn
 } from 'lucide-react';
 import api from '../utils/api';
 import { getAuthToken } from '../utils/auth';
@@ -101,6 +100,12 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
     return base;
   }, [isLoggedIn]);
 
+  const closeOnMobileOnly = () => {
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setOpen(false);
+    }
+  };
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -131,7 +136,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
               </span>
             </Link>
             <button
-              className="text-gray-500 dark:text-gray-400 md:hidden"
+              className="text-gray-500 dark:text-gray-400"
               onClick={() => setOpen(false)}
               aria-label="Close sidebar"
               title="Close"
@@ -149,7 +154,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                 <Link
                   key={item.href}
                   to={item.href}
-                  onClick={() => setOpen(false)}
+                  onClick={closeOnMobileOnly}
                   className={`
                     flex items-center px-2 py-3 text-sm font-medium rounded-lg
                     ${active
@@ -194,19 +199,6 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           </div>
         </div>
       </aside>
-
-      {/* Desktop Hamburger — visible on md+ only, placed to the right of a full-width open sidebar (left-72)
-          NOTE: 'hidden md:block' must be used so the md rule applies correctly. */}
-      {!open && (
-        <button
-          aria-label="Open sidebar"
-          title="Open sidebar"
-          onClick={() => setOpen(true)}
-          className="hidden md:block fixed top-4 left-72 z-50 p-2 rounded-md bg-white dark:bg-dark-bg shadow-lg"
-        >
-          <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />
-        </button>
-      )}
     </>
   );
 }

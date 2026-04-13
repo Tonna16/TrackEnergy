@@ -1,5 +1,5 @@
 // src/components/Header.tsx
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   Menu,
   Moon,
@@ -13,10 +13,11 @@ import { getAuthToken } from '../utils/auth'
 import NotificationsPanel from './NotificationsPanel'
 
 interface HeaderProps {
+  sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
 }
 
-export default function Header({ setSidebarOpen }: HeaderProps) {
+export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   const { settings, updateSettings } = useAppContext()
   const navigate = useNavigate()
 
@@ -46,7 +47,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
     <header className="bg-offwhite-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
       <div className="px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
         {/* Sidebar & Brand */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             className="md:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -55,6 +56,17 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
           >
             <Menu className="h-6 w-6" />
           </button>
+          {!sidebarOpen && (
+            <button
+              type="button"
+              className="hidden md:inline-flex text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
+              title="Open sidebar"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+          )}
           <Link to="/" className="hidden md:flex items-center text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             EnergyIQ
           </Link>
