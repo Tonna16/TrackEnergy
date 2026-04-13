@@ -34,19 +34,17 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
             // public
-            .requestMatchers("/api/auth/**",
-                             "/api/exchange-rate", "/api/forecast", "/api/currency/**", "/api/tips/**", "/ws/**")
-               .permitAll()
+            .requestMatchers("/api/forecast/**").hasRole("USER")
             .requestMatchers("/api/energy-usage/**").authenticated()
+            .requestMatchers("/api/auth/**",
+                             "/api/exchange-rate", "/api/currency/**", "/api/tips/**", "/ws/**")
+               .permitAll()
             .requestMatchers(HttpMethod.GET, "/api/appliances").authenticated()
             .requestMatchers(HttpMethod.POST, "/api/appliances/**").authenticated()
             .requestMatchers(HttpMethod.PUT, "/api/appliances/**").authenticated()
             .requestMatchers(HttpMethod.DELETE, "/api/appliances/**").authenticated()
             // **Protect all notifications endpoints**
             .requestMatchers("/api/notifications/**").authenticated()
-          
-            // forecast endpoints
-            .requestMatchers("/api/forecast/**").hasRole("USER")
           
             // all routes not listed above
             .anyRequest().permitAll()
