@@ -128,14 +128,15 @@ public class ApplianceService {
     
 
     @Transactional(readOnly = true)
-public List<Appliance> listUserAppliances(Long userId) {
-    logger.info("Listing active appliances for userId={}", userId);
-    if (userId != null) {
+    public List<Appliance> listUserAppliances(Long userId) {
+        if (userId == null) {
+            logger.warn("Rejected appliance listing without an authenticated user");
+            return List.of();
+        }
+
+        logger.info("Listing active appliances for userId={}", userId);
         return applianceRepo.findAllByUserIdAndActiveTrueAndDeletedFalse(userId);
-    } else {
-        return applianceRepo.findByUserIsNull();
     }
-}
 
 
 }

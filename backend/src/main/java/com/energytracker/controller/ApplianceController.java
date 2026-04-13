@@ -13,8 +13,10 @@ import jakarta.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
 import com.energytracker.repository.UserRepository;
 import com.energytracker.repository.ApplianceRepository;
@@ -46,25 +48,32 @@ public class ApplianceController {
         this.userService = userService;
     }
 
-    private User getAuthenticatedUserOrNull() {
+    private User requireAuthenticatedUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }
         String email = switch (auth.getPrincipal()) {
             case String s -> s;
             case org.springframework.security.core.userdetails.UserDetails ud -> ud.getUsername();
             default -> null;
         };
-        return (email != null) ? userService.getUserByEmail(email) : null;
+        if (email == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user not found");
+        }
+        return user;
     }
 
     @GetMapping
     public ResponseEntity<List<Appliance>> list() {
-        User user = getAuthenticatedUserOrNull();
-        Long userId = (user != null ? user.getId() : null);
+        User user = requireAuthenticatedUser();
+        Long userId = user.getId();
         List<Appliance> apps = applianceService.listUserAppliances(userId);
-        logger.debug("Appliance list for {}: {}", userId == null ? "guest" : userId, apps);
+        logger.debug("Appliance list for {}: {}", userId, apps);
         return ResponseEntity.ok(apps);
     }
 
@@ -108,8 +117,8 @@ public class ApplianceController {
     // New POST endpoint to create appliance
     @PostMapping
     public ResponseEntity<Appliance> create(@Valid @RequestBody Appliance appliance) {
-        User user = getAuthenticatedUserOrNull();
-        Appliance created = createAppliance(user != null ? user.getId() : null, appliance);
+        User user = requireAuthenticatedUser();
+        Appliance created = createAppliance(user.getId(), appliance);
         return ResponseEntity.ok(created);
     }
 
@@ -118,10 +127,10 @@ public class ApplianceController {
         @PathVariable Long id,
         @Valid @RequestBody Appliance payload
     ) {
-        User user = getAuthenticatedUserOrNull();
+        User user = requireAuthenticatedUser();
         try {
             Appliance updated = applianceService.updateAppliance(
-                user != null ? user.getId() : null,
+                user.getId(),
                 id,
                 payload
             );
@@ -134,10 +143,10 @@ public class ApplianceController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        User user = getAuthenticatedUserOrNull();
+        User user = requireAuthenticatedUser();
         try {
             applianceService.softDeleteAppliance(
-                user != null ? user.getId() : null,
+                user.getId(),
                 id
             );
             return ResponseEntity.ok().build();
