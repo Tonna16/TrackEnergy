@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -354,15 +355,31 @@ public class EnergyUsageService {
         List<UsageProjectionDTO> out = new ArrayList<>();
 
         for (int i = 1; i <= count; i++) {
-            LocalDate date = (periodDays > 0)
-                ? today.plusDays((long) i * periodDays)
-                : today.plusMonths(i);
+            LocalDate date;
+            int days;
+            UsageProjectionDTO dto;
 
-            int days = (periodDays > 0)
-                ? periodDays
-                : date.lengthOfMonth();
-
-            UsageProjectionDTO dto = projectPoint(apps, date, days, useForecast, rate);
+            if (periodDays == 7) {
+                LocalDate currentWeekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                LocalDate weekStart = currentWeekStart.plusWeeks(i);
+                LocalDate weekEnd = weekStart.plusDays(6);
+                UsageProjectionDTO weekly = projectPoint(apps, weekStart, periodDays, useForecast, rate);
+                dto = new UsageProjectionDTO(
+                    weekStart.toString(),
+                    weekly.getTotalCost(),
+                    weekly.getByAppCost(),
+                    weekStart.toString(),
+                    weekEnd.toString()
+                );
+            } else {
+                date = (periodDays > 0)
+                    ? today.plusDays((long) i * periodDays)
+                    : today.plusMonths(i);
+                days = (periodDays > 0)
+                    ? periodDays
+                    : date.lengthOfMonth();
+                dto = projectPoint(apps, date, days, useForecast, rate);
+            }
 
             if (periodDays < 0) {
                 dto = new UsageProjectionDTO(
