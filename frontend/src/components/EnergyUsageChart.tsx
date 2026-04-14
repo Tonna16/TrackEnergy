@@ -16,6 +16,7 @@ import { getAuthToken } from '../utils/auth'
 import { useAppContext } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
 import type { ChartPoint } from '../utils/energyEstimator'
+import type { ConfidenceTier, UsageHistoryPoint } from '../utils/energyEstimator'
 
 interface Props {
   height?: number
@@ -41,6 +42,7 @@ export default function EnergyUsageChart({
   const [serverData, setServerData] = useState<
     { date: string; totalKwh: number; totalCost: number; byAppCost: Record<string, number> }[]
   >([])
+  const [usageHistory, setUsageHistory] = useState<UsageHistoryPoint[]>([])
   // pretty label helper (safe)
   function prettyLabel(label: string) {
     if (!label && label !== '') return ''
@@ -54,12 +56,30 @@ export default function EnergyUsageChart({
   }
 
   const dailyEst = useMemo(
-    () => generateEstimate({ appliances: trackedAppliances, convertCost: costFromKwh, count: 30, daysPer: 1 }),
-    [trackedAppliances, costFromKwh]
+    () =>
+      generateEstimate({
+        appliances: trackedAppliances,
+        convertCost: costFromKwh,
+        count: 30,
+        daysPer: 1,
+        disableNoise: true,
+        mode: 'live',
+        usageHistory,
+      }),
+    [trackedAppliances, costFromKwh, usageHistory]
   )
   const weeklyEst = useMemo(
-    () => generateEstimate({ appliances: trackedAppliances, convertCost: costFromKwh, count: 4, daysPer: 7 }),
-    [trackedAppliances, costFromKwh]
+    () =>
+      generateEstimate({
+        appliances: trackedAppliances,
+        convertCost: costFromKwh,
+        count: 4,
+        daysPer: 7,
+        disableNoise: true,
+        mode: 'live',
+        usageHistory,
+      }),
+    [trackedAppliances, costFromKwh, usageHistory]
   )
   const monthlyEst = useMemo(
     () =>
@@ -69,8 +89,11 @@ export default function EnergyUsageChart({
         count: 6,
         daysPer: 30,
         monthly: true,
+        disableNoise: true,
+        mode: 'live',
+        usageHistory,
       }),
-    [trackedAppliances, costFromKwh]
+    [trackedAppliances, costFromKwh, usageHistory]
   )
 
   useEffect(() => {
@@ -130,12 +153,39 @@ export default function EnergyUsageChart({
       cancelled = true;
     };
   }, [timeRange, appliances]);
+
+  useEffect(() => {
+    const token = getAuthToken()
+    if (!token) {
+      setUsageHistory([])
+      return
+    }
+    let cancelled = false
+    api
+      .get<UsageHistoryPoint[]>('energy-usage', { params: { startDate: new Date(Date.now() - 42 * 86400000).toISOString().slice(0, 10) } })
+      .then(res => {
+        if (cancelled) return
+        setUsageHistory(Array.isArray(res.data) ? res.data : [])
+      })
+      .catch(() => {
+        if (cancelled) return
+        setUsageHistory([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
   
 
 
 
+  const hasServer = useMemo(() => serverData.some(d => d.totalCost > 0), [serverData])
+  const fallbackConfidence: ConfidenceTier = useMemo(
+    () => (dailyEst[0]?.confidence as ConfidenceTier) ?? 'low',
+    [dailyEst]
+  )
+
   const chartData: ChartPoint[] = useMemo(() => {
-    const hasServer = serverData.some(d => d.totalCost > 0)
 
     const raw: ChartPoint[] = hasServer
       ? serverData.map(d => {
@@ -164,7 +214,7 @@ export default function EnergyUsageChart({
       }
       return out
     })
-  }, [serverData, dailyEst, weeklyEst, monthlyEst, timeRange, cumulative, convertCurrency])
+  }, [hasServer, serverData, dailyEst, weeklyEst, monthlyEst, timeRange, cumulative, convertCurrency])
 
   const selectableApplianceKeys = useMemo(() => {
     const keys = new Set<string>()
@@ -232,9 +282,9 @@ export default function EnergyUsageChart({
 
   return (
     <div className="space-y-4 p-4 rounded-lg bg-white dark:bg-gray-900 shadow" style={{ height }}>
-      {useEstimate && (
+      {(!hasServer || useEstimate) && (
         <div className="bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-200 px-4 py-2 rounded">
-          Usage projections are based on estimated data due to limited history.
+          Estimated projection fallback in use. Confidence: {fallbackConfidence}.
         </div>
       )}
 
