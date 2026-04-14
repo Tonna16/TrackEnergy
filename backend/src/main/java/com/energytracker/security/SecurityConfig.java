@@ -44,23 +44,24 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(auth -> auth
-            // public
-            .requestMatchers("/api/forecast/**").hasRole("USER")
-            .requestMatchers("/api/energy-usage/**").authenticated()
-            .requestMatchers("/api/auth/**",
-                             "/api/exchange-rate", "/api/currency/**", "/api/tips/**", "/ws/**")
-               .permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/appliances").authenticated()
-            .requestMatchers(HttpMethod.POST, "/api/appliances/**").authenticated()
-            .requestMatchers(HttpMethod.PUT, "/api/appliances/**").authenticated()
-            .requestMatchers(HttpMethod.DELETE, "/api/appliances/**").authenticated()
-            // **Protect all notifications endpoints**
-            .requestMatchers("/api/notifications/**").authenticated()
-          
-            // all routes not listed above
-            .anyRequest().permitAll()
-          )
-          
+                // Publicly accessible endpoints
+                .requestMatchers("/api/auth/**", "/api/tips/**", "/ws/**")
+                    .permitAll()
+                // Operational/docs endpoints (if enabled)
+                .requestMatchers("/actuator/health", "/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**")
+                    .permitAll()
+                // Role-scoped API endpoints
+                .requestMatchers("/api/forecast/**")
+                    .hasRole("USER")
+                // Authenticated API endpoints
+                .requestMatchers("/api/energy-usage/**", "/api/notifications/**", "/api/appliances/**", "/api/settings/**", "/api/profile", "/api/comparisons/**")
+                    .authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/appliances")
+                    .authenticated()
+                // Deny everything else by default
+                .anyRequest()
+                    .denyAll()
+            )
             .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
             .httpBasic(httpBasic -> httpBasic.disable());
 
