@@ -28,6 +28,7 @@ export const getCsrfToken = () => getCookie('csrfToken')
 export const clearClientAuthState = () => {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('user')
+  localStorage.setItem('appMode', 'simulated')
 }
 
 export const logout = () => {
