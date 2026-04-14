@@ -6,6 +6,7 @@ import { useAppContext, Appliance } from '../context/AppContext'
 import { applianceTypes, locationOptions } from '../data/applianceDatabase'
 import { useNotificationsCtx } from '../context/NotificationsContext'
 import api from '../utils/api'
+import { getAuthToken } from '../utils/auth'
 
 type FormData = {
   name: string
@@ -31,6 +32,7 @@ export default function ApplianceForm() {
     getAppliance,
     getApplianceTypeInfo,
     settings,
+    appMode,
   } = useAppContext()
   const { addNotification, notifyHighUsageAppliance } = useNotificationsCtx()
 
@@ -208,15 +210,20 @@ export default function ApplianceForm() {
         const saved = await addAppliance(base)  // call context function once, no direct POST here
       
         if (saved) {
-          // log today's usage after successful add
-          const today = new Date().toISOString().slice(0, 10)
-          await api.post('energy-usage', null, {
-            params: {
-              applianceId: saved.id,
-              date: today,
-              kWhUsed: newUsage,
-            },
-          })
+          const token = getAuthToken()
+          const shouldSendUsageLog = appMode === 'live' && Boolean(token)
+
+          if (shouldSendUsageLog) {
+            // log today's usage after successful add for authenticated live sessions
+            const today = new Date().toISOString().slice(0, 10)
+            await api.post('energy-usage', null, {
+              params: {
+                applianceId: saved.id,
+                date: today,
+                kWhUsed: newUsage,
+              },
+            })
+          }
       
           if (newUsage > THRESHOLD_KWH) {
             addNotification({
