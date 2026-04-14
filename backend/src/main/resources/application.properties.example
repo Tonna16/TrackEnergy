@@ -38,3 +38,12 @@ eia.api.key=${EIA_API_KEY:change_me_eia_api_key}
 
 # Frontend origin(s)
 app.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+# Auth cookies
+# For HTTPS production, set AUTH_COOKIE_SECURE=true.
+# For local HTTP development, keep AUTH_COOKIE_SECURE=false so browser persists cookies.
+app.auth.cookie.secure=${AUTH_COOKIE_SECURE:false}
+app.auth.cookie.refresh.same-site=${AUTH_COOKIE_REFRESH_SAME_SITE:Strict}
+app.auth.cookie.refresh.path=${AUTH_COOKIE_REFRESH_PATH:/api/auth}
+app.auth.cookie.csrf.same-site=${AUTH_COOKIE_CSRF_SAME_SITE:Strict}
+app.auth.cookie.csrf.path=${AUTH_COOKIE_CSRF_PATH:/}
