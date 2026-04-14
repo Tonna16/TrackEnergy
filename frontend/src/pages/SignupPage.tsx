@@ -6,7 +6,6 @@ import { usePasswordToggle } from '../hooks/usePasswordToggle';
 import api from '../utils/api';
 import {
   saveAuthToken,
-  saveRefreshToken,
   saveUser,
 } from '../utils/auth';
 
@@ -17,7 +16,7 @@ interface LocationState {
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
+  const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
 
 
   const [username, setUsername] = useState('');
@@ -47,7 +46,6 @@ const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
       });
 
       saveAuthToken(res.data.accessToken);
-      saveRefreshToken(res.data.refreshToken);
       saveUser(res.data.user);
 
       navigate(from, { replace: true });

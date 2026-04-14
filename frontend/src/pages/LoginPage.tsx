@@ -6,7 +6,6 @@ import { usePasswordToggle } from '../hooks/usePasswordToggle';
 import api from '../utils/api';
 import {
   saveAuthToken,
-  saveRefreshToken,
   saveUser,
 } from '../utils/auth';
 
@@ -35,7 +34,6 @@ const LoginPage: React.FC = () => {
 
       // Store tokens and user info
       saveAuthToken(res.data.accessToken);
-      saveRefreshToken(res.data.refreshToken);
       saveUser(res.data.user);
 
       // Redirect to where they came from, or dashboard
