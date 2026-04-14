@@ -12,7 +12,7 @@ import React, {
 import type { AxiosError } from 'axios'
 import { applianceDatabase } from '../data/applianceDatabase'
 import { getAuthToken, logout, refreshAccessTokenIfNeeded } from '../utils/auth'
-import { generateEstimate } from '../utils/energyEstimator'
+import { generateEstimate, getKwhPerDay } from '../utils/energyEstimator'
 import {
   isVisibleAppliance,
   withVisibilityDefaults,
@@ -127,7 +127,7 @@ const isValidAppliance = (a: Appliance): boolean => {
   if (isNaN(a.wattage) || a.wattage <= 0 || a.wattage > MAX_WATTAGE) return false
   if (isNaN(a.hoursPerDay) || a.hoursPerDay < 0 || a.hoursPerDay > 24) return false
   if (isNaN(a.daysPerWeek) || a.daysPerWeek < 0 || a.daysPerWeek > 7) return false
-  const dailyKwh = (a.wattage * a.hoursPerDay) / 1000
+  const dailyKwh = getKwhPerDay(a)
   if (dailyKwh > MAX_KWH_PER_DAY) return false
   return true
 }
@@ -434,7 +434,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     () =>
       trackedAppliances
         .reduce(
-        (sum, app) => sum + (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000,
+        (sum, app) => sum + getKwhPerDay(app),
         0
       ),
     [trackedAppliances]

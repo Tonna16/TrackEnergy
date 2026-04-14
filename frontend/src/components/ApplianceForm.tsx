@@ -7,6 +7,7 @@ import { applianceTypes, locationOptions } from '../data/applianceDatabase'
 import { useNotificationsCtx } from '../context/NotificationsContext'
 import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
+import { getKwhPerDay } from '../utils/energyEstimator'
 
 type FormData = {
   name: string
@@ -153,8 +154,18 @@ export default function ApplianceForm() {
   
     // ✅ New: Daily kWh usage limit (e.g., 30 kWh/day max)
     const MAX_KWH_PER_DAY = 30
-    if (!isNaN(w) && w > 0 && !isNaN(h) && h > 0) {
-      const dailyKwh = (w * h) / 1000
+    if (!isNaN(w) && w > 0 && !isNaN(h) && h > 0 && !isNaN(d) && d >= 0) {
+      const dailyKwh = getKwhPerDay({
+        id: -1,
+        name: trimmedName || 'temp',
+        type: formData.type,
+        wattage: w,
+        hoursPerDay: h,
+        daysPerWeek: d,
+        isHighEfficiency: formData.isHighEfficiency,
+        active: formData.active,
+        location: formData.location,
+      })
       if (dailyKwh > MAX_KWH_PER_DAY) {
         errs.hoursPerDay = `Daily usage exceeds ${MAX_KWH_PER_DAY} kWh/day limit`
       }
@@ -191,7 +202,7 @@ export default function ApplianceForm() {
       // compute daily usage
       const newUsage =
         base.estimatedDailyKWh ??
-        (base.wattage * base.hoursPerDay * base.daysPerWeek) / 1000
+        getKwhPerDay(base, getApplianceTypeInfo)
       // edit or add flow
       if (id) {
         const idNum = Number(id)
@@ -202,7 +213,7 @@ export default function ApplianceForm() {
         const old = getAppliance(idNum)!
         const oldUsage =
           old.estimatedDailyKWh ??
-          (old.wattage * old.hoursPerDay * old.daysPerWeek) / 1000
+          getKwhPerDay(old, getApplianceTypeInfo)
         updateAppliance({ id: idNum, ...base })
         if (oldUsage <= THRESHOLD_KWH && newUsage > THRESHOLD_KWH) {
           addNotification({

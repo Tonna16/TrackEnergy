@@ -24,6 +24,21 @@ export function getKwhPerDay(
   return (wattage * app.hoursPerDay * (app.daysPerWeek / 7)) / 1000
 }
 
+export function getKwhPerWeek(
+  app: Appliance,
+  getApplianceTypeInfo?: (type: string) => { averageWattage?: number }
+) {
+  return getKwhPerDay(app, getApplianceTypeInfo) * 7
+}
+
+export function getKwhPerMonth(
+  app: Appliance,
+  getApplianceTypeInfo?: (type: string) => { averageWattage?: number },
+  daysInMonth = 30
+) {
+  return getKwhPerDay(app, getApplianceTypeInfo) * daysInMonth
+}
+
 /** 
  * FNV‑1a hash, used to seed PRNG 
  */
