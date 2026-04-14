@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext, Appliance } from '../context/AppContext'
-import { generateEstimate } from '../utils/energyEstimator'
+import { generateEstimate, type ConfidenceTier } from '../utils/energyEstimator'
 import { normalizeToMondayKey, toWeeklyProjectionKwhMap, toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
 
 type ProjectionDTO = {
@@ -17,6 +17,9 @@ type ProjectionDTO = {
 type UsageDTO = {
   date: string // "yyyy-MM-dd"
   kWhUsed: number
+  applianceId?: number
+  applianceName?: string
+  byApplianceKwh?: Record<string, number>
 }
 
 function isoDate(d: Date) {
@@ -150,10 +153,14 @@ export default function WeeklyForecastCard() {
     const projectedKwh = currentWeekKey ? projKwhMap.get(currentWeekKey) : undefined
   
     let forecastCost: number | null = null
+    let source: 'backend' | 'fallback' | 'none' = 'none'
+    let confidence: ConfidenceTier = 'low'
     const visibleApps = trackedAppliances
-  
+
     if (typeof projVal === 'number' && Number.isFinite(projVal)) {
       forecastCost = projVal
+      source = 'backend'
+      confidence = 'high'
     } else if (visibleApps.length > 0) {
       try {
         const estPoints = generateEstimate({
@@ -162,12 +169,16 @@ export default function WeeklyForecastCard() {
           count: 1,
           daysPer: 7,
           monthly: false,
-          disableNoise: false,
+          disableNoise: true,
           getApplianceTypeInfo: undefined,
+          usageHistory: usageLogs,
+          mode: 'live',
         })
         const estVal = estPoints?.[0]?.total ?? NaN
         if (Number.isFinite(estVal)) {
           forecastCost = estVal
+          source = 'fallback'
+          confidence = estPoints?.[0]?.confidence ?? 'low'
         }
       } catch {
         forecastCost = null
@@ -179,9 +190,11 @@ export default function WeeklyForecastCard() {
       end: isoDate(currentWeekEnd),
       actualKwh: sum > 0 ? sum : null,
       forecastCost,
+      source,
+      confidence,
       projectedKwh: typeof projectedKwh === 'number' && Number.isFinite(projectedKwh) ? projectedKwh : null,
     }
-  }, [earliestDateStr, fallbackStart, usageByDate, projections, convertCurrency, trackedAppliances, costFromKwh])
+  }, [earliestDateStr, fallbackStart, usageByDate, usageLogs, projections, convertCurrency, trackedAppliances, costFromKwh])
   
   const fmtCost = (val: number | null | undefined) =>
     typeof val === 'number' && Number.isFinite(val) ? formatConvertedCost(val) : '—'
@@ -217,7 +230,12 @@ export default function WeeklyForecastCard() {
           <div className="font-semibold">
             {weeklyRow.forecastCost != null ? formatConvertedCost(weeklyRow.forecastCost) : <span className="text-gray-400">No forecast</span>}
           </div>
-          <div className="text-xs text-gray-400">Forecasted Weekly Cost</div>
+          <div className="text-xs text-gray-400">
+            {weeklyRow.source === 'fallback' ? 'Estimated Weekly Cost (fallback)' : 'Forecasted Weekly Cost'}
+          </div>
+          {weeklyRow.forecastCost != null && (
+            <div className="text-[11px] text-gray-400">Confidence: {weeklyRow.confidence}</div>
+          )}
         </div>
       </div>
     </div>
