@@ -147,6 +147,9 @@ export default function Insights() {
   const prevHighRef = useRef<string[]>([])
   const prevCurrency = useRef(settings.currency)
   const isFirstHighUsageRun = useRef(true)
+  const sentNotificationKeysRef = useRef<Set<string>>(new Set())
+  const lastHighUsageAlertRef = useRef<Map<string, number>>(new Map())
+  const HIGH_USAGE_ALERT_THROTTLE_MS = 1000 * 60 * 60 * 12 // 12 hours
 
   const safeGetApplianceTypeInfo = useCallback((type: string) => getApplianceTypeInfo(type) || {}, [getApplianceTypeInfo])
 
@@ -212,6 +215,9 @@ try {
         type: 'info',
         title: `Currency switched to ${settings.currency}`,
         message: `All cost forecasts now show ${settings.currency} rates.`,
+        category: 'settings',
+        severity: 'low',
+        dedupeKey: `currency-switch:${settings.currency}`,
       });
       prevCurrency.current = settings.currency;
     }
@@ -285,16 +291,29 @@ try {
 
     prevHighRef.current.forEach(name => {
       if (!currentlyHigh.includes(name)) {
+        const recoveredKey = `recovered-usage:${name}`
+        if (sentNotificationKeysRef.current.has(recoveredKey)) return
+
+        sentNotificationKeysRef.current.add(recoveredKey)
         addNotification({
           type: 'success',
           title: 'Good news!',
           message: `${name} is no longer above average energy usage.`,
+          category: 'efficiency',
+          severity: 'low',
+          dedupeKey: recoveredKey,
         })
       }
     })
 
     currentlyHigh.forEach(name => {
       if (!prevHighRef.current.includes(name)) {
+        sentNotificationKeysRef.current.delete(`recovered-usage:${name}`)
+        const now = Date.now()
+        const lastSent = lastHighUsageAlertRef.current.get(name) ?? 0
+        if (now - lastSent < HIGH_USAGE_ALERT_THROTTLE_MS) return
+
+        lastHighUsageAlertRef.current.set(name, now)
         const app = appliances.find(a => a.name === name)!
         const estKwh = getKwhPerDay(app, safeGetApplianceTypeInfo)
         notifyHighUsageAppliance(name, estKwh).catch(console.error)
@@ -306,12 +325,21 @@ try {
 
   useEffect(() => {
     if (typeof actual === 'number' && typeof predicted === 'number' && isLoggedIn) {
+      const weekStartDate = getStartOfWeek()
+      const usageType = actual > predicted ? 'over-forecast' : 'under-forecast'
+      const dedupeKey = `weekly-usage:${weekStartDate}:${usageType}`
+      if (sentNotificationKeysRef.current.has(dedupeKey)) return
+
+      sentNotificationKeysRef.current.add(dedupeKey)
       addNotification({
-        weekStartDate: getStartOfWeek(),
+        weekStartDate,
         actualUsage: actual,
         forecastUsage: predicted,
         type: actual > predicted ? 'warning' : 'success',
         title: 'Weekly Usage vs Forecast',
+        category: 'forecast',
+        severity: actual > predicted ? 'medium' : 'low',
+        dedupeKey,
         message:
           actual > predicted
             ? `You used ${formatNumber(actual - predicted)} kWh more than forecast.`

@@ -34,14 +34,34 @@ export default function NotificationsPanel() {
     }
   }, [])
 
-  // When the panel opens, mark all unread & NOT deleted as read
-  useEffect(() => {
-    if (open && unreadCount > 0) {
-      notifications
-        .filter(n => !n.read && !n.deleted)  // <-- filter deleted here
-        .forEach(n => markAsRead(n.id))
-    }
-  }, [open, notifications, unreadCount, markAsRead])
+  const markAllAsRead = () => {
+    notifications
+      .filter(n => !n.read && !n.deleted)
+      .forEach(n => markAsRead(n.id))
+  }
+
+  const formatRelativeTime = (value: string) => {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return 'Just now'
+
+    const now = Date.now()
+    const diffMs = date.getTime() - now
+    const absSeconds = Math.round(Math.abs(diffMs) / 1000)
+    const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+
+    if (absSeconds < 60) return rtf.format(Math.round(diffMs / 1000), 'second')
+
+    const absMinutes = Math.round(absSeconds / 60)
+    if (absMinutes < 60) return rtf.format(Math.round(diffMs / (60 * 1000)), 'minute')
+
+    const absHours = Math.round(absMinutes / 60)
+    if (absHours < 24) return rtf.format(Math.round(diffMs / (60 * 60 * 1000)), 'hour')
+
+    const absDays = Math.round(absHours / 24)
+    if (absDays < 7) return rtf.format(Math.round(diffMs / (24 * 60 * 60 * 1000)), 'day')
+
+    return date.toLocaleString()
+  }
 
   const renderIcon = (type: string) => {
     switch (type) {
@@ -82,6 +102,16 @@ export default function NotificationsPanel() {
           style={{ overscrollBehavior: 'contain' }}
           className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-800 shadow-lg rounded z-50 border border-gray-200 dark:border-gray-600"
         >
+          {unreadCount > 0 && (
+            <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-end">
+              <button
+                onClick={markAllAsRead}
+                className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+              >
+                Mark all as read
+              </button>
+            </div>
+          )}
           {visibleNotifications.length === 0 ? (
             <div className="p-4 text-sm text-gray-600 dark:text-gray-300">
               No notifications
@@ -91,6 +121,9 @@ export default function NotificationsPanel() {
               <div
                 role="option"
                 key={n.id}
+                onMouseEnter={() => !n.read && markAsRead(n.id)}
+                onFocus={() => !n.read && markAsRead(n.id)}
+                tabIndex={0}
                 className={`relative p-4 border-b dark:border-gray-700 flex flex-col ${
                   n.read ? 'bg-gray-100 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'
                 }`}
@@ -115,6 +148,15 @@ export default function NotificationsPanel() {
                 {/* Message */}
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   {n.message || 'No message provided.'}
+                </div>
+
+                <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  {n.category && (
+                    <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase tracking-wide">
+                      {n.category}
+                    </span>
+                  )}
+                  <span>{formatRelativeTime(n.createdAt)}</span>
                 </div>
               </div>
             ))
