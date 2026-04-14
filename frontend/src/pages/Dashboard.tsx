@@ -8,48 +8,56 @@ import { useEffect, useState } from 'react'
 import api from '../utils/api'
 
 export default function Dashboard() {
-  const { appliances, dailyUsageSeries, totalDailyUsage, convertCurrency } = useAppContext()
+  const { appliances, dailyUsageSeries, convertCurrency } = useAppContext()
   const navigate = useNavigate()
   const isLoggedIn = Boolean(localStorage.getItem('accessToken'))
   const hasLimitedData = dailyUsageSeries.length < 5
 
   // State for average daily cost from chart
-  const [avgDailyCost, setAvgDailyCost] = useState(0)
+  const [avgDailyCost, setAvgDailyCost] = useState<number | null>(null)
 
-  // State for backend forecasted stable daily cost (in user currency)
+  // Backend contract:
+  // - `energy-usage/forecasted-daily-cost` returns a USD value.
+  // - We must convert that USD value exactly once on the frontend via `convertCurrency`.
+  // - Downstream components should treat this value as already converted for display.
   const [forecastedDailyCost, setForecastedDailyCost] = useState<number | null>(null)
+  const [costAvailabilityMessage, setCostAvailabilityMessage] = useState<string | null>(null)
+
   const dailyCostToShow = forecastedDailyCost ?? avgDailyCost
 
   useEffect(() => {
-    console.log('Dashboard mounted or appliances changed, loggedIn:', isLoggedIn, 'Appliances count:', appliances.length)
-    if (!isLoggedIn) return
-  
-    if (appliances.length === 0) {
-      console.log('No appliances - setting forecastedDailyCost to 0')
-      setForecastedDailyCost(0)
+    if (!isLoggedIn) {
+      setForecastedDailyCost(null)
+      setCostAvailabilityMessage('Unavailable')
       return
     }
-  
+
+    if (appliances.length === 0) {
+      setForecastedDailyCost(null)
+      setCostAvailabilityMessage('Insufficient data')
+      return
+    }
+
+    setCostAvailabilityMessage(null)
+
     api.get('energy-usage/forecasted-daily-cost')
       .then(res => {
-        let cost = typeof res.data === 'number' ? res.data : res.data.forecastedDailyCost
-        if (cost != null) {
-          console.log('Backend cost raw:', cost)
-          console.log('Backend cost converted:', convertCurrency(cost))
-  
-          const convertedCost = convertCurrency(cost)
+        const rawUsdCost = typeof res.data === 'number' ? res.data : res.data.forecastedDailyCost
+        if (typeof rawUsdCost === 'number' && Number.isFinite(rawUsdCost)) {
+          const convertedCost = convertCurrency(rawUsdCost)
           setForecastedDailyCost(convertedCost)
+          setCostAvailabilityMessage(null)
+        } else {
+          setForecastedDailyCost(null)
+          setCostAvailabilityMessage('Unavailable')
         }
       })
       .catch((err) => {
         console.error('Error fetching forecasted daily cost:', err)
         setForecastedDailyCost(null)
+        setCostAvailabilityMessage('Unavailable')
       })
   }, [isLoggedIn, appliances, convertCurrency])
-  
-  console.log('Dashboard rendering, dailyCostToShow:', dailyCostToShow)
-  
-  
 
 
   return (
@@ -66,7 +74,10 @@ export default function Dashboard() {
       </div>
 
       <div className="card">
-        <UsageSummary avgDailyCostFromChart={dailyCostToShow} />
+        <UsageSummary
+          avgDailyCostFromChart={dailyCostToShow}
+          costAvailabilityMessage={costAvailabilityMessage}
+        />
       </div>
 
       <div className="card">

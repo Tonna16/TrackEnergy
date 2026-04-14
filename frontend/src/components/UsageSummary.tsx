@@ -12,15 +12,18 @@ import {
 } from 'lucide-react'
 
 type UsageSummaryProps = {
-  avgDailyCostFromChart?: number // already in user currency
+  avgDailyCostFromChart?: number | null // already in user currency
+  costAvailabilityMessage?: string | null
 }
 
-export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummaryProps) {
+export default function UsageSummary({
+  avgDailyCostFromChart = null,
+  costAvailabilityMessage = null,
+}: UsageSummaryProps) {
   const {
     appliances,
     settings,
     totalDailyUsage,
-    forecastedDailyCost
   } = useAppContext()
 
   // Baseline national average for household size
@@ -38,12 +41,20 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
 
   const [showTooltip, setShowTooltip] = useState(false)
 
-  // Use chart average if available; otherwise backend forecast, fallback 0
-  const displayedCost = avgDailyCostFromChart > 0 
-    ? avgDailyCostFromChart 
-    : forecastedDailyCost ?? 0
+  const hasValidatedApplianceInputs = appliances.length > 0
+  const displayedCost =
+    typeof avgDailyCostFromChart === 'number' && Number.isFinite(avgDailyCostFromChart)
+      ? avgDailyCostFromChart
+      : null
+  const canRenderNumericCost =
+    displayedCost !== null && (displayedCost !== 0 || hasValidatedApplianceInputs)
+  const fallbackStatusText = hasValidatedApplianceInputs ? 'Unavailable' : 'Insufficient data'
+  const statusText = costAvailabilityMessage ?? fallbackStatusText
 
   const formattedCost = useMemo(() => {
+    if (!canRenderNumericCost) return statusText
+    const numericDisplayedCost = displayedCost as number
+
     const currencyCode = settings?.currency || 'USD'
     try {
       return new Intl.NumberFormat(undefined, {
@@ -51,12 +62,12 @@ export default function UsageSummary({ avgDailyCostFromChart = 0 }: UsageSummary
         currency: currencyCode,
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }).format(displayedCost ?? 0)
+      }).format(numericDisplayedCost)
     } catch (err) {
       console.error('Invalid currency code:', currencyCode, err)
-      return `${displayedCost?.toFixed(2) ?? '0.00'} ${currencyCode}`
+      return `${numericDisplayedCost.toFixed(2)} ${currencyCode}`
     }
-  }, [displayedCost, settings?.currency])
+  }, [canRenderNumericCost, displayedCost, settings?.currency, statusText])
 
   const getEfficiencyColor = (percent: number | null) => {
     if (percent === null) return 'text-gray-400'
