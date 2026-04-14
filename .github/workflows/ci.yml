@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '21'
+  NODE_VERSION: '20'
+  # Set to 'true' in repository/environment variables to run DB-backed integration tests.
+  RUN_INTEGRATION_TESTS: ${{ vars.RUN_INTEGRATION_TESTS || 'false' }}
+
+jobs:
+  backend:
+    name: Backend (tests + dependency scan)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: energyiq_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Run backend unit tests
+        working-directory: backend
+        run: ./mvnw -B -DskipITs=true test
+
+      - name: Run backend integration tests (optional, DB-backed)
+        if: ${{ env.RUN_INTEGRATION_TESTS == 'true' }}
+        working-directory: backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/energyiq_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+        run: ./mvnw -B -DskipITs=false verify
+
+      - name: Dependency scan (security-critical gate)
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: backend
+          path: backend
+          format: HTML,JSON
+          out: reports
+          args: >-
+            --failOnCVSS 7
+
+      - name: Upload backend test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: |
+            backend/target/surefire-reports/**
+            backend/target/failsafe-reports/**
+          if-no-files-found: warn
+
+      - name: Upload backend dependency scan reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dependency-scan
+          path: reports/**
+          if-no-files-found: warn
+
+  frontend:
+    name: Frontend (lint + typecheck/build + audit)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Typecheck and build
+        working-directory: frontend
+        run: npm run build
+
+      - name: "Audit (security-critical gate: high/critical)"
+        working-directory: frontend
+        run: npm audit --audit-level=high --json > audit-high-critical.json
+
+      - name: "Audit (advisory only: moderate)"
+        continue-on-error: true
+        working-directory: frontend
+        run: npm audit --audit-level=moderate --json > audit-moderate-advisory.json
+
+      - name: Upload frontend audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-audit-reports
+          path: |
+            frontend/audit-high-critical.json
+            frontend/audit-moderate-advisory.json
+          if-no-files-found: warn
+
+  secrets:
+    name: Secrets scan (security-critical gate)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: true
