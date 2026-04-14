@@ -20,15 +20,19 @@ com/energytracker/dto/EnergyUsageDTO.class
 com/energytracker/config/JpaConfig.class
 com/energytracker/model/UserSettings.class
 com/energytracker/repository/NotificationRepository.class
+com/energytracker/service/EnergyUsageService$1.class
 com/energytracker/controller/AuthController.class
 com/energytracker/config/SecurityUtilsInjector.class
 com/energytracker/dto/EIAResponse.class
+com/energytracker/model/RefreshTokenStatus.class
+com/energytracker/model/RefreshTokenSession.class
 com/energytracker/BackendApplication.class
 com/energytracker/service/EnergySavingTipsService.class
 com/energytracker/service/EnergyUsageService.class
 com/energytracker/controller/SettingsController.class
 com/energytracker/security/JwtHandshakeInterceptor.class
 com/energytracker/service/UserSettingsService.class
+com/energytracker/repository/RefreshTokenSessionRepository.class
 com/energytracker/repository/ApplianceRepository.class
 com/util/ForecastPoint.class
 com/energytracker/dto/CommunityComparisonDTO.class
@@ -41,6 +45,7 @@ com/energytracker/dto/UsageProjectionDTO.class
 com/energytracker/controller/TipsController.class
 com/energytracker/security/JwtUtil.class
 com/energytracker/dto/UsageSummaryDTO.class
+com/util/TimeSeriesForecaster$SmoothingParams.class
 com/energytracker/repository/UserSettingsRepository.class
 com/energytracker/controller/EnergyUsageController.class
 com/util/TimeSeriesForecaster$ForecastPoint.class
@@ -50,6 +55,7 @@ com/energytracker/service/NotificationService.class
 com/energytracker/repository/EnergyUsageLogRepository.class
 com/energytracker/config/AppConfig.class
 com/energytracker/service/AuthService.class
+com/util/TimeSeriesForecaster$ErrorMetrics.class
 com/energytracker/security/JwtAuthFilter.class
 com/energytracker/service/EIAService.class
 com/energytracker/dto/RefreshRequest.class

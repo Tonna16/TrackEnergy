@@ -26,11 +26,14 @@
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/model/Appliance.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/model/EnergyUsageLog.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/model/Notification.java
+/workspaces/TrackEnergy/backend/src/main/java/com/energytracker/model/RefreshTokenSession.java
+/workspaces/TrackEnergy/backend/src/main/java/com/energytracker/model/RefreshTokenStatus.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/model/User.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/model/UserSettings.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/repository/ApplianceRepository.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/repository/EnergyUsageLogRepository.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/repository/NotificationRepository.java
+/workspaces/TrackEnergy/backend/src/main/java/com/energytracker/repository/RefreshTokenSessionRepository.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/repository/UserRepository.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/repository/UserSettingsRepository.java
 /workspaces/TrackEnergy/backend/src/main/java/com/energytracker/security/CustomUserDetails.java

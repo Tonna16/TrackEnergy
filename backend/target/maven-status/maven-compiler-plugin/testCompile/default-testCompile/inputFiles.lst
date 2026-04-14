@@ -1,1 +1,9 @@
 /workspaces/TrackEnergy/backend/src/test/java/com/energytracker/backend/BackendApplicationTests.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/controller/AuthControllerRefreshFlowTest.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/security/CorsPreflightTest.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/security/EndpointSecurityMatrixTest.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/security/ForecastEndpointSecurityTest.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/security/JwtLoggingSanitizationTest.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/service/EnergyUsageServiceAggregationRegressionTest.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/service/EnergyUsageServiceLogUsageOwnershipTest.java
+/workspaces/TrackEnergy/backend/src/test/java/com/energytracker/service/EnergyUsageServiceWeeklyProjectionTest.java

@@ -1,1 +1,9 @@
+com/energytracker/security/JwtLoggingSanitizationTest.class
 com/energytracker/backend/BackendApplicationTests.class
+com/energytracker/service/EnergyUsageServiceAggregationRegressionTest.class
+com/energytracker/controller/AuthControllerRefreshFlowTest.class
+com/energytracker/security/EndpointSecurityMatrixTest.class
+com/energytracker/security/ForecastEndpointSecurityTest.class
+com/energytracker/service/EnergyUsageServiceWeeklyProjectionTest.class
+com/energytracker/service/EnergyUsageServiceLogUsageOwnershipTest.class
+com/energytracker/security/CorsPreflightTest.class
