@@ -2,9 +2,9 @@ import axios, { AxiosRequestConfig, AxiosError } from 'axios'
 import {
   getAuthToken,
   saveAuthToken,
-  logout,
   isTokenExpired,
   refreshAccessTokenIfNeeded,
+  clearClientAuthState,
 } from './auth'
 
 interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
@@ -18,10 +18,22 @@ const api = axios.create({
 
 let refreshing: Promise<string> | null = null
 
+const PUBLIC_AUTH_PATHS = ['auth/login', 'auth/signup', 'auth/refresh']
+
+const isPublicAuthRequest = (url?: string) => {
+  if (!url) return false
+
+  return PUBLIC_AUTH_PATHS.some((path) => url.includes(path))
+}
+
 api.interceptors.request.use(
   async (config) => {
     if (import.meta.env.MODE === 'development') {
       console.debug('[api] request', config.method, config.url)
+    }
+
+    if (isPublicAuthRequest(config.url)) {
+      return config
     }
 
     let token = getAuthToken()
@@ -38,8 +50,8 @@ api.interceptors.request.use(
       }
     } catch (err) {
       refreshing = null
-      logout()
-      throw err
+      clearClientAuthState()
+      token = null
     }
 
     if (token) {
@@ -56,6 +68,10 @@ api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
     const original = error.config as AxiosRequestConfigWithRetry | undefined
+
+    if (isPublicAuthRequest(original?.url)) {
+      return Promise.reject(error)
+    }
 
     if (error.response?.status === 401 && original && !original._retry) {
       original._retry = true
@@ -79,8 +95,7 @@ api.interceptors.response.use(
         return api(original)
       } catch (refreshErr) {
         refreshing = null
-        logout()
-        window.location.href = '/'
+        clearClientAuthState()
         return Promise.reject(refreshErr)
       }
     }
