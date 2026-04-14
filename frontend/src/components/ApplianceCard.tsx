@@ -7,7 +7,7 @@ interface ApplianceCardProps {
 }
 
 export default function ApplianceCard({ appliance }: ApplianceCardProps) {
-  const { deleteAppliance, costFromKwh, formatCost, symbol } = useAppContext()
+  const { deleteAppliance, costFromKwh, formatCost, setApplianceActive } = useAppContext()
   
   // Compute daily kWh usage
   const dailyKwh =
@@ -25,7 +25,11 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
     : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
 
   return (
-    <div className="card hover:shadow-md transition-shadow dark:bg-black dark:border-dark-border">
+    <div
+      className={`card hover:shadow-md transition-shadow dark:bg-black dark:border-dark-border ${
+        appliance.active === false ? 'opacity-60' : ''
+      }`}
+    >
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="font-semibold">{appliance.name}</h3>
@@ -54,6 +58,13 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
             <Edit className="h-5 w-5" />
           </Link>
           <button
+            onClick={() => setApplianceActive(appliance.id, appliance.active === false)}
+            className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-dark-border dark:text-dark-text dark:hover:bg-dark-input"
+            aria-label={appliance.active === false ? 'Set appliance active' : 'Set appliance inactive'}
+          >
+            {appliance.active === false ? 'Inactive' : 'Active'}
+          </button>
+          <button
             onClick={() => deleteAppliance(appliance.id)}
             className="p-1 text-gray-500 hover:text-red-600 dark:text-emerald-500 dark:hover:text-red-400"
             aria-label="Delete appliance"
@@ -74,7 +85,7 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
           <div className="text-right">
             <p className="font-medium">{dailyKwh.toFixed(2)} kWh/day</p>
             <p className="text-sm text-emerald-600 dark:text-emerald-400">
-              {formatCost(dailyCost * 30)}/mo
+              {formatCost(monthlyCost)}/mo
             </p>
           </div>
         </div>
