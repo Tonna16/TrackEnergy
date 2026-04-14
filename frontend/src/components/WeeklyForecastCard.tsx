@@ -3,7 +3,7 @@ import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext, Appliance } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
-import { toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
+import { normalizeToMondayKey, toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
 
 type ProjectionDTO = {
   date: string // "yyyy-MM-dd" or "MMM yyyy"
@@ -108,11 +108,12 @@ export default function WeeklyForecastCard() {
     const anchor = new Date(anchorStr + 'T00:00:00')
     anchor.setHours(0, 0, 0, 0)
   
-    // Helper: start of week (Sunday)
-    function startOfWeek(d: Date) {
+    // Helper: start of week (Monday)
+    function startOfWeekMonday(d: Date) {
       const day = d.getDay()
+      const daysSinceMonday = (day + 6) % 7
       const start = new Date(d)
-      start.setDate(d.getDate() - day)
+      start.setDate(d.getDate() - daysSinceMonday)
       start.setHours(0, 0, 0, 0)
       return start
     }
@@ -121,7 +122,7 @@ export default function WeeklyForecastCard() {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
   
-    const anchorWeekStart = startOfWeek(anchor)
+    const anchorWeekStart = startOfWeekMonday(anchor)
   
     // Find number of weeks passed since anchor week
     const diffDays = Math.floor((today.getTime() - anchorWeekStart.getTime()) / (1000 * 60 * 60 * 24))
@@ -142,7 +143,8 @@ export default function WeeklyForecastCard() {
     const projMap = toWeeklyProjectionMap(projections, convertCurrency)
   
     // Check for server projection for current week
-    const projVal = projMap.get(isoDate(currentWeekStart))
+    const currentWeekKey = normalizeToMondayKey(isoDate(currentWeekStart))
+    const projVal = currentWeekKey ? projMap.get(currentWeekKey) : undefined
   
     let forecastCost: number | null = null
     const visibleApps = appliances.filter(a => a.active !== false && a.deleted !== true)
