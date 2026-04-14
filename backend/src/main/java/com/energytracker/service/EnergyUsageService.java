@@ -347,7 +347,7 @@ public class EnergyUsageService {
         List<UsageProjectionDTO> out = new ArrayList<>();
 
         for (int i = 1; i <= count; i++) {
-            LocalDate date;
+            LocalDate date = today;
             int days;
             UsageProjectionDTO dto;
 
