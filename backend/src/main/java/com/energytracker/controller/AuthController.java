@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,10 +31,28 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final boolean cookieSecure;
+    private final String refreshCookieSameSite;
+    private final String refreshCookiePath;
+    private final String csrfCookieSameSite;
+    private final String csrfCookiePath;
 
-    public AuthController(AuthService authService, JwtUtil jwtUtil) {
+    public AuthController(
+        AuthService authService,
+        JwtUtil jwtUtil,
+        @Value("${app.auth.cookie.secure:false}") boolean cookieSecure,
+        @Value("${app.auth.cookie.refresh.same-site:Strict}") String refreshCookieSameSite,
+        @Value("${app.auth.cookie.refresh.path:/api/auth}") String refreshCookiePath,
+        @Value("${app.auth.cookie.csrf.same-site:Strict}") String csrfCookieSameSite,
+        @Value("${app.auth.cookie.csrf.path:/}") String csrfCookiePath
+    ) {
         this.authService = authService;
         this.jwtUtil = jwtUtil;
+        this.cookieSecure = cookieSecure;
+        this.refreshCookieSameSite = refreshCookieSameSite;
+        this.refreshCookiePath = refreshCookiePath;
+        this.csrfCookieSameSite = csrfCookieSameSite;
+        this.csrfCookiePath = csrfCookiePath;
     }
 
     @PostMapping("/signup")
@@ -145,9 +164,9 @@ public class AuthController {
     private ResponseCookie refreshCookie(String refreshToken) {
         return ResponseCookie.from(REFRESH_COOKIE, refreshToken)
             .httpOnly(true)
-            .secure(true)
-            .sameSite("Strict")
-            .path("/api/auth")
+            .secure(cookieSecure)
+            .sameSite(refreshCookieSameSite)
+            .path(refreshCookiePath)
             .maxAge(Duration.ofMillis(jwtUtil.getRefreshTokenExpirationMs()))
             .build();
     }
@@ -155,9 +174,9 @@ public class AuthController {
     private ResponseCookie csrfCookie() {
         return ResponseCookie.from(CSRF_COOKIE, UUID.randomUUID().toString())
             .httpOnly(false)
-            .secure(true)
-            .sameSite("Strict")
-            .path("/")
+            .secure(cookieSecure)
+            .sameSite(csrfCookieSameSite)
+            .path(csrfCookiePath)
             .maxAge(Duration.ofMillis(jwtUtil.getRefreshTokenExpirationMs()))
             .build();
     }
@@ -165,9 +184,9 @@ public class AuthController {
     private ResponseCookie clearRefreshCookie() {
         return ResponseCookie.from(REFRESH_COOKIE, "")
             .httpOnly(true)
-            .secure(true)
-            .sameSite("Strict")
-            .path("/api/auth")
+            .secure(cookieSecure)
+            .sameSite(refreshCookieSameSite)
+            .path(refreshCookiePath)
             .maxAge(0)
             .build();
     }
@@ -175,9 +194,9 @@ public class AuthController {
     private ResponseCookie clearCsrfCookie() {
         return ResponseCookie.from(CSRF_COOKIE, "")
             .httpOnly(false)
-            .secure(true)
-            .sameSite("Strict")
-            .path("/")
+            .secure(cookieSecure)
+            .sameSite(csrfCookieSameSite)
+            .path(csrfCookiePath)
             .maxAge(0)
             .build();
     }
