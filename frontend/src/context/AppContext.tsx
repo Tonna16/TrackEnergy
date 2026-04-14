@@ -9,8 +9,9 @@ import React, {
   ReactNode,
   useRef,
 } from 'react'
+import type { AxiosError } from 'axios'
 import { applianceDatabase } from '../data/applianceDatabase'
-import { getAuthToken, refreshAccessTokenIfNeeded } from '../utils/auth'
+import { getAuthToken, logout, refreshAccessTokenIfNeeded } from '../utils/auth'
 import { generateEstimate } from '../utils/energyEstimator'
 import api from '../utils/api'
 
@@ -102,6 +103,10 @@ type AppContextType = {
   fetchLiveRate(toCurrency: 'USD' | 'EUR'): Promise<number>
 
   dailyUsageSeries: UsageLog[]
+  authReady: boolean
+  authStatus: 'checking' | 'authenticated' | 'unauthenticated'
+  authError: { kind: 'transient'; message: string } | null
+  resolveAuthState(): Promise<void>
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -153,6 +158,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // auth readiness: prevents early API calls before token refresh attempt
   const [authReady, setAuthReady] = useState(false)
+  const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking')
+  const [authError, setAuthError] = useState<{ kind: 'transient'; message: string } | null>(null)
 
   const [appMode, setAppMode] = useState<AppMode>(() => {
     const savedMode = localStorage.getItem('appMode')
@@ -204,6 +211,45 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (!authReady) return
     setAppMode(getAuthToken() ? 'live' : 'simulated')
   }, [authReady])
+
+  const resolveAuthState = useCallback(async () => {
+    if (!authReady) {
+      setAuthStatus('checking')
+      return
+    }
+
+    const token = getAuthToken()
+    if (!token) {
+      setAuthStatus('unauthenticated')
+      setAuthError(null)
+      return
+    }
+
+    try {
+      await api.get('profile')
+      setAuthStatus('authenticated')
+      setAuthError(null)
+    } catch (err) {
+      const status = (err as AxiosError | undefined)?.response?.status
+      if (status === 401 || status === 403) {
+        setAuthStatus('unauthenticated')
+        setAuthError(null)
+        logout()
+        return
+      }
+
+      // Keep stale session for transient failures and allow retry.
+      setAuthStatus('authenticated')
+      setAuthError({
+        kind: 'transient',
+        message: 'Could not verify your session. Check your connection and retry.',
+      })
+    }
+  }, [authReady])
+
+  useEffect(() => {
+    void resolveAuthState()
+  }, [resolveAuthState])
 
   // If logged in and authReady, fetch persisted settings from SettingsController
   useEffect(() => {
@@ -549,6 +595,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             : undefined,
         fetchLiveRate,
         dailyUsageSeries,
+        authReady,
+        authStatus,
+        authError,
+        resolveAuthState,
       }}
     >
       {children}
