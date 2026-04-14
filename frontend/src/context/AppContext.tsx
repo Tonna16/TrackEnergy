@@ -13,6 +13,10 @@ import type { AxiosError } from 'axios'
 import { applianceDatabase } from '../data/applianceDatabase'
 import { getAuthToken, logout, refreshAccessTokenIfNeeded } from '../utils/auth'
 import { generateEstimate } from '../utils/energyEstimator'
+import {
+  isVisibleAppliance,
+  withVisibilityDefaults,
+} from '../utils/applianceVisibility'
 import api from '../utils/api'
 
 const EMISSION_FACTOR_KG_PER_KWH = 0.417
@@ -115,8 +119,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined)
 // Validate an appliance object and ensure it's not deleted/inactive
 const isValidAppliance = (a: Appliance): boolean => {
   if (!a || typeof a !== 'object') return false
-  if (a.deleted === true) return false
-  if (a.active === false) return false
+  if (!isVisibleAppliance(a, false)) return false
   if (!a.name || typeof a.name !== 'string') return false
   if (isNaN(a.wattage) || a.wattage <= 0 || a.wattage > MAX_WATTAGE) return false
   if (isNaN(a.hoursPerDay) || a.hoursPerDay < 0 || a.hoursPerDay > 24) return false
@@ -336,7 +339,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         try {
           const res = await api.get<Appliance[]>('appliances')
           const visible = res.data
-            .filter(a => a && a.active !== false && a.deleted !== true)
+            .map(a => withVisibilityDefaults(a))
+            .filter(a => a && isVisibleAppliance(a, false))
             .filter(isValidAppliance)
           setAppliances(visible)
         } catch (err) {
@@ -411,7 +415,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const totalDailyUsage = useMemo(
     () =>
-      appliances.reduce(
+      appliances
+        .filter(a => isVisibleAppliance(a, false))
+        .reduce(
         (sum, app) => sum + (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000,
         0
       ),
@@ -426,7 +432,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       return forecastedDailyCostLive
     }
 
-    const visibleAppliances = appliances.filter(a => a.active !== false && a.deleted !== true)
+    const visibleAppliances = appliances.filter(a => isVisibleAppliance(a, false))
 
     const points = generateEstimate({
       appliances: visibleAppliances,
@@ -461,25 +467,27 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   )
 
   const addAppliance = async (input: ApplianceInput): Promise<Appliance | undefined> => {
-    if (!isValidAppliance({ ...input, id: 0 } as Appliance)) {
+    const normalizedInput = withVisibilityDefaults(input)
+    if (!isValidAppliance({ ...normalizedInput, id: 0 } as Appliance)) {
       console.warn('Rejected appliance due to invalid input', input)
       return undefined
     }
 
     if (appMode === 'live') {
       try {
-        const res = await api.post<Appliance>('appliances', input) // backend assigns ID
-        if (res.data && res.data.active !== false && res.data.deleted !== true && isValidAppliance(res.data)) {
-          setAppliances(prev => [res.data, ...prev])
+        const res = await api.post<Appliance>('appliances', normalizedInput) // backend assigns ID
+        const normalizedResponse = withVisibilityDefaults(res.data)
+        if (normalizedResponse && isVisibleAppliance(normalizedResponse, false) && isValidAppliance(normalizedResponse)) {
+          setAppliances(prev => [normalizedResponse, ...prev])
         }
-        return res.data
+        return normalizedResponse
       } catch (err) {
         console.error('Failed to add appliance:', err)
         return undefined
       }
     } else {
       const newApp: Appliance = {
-        ...input,
+        ...normalizedInput,
         id: Math.floor(Math.random() * 1_000_000_000),
       }
       setAppliances(prev => [newApp, ...prev])
@@ -488,20 +496,21 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const updateAppliance = async (updated: Appliance) => {
-    if (!isValidAppliance(updated)) {
+    const normalizedUpdated = withVisibilityDefaults(updated)
+    if (!isValidAppliance(normalizedUpdated)) {
       console.warn('Rejected appliance due to invalid input', updated)
       return
     }
 
     if (appMode === 'live') {
       try {
-        await api.put(`appliances/${updated.id}`, updated)
-        setAppliances(prev => prev.map(a => (a.id === updated.id ? updated : a)))
+        await api.put(`appliances/${normalizedUpdated.id}`, normalizedUpdated)
+        setAppliances(prev => prev.map(a => (a.id === normalizedUpdated.id ? normalizedUpdated : a)))
       } catch (err) {
         console.error('Failed to update appliance:', err)
       }
     } else {
-      setAppliances(prev => prev.map(a => (a.id === updated.id ? updated : a)))
+      setAppliances(prev => prev.map(a => (a.id === normalizedUpdated.id ? normalizedUpdated : a)))
     }
   }
 
@@ -613,10 +622,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     </AppContext.Provider>
   )
 }
-export function isVisibleAppliance(app: Appliance, includeInactive: boolean) {
-  if (!includeInactive && (!app.active || app.deleted)) return false
-  return true
-}
+export { isVisibleAppliance } from '../utils/applianceVisibility'
 
 
 export const useAppContext = () => {

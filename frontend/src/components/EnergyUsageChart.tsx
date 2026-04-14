@@ -15,6 +15,7 @@ import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
+import { isVisibleAppliance } from '../utils/applianceVisibility'
 import type { ChartPoint } from '../utils/energyEstimator'
 
 interface Props {
@@ -41,6 +42,10 @@ export default function EnergyUsageChart({
   const [serverData, setServerData] = useState<
     { date: string; totalKwh: number; totalCost: number; byAppCost: Record<string, number> }[]
   >([])
+  const visibleAppliances = useMemo(
+    () => appliances.filter(a => isVisibleAppliance(a, false)),
+    [appliances]
+  )
 
   // pretty label helper (safe)
   function prettyLabel(label: string) {
@@ -56,29 +61,29 @@ export default function EnergyUsageChart({
 
   // Initialize visibleApps
   useEffect(() => {
-    if (appliances.length && visibleApps.length === 0) {
-      setVisibleApps([appliances[0].name])
+    if (visibleAppliances.length && visibleApps.length === 0) {
+      setVisibleApps([visibleAppliances[0].name])
     }
-  }, [appliances, visibleApps])
+  }, [visibleAppliances, visibleApps])
 
   const dailyEst = useMemo(
-    () => generateEstimate({ appliances, convertCost: costFromKwh, count: 30, daysPer: 1 }),
-    [appliances, costFromKwh]
+    () => generateEstimate({ appliances: visibleAppliances, convertCost: costFromKwh, count: 30, daysPer: 1 }),
+    [visibleAppliances, costFromKwh]
   )
   const weeklyEst = useMemo(
-    () => generateEstimate({ appliances, convertCost: costFromKwh, count: 4, daysPer: 7 }),
-    [appliances, costFromKwh]
+    () => generateEstimate({ appliances: visibleAppliances, convertCost: costFromKwh, count: 4, daysPer: 7 }),
+    [visibleAppliances, costFromKwh]
   )
   const monthlyEst = useMemo(
     () =>
       generateEstimate({
-        appliances,
+        appliances: visibleAppliances,
         convertCost: costFromKwh,
         count: 6,
         daysPer: 30,
         monthly: true,
       }),
-    [appliances, costFromKwh]
+    [visibleAppliances, costFromKwh]
   )
 
   useEffect(() => {
@@ -188,7 +193,7 @@ export default function EnergyUsageChart({
     else onAverageCostChange(averageCost)
   }, [backendForecast, averageCost, onAverageCostChange])
 
-  if (!appliances.length) {
+  if (!visibleAppliances.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 bg-offwhite-50 dark:bg-gray-800 rounded-lg">
         <p className="mb-4 text-gray-700 dark:text-offwhite-50">No appliances added.</p>
@@ -201,7 +206,7 @@ export default function EnergyUsageChart({
 
   const activeKey = viewMode === 'total' ? 'total' : visibleApps[0]
   const COLORS = ['#10b981', '#6366f1', '#f59e0b', '#ef4444', '#3b82f6', '#14b8a6', '#8b5cf6']
-  const colorIndex = viewMode === 'total' ? 0 : appliances.findIndex(a => a.name === activeKey) + 1
+  const colorIndex = viewMode === 'total' ? 0 : visibleAppliances.findIndex(a => a.name === activeKey) + 1
   const activeColor = COLORS[colorIndex % COLORS.length]
 
   return (

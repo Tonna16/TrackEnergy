@@ -3,6 +3,7 @@ import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext, Appliance } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
+import { isVisibleAppliance } from '../utils/applianceVisibility'
 import { normalizeToMondayKey, toWeeklyProjectionKwhMap, toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
 
 type ProjectionDTO = {
@@ -150,7 +151,7 @@ export default function WeeklyForecastCard() {
     const projectedKwh = currentWeekKey ? projKwhMap.get(currentWeekKey) : undefined
   
     let forecastCost: number | null = null
-    const visibleApps = appliances.filter(a => a.active !== false && a.deleted !== true)
+    const visibleApps = appliances.filter(a => isVisibleAppliance(a, false))
   
     if (typeof projVal === 'number' && Number.isFinite(projVal)) {
       forecastCost = projVal
