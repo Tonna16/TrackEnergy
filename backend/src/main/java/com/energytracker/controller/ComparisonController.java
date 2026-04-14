@@ -17,6 +17,8 @@ import java.util.Map;
 @RequestMapping("/api/comparisons")
 public class ComparisonController {
     private static final Logger logger = LoggerFactory.getLogger(ComparisonController.class);
+    private static final int MIN_HOUSEHOLD_SIZE = 1;
+    private static final int MAX_HOUSEHOLD_SIZE = 12;
 
     private final ComparisonService comparisonService;
 
@@ -26,6 +28,11 @@ public class ComparisonController {
 
     @GetMapping
     public ResponseEntity<?> getCommunityComparison(@RequestParam(defaultValue = "2") int householdSize) {
+        if (householdSize < MIN_HOUSEHOLD_SIZE || householdSize > MAX_HOUSEHOLD_SIZE) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "message", "householdSize must be between " + MIN_HOUSEHOLD_SIZE + " and " + MAX_HOUSEHOLD_SIZE + "."
+            ));
+        }
         UserDetails userDetails = null;
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

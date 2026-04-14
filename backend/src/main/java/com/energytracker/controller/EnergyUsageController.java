@@ -23,6 +23,8 @@ import java.util.*;
 @RequestMapping("/api/energy-usage")
 public class EnergyUsageController {
     private static final Logger logger = LoggerFactory.getLogger(EnergyUsageController.class);
+    private static final int MAX_GUEST_APPLIANCES = 100;
+    private static final int MAX_SUMMARY_DAYS = 366;
 
     private final EnergyUsageService usageService;
     private final UserService userService;
@@ -130,6 +132,16 @@ public ResponseEntity<?> getProjectionsGet(@RequestParam(defaultValue = "daily")
                 return ResponseEntity.badRequest()
                     .body("Appliance data required for guest forecast.");
             }
+            if (appliances.size() > MAX_GUEST_APPLIANCES) {
+                return ResponseEntity.badRequest()
+                    .body("Too many appliances. Maximum allowed is " + MAX_GUEST_APPLIANCES + ".");
+            }
+            for (int i = 0; i < appliances.size(); i++) {
+                String validationError = validateProjectionAppliance(appliances.get(i), i);
+                if (validationError != null) {
+                    return ResponseEntity.badRequest().body(validationError);
+                }
+            }
             logger.info("Guest projection for {} appliances", appliances.size());
             int daysPer = getDaysPerRange(range);
             int count   = getCountForRange(range);
@@ -149,6 +161,10 @@ public ResponseEntity<?> getProjectionsGet(@RequestParam(defaultValue = "daily")
     // — Summary
     @GetMapping("/summary")
     public ResponseEntity<?> getUsageSummary(@RequestParam(required = false) Integer days) {
+        if (days != null && (days <= 0 || days > MAX_SUMMARY_DAYS)) {
+            return ResponseEntity.badRequest()
+                .body("days must be between 1 and " + MAX_SUMMARY_DAYS + ".");
+        }
         try {
             User user = getAuthenticatedUser();
             UsageSummaryDTO summary = (days != null && days > 0)
@@ -240,5 +256,25 @@ public ResponseEntity<?> getProjectionsGet(@RequestParam(defaultValue = "daily")
             logger.info("Guest daily-usage fallback");
             return ResponseEntity.ok(Map.of("totalKwh", 0.0));
         }
+    }
+
+    private String validateProjectionAppliance(Appliance appliance, int index) {
+        if (appliance == null) {
+            return "Appliance at index " + index + " must not be null.";
+        }
+        String name = appliance.getName();
+        if (name == null || name.isBlank() || name.length() > 100) {
+            return "Appliance at index " + index + " must have a non-blank name up to 100 characters.";
+        }
+        if (!Double.isFinite(appliance.getWattage()) || appliance.getWattage() < 1.0 || appliance.getWattage() > 10000.0) {
+            return "Appliance at index " + index + " has invalid wattage.";
+        }
+        if (!Double.isFinite(appliance.getHoursPerDay()) || appliance.getHoursPerDay() <= 0.0 || appliance.getHoursPerDay() > 24.0) {
+            return "Appliance at index " + index + " has invalid hoursPerDay.";
+        }
+        if (appliance.getDaysPerWeek() < 1 || appliance.getDaysPerWeek() > 7) {
+            return "Appliance at index " + index + " has invalid daysPerWeek.";
+        }
+        return null;
     }
 }
