@@ -23,4 +23,6 @@ public interface ApplianceRepository extends JpaRepository<Appliance, Long> {
     List<Appliance> findAllByActiveFalseAndUpdatedAtBefore(LocalDateTime threshold);
     List<Appliance> findAllByUserIdAndActiveTrueAndDeletedFalse(Long userId);
 
+    java.util.Optional<Appliance> findByIdAndUserIdAndActiveTrueAndDeletedFalse(Long applianceId, Long userId);
+
 }

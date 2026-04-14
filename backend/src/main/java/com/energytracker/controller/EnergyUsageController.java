@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -209,6 +210,12 @@ public ResponseEntity<?> getProjectionsGet(@RequestParam(defaultValue = "daily")
         try {
             EnergyUsageLog saved = usageService.logUsage(applianceId, date, kWhUsed);
             return ResponseEntity.ok(saved);
+        } catch (AccessDeniedException denied) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                 .body("Forbidden: " + denied.getMessage());
+        } catch (NoSuchElementException notFound) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(notFound.getMessage());
         } catch (IllegalArgumentException bad) {
             return ResponseEntity.badRequest()
                                  .body("Invalid input: " + bad.getMessage());
