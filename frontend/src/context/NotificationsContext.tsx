@@ -10,6 +10,7 @@ import React, {
 import api from '../utils/api';
 import { connectWebSocket, subscribeToNotifications } from '../utils/websocket';
 import { getAuthToken } from '../utils/auth';
+import { useAppContext } from './AppContext';
 
 export interface Notification {
   id: number;
@@ -48,6 +49,7 @@ interface NotificationsContextType {
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
+  const { authReady, authStatus } = useAppContext();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const unsubscribeRef = useRef<(() => void) | undefined>();
@@ -77,20 +79,32 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   };
 
   useEffect(() => {
+    if (!authReady) {
+      setLoading(true);
+      return;
+    }
+
     const token = getAuthToken();
-    const userId = getUserIdFromToken() ?? 'guest'; // Fallback to 'guest' for anonymous users
+    const userId = getUserIdFromToken();
     let mounted = true;
   
     const setupWs = async () => {
+      if (!token || !userId) {
+        unsubscribeRef.current?.();
+        unsubscribeRef.current = undefined;
+        setWsConnected(false);
+        setNotifications([]);
+        if (mounted) setLoading(false);
+        return;
+      }
+
       console.log('[NotificationsProvider] Setting up for user:', userId);
       setLoading(true);
   
-      if (token) {
-        try {
-          await loadInitialNotifications(); // only fetch for logged-in users
-        } catch (e) {
-          console.warn('[NotificationsProvider] Failed to load initial notifications');
-        }
+      try {
+        await loadInitialNotifications(); // only fetch for logged-in users
+      } catch (e) {
+        console.warn('[NotificationsProvider] Failed to load initial notifications');
       }
   
       try {
@@ -131,7 +145,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
       unsubscribeRef.current?.();
       console.log('[NotificationsProvider] Cleaned up subscription');
     };
-  }, []);
+  }, [authReady, authStatus]);
   
 
   // Stub implementations—reuse your existing logic here:
