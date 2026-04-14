@@ -95,3 +95,65 @@ I created a webpage that has the demo video, and explains the forecasting models
 **License:** MIT
 
 ---
+
+---
+
+### Security hardening checklist
+
+#### 1) Use environment variables for secrets
+Backend secrets are read from environment variables:
+
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `JWT_SECRET`
+- `EIA_API_KEY`
+
+A safe template is tracked at `backend/src/main/resources/application.properties.example`.
+
+#### 2) Rotate/revoke exposed credentials immediately
+If secrets were ever committed, rotate them in their source systems right away:
+
+- **Database credentials**: create a new DB user/password, update grants, remove old user or revoke old password.
+- **JWT secret**: generate and deploy a new signing key, then invalidate all existing access/refresh tokens.
+- **EIA API key**: revoke old key in EIA account settings and issue a new one.
+
+#### 3) Purge leaked secrets from Git history
+Use `git filter-repo` from a clean clone and force-push rewritten history:
+
+```bash
+# install once (example)
+pip install git-filter-repo
+
+# rewrite known literal secrets (examples)
+git filter-repo \
+  --replace-text <(cat <<'REDACTIONS'
+literal:old_db_username==>REDACTED_DB_USER
+literal:old_db_password==>REDACTED_DB_PASSWORD
+literal:old_jwt_secret==>REDACTED_JWT_SECRET
+literal:old_eia_api_key==>REDACTED_EIA_API_KEY
+REDACTIONS
+)
+
+# force-push rewritten refs
+git push --force --all origin
+git push --force --tags origin
+```
+
+After rewrite, require contributors to re-clone or hard-reset to the new history.
+
+#### 4) Automated and local secret scanning
+- CI runs **gitleaks** on pushes/PRs via `.github/workflows/gitleaks.yml`.
+- Recommended local pre-commit hook:
+
+```bash
+# in repo root
+pre-commit install
+cat > .git/hooks/pre-commit <<'HOOK'
+#!/usr/bin/env bash
+set -euo pipefail
+gitleaks detect --source . --staged --redact
+HOOK
+chmod +x .git/hooks/pre-commit
+```
+
+(Alternatively, configure gitleaks through your shared `pre-commit` framework.)
