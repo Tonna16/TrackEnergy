@@ -3,14 +3,19 @@ package com.energytracker.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
     private final Key key;
     private final long accessTokenExpirationMs;
@@ -18,25 +23,23 @@ public class JwtUtil {
 
     public JwtUtil(
         @Value("${jwt.secret}") String secret,
-        @Value("${jwt.access-expiration-ms:900000}") long accessTokenExpirationMs,    // 15 minutes
-        @Value("${jwt.refresh-expiration-ms:604800000}") long refreshTokenExpirationMs // 7 days
+        @Value("${jwt.access-expiration-ms:900000}") long accessTokenExpirationMs,
+        @Value("${jwt.refresh-expiration-ms:604800000}") long refreshTokenExpirationMs
     ) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpirationMs = accessTokenExpirationMs;
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;
 
-        System.out.println("[JwtUtil] Initialized with secret: " + bytesToHex(secret.getBytes()));
+        logger.info("[JwtUtil] Initialized JWT signing key (configured secret present: {})", !secret.isBlank());
     }
 
     @PostConstruct
     private void postInit() {
-        System.out.println("[JwtUtil] Access token expiration: " + accessTokenExpirationMs + "ms");
-        System.out.println("[JwtUtil] Refresh token expiration: " + refreshTokenExpirationMs + "ms");
-        System.out.println("[JwtUtil] Secret (hex): " + bytesToHex(key.getEncoded())); // 👈 debug output
-
+        logger.info("[JwtUtil] Token expiration configuration loaded (accessMs: {}, refreshMs: {})",
+            accessTokenExpirationMs,
+            refreshTokenExpirationMs);
     }
 
-    // ✅ Use email as subject now
     public String generateAccessToken(String email) {
         return generateToken(email, accessTokenExpirationMs);
     }
@@ -45,7 +48,6 @@ public class JwtUtil {
         return generateToken(email, refreshTokenExpirationMs);
     }
 
-    // Generates a JWT with email as the subject
     public String generateToken(String email, long expirationMs) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
@@ -61,12 +63,12 @@ public class JwtUtil {
             Claims claims = parseClaims(token);
             boolean isExpired = claims.getExpiration().before(new Date());
             if (isExpired) {
-                System.out.println("[JwtUtil] Access token expired at: " + claims.getExpiration());
+                logger.warn("[JwtUtil] Access token rejected (reason: expired)");
                 return false;
             }
             return true;
         } catch (JwtException e) {
-            System.out.println("[JwtUtil] Access token invalid: " + e.getMessage());
+            logger.warn("[JwtUtil] Access token rejected (reason: invalid)");
             return false;
         }
     }
@@ -76,25 +78,24 @@ public class JwtUtil {
             Claims claims = parseClaims(token);
             boolean isExpired = claims.getExpiration().before(new Date());
             if (isExpired) {
-                System.out.println("[JwtUtil] Refresh token expired at: " + claims.getExpiration());
+                logger.warn("[JwtUtil] Refresh token rejected (reason: expired)");
                 return false;
             }
             return true;
         } catch (JwtException e) {
-            System.out.println("[JwtUtil] Refresh token invalid: " + e.getMessage());
+            logger.warn("[JwtUtil] Refresh token rejected (reason: invalid)");
             return false;
         }
     }
 
-    // ✅ Extract email from token subject
     public String extractEmail(String token) {
         try {
             Claims claims = parseClaims(token);
             return claims.getSubject();
         } catch (ExpiredJwtException e) {
-            System.out.println("[JwtUtil] Token expired: " + e.getClaims().getExpiration());
+            logger.warn("[JwtUtil] Email extraction failed (reason: expired token)");
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("[JwtUtil] Token invalid: " + e.getMessage());
+            logger.warn("[JwtUtil] Email extraction failed (reason: invalid token)");
         }
         return null;
     }
@@ -105,11 +106,5 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    private static String bytesToHex(byte[] bytes) {
-        var sb = new StringBuilder();
-        for (byte b : bytes) sb.append(String.format("%02x", b));
-        return sb.toString();
     }
 }
