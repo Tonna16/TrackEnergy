@@ -40,14 +40,15 @@ export default function Compare() {
   // otherwise fall back to static nationalAverages.by_household_size or nationalAvg
   const householdAvg = communityHouseholdAvg ?? householdAvgFromDb
 
-  // Safe percentage helper
-  const calculatePercentage = (userValue: number, avgValue: number) => {
-    if (!Number.isFinite(userValue) || !Number.isFinite(avgValue) || avgValue === 0) return 0
-    return ((userValue - avgValue) / avgValue) * 100
+  // Efficiency score: positive = better (lower usage), negative = worse (higher usage)
+  const calculateEfficiencyScore = (usageValue: number, baselineValue: number) => {
+    if (!Number.isFinite(usageValue) || !Number.isFinite(baselineValue) || baselineValue <= 0) return null
+    const rawScore = ((baselineValue - usageValue) / baselineValue) * 100
+    return Math.max(-999, Math.min(999, rawScore))
   }
 
-  const nationalPercentage = calculatePercentage(totalDailyUsage, nationalAvg)
-  const householdPercentage = calculatePercentage(totalDailyUsage, householdAvg)
+  const nationalEfficiencyScore = calculateEfficiencyScore(totalDailyUsage, nationalAvg)
+  const householdEfficiencyScore = calculateEfficiencyScore(totalDailyUsage, householdAvg)
 
   // Appliance-level comparisons (fixed avg calculation)
   const applianceComparisons = useMemo(() => {
@@ -74,21 +75,21 @@ export default function Compare() {
           }
         }
 
-        const percentage = calculatePercentage(userDailyUsage, avgDailyUsage)
+        const efficiencyScore = calculateEfficiencyScore(userDailyUsage, avgDailyUsage) ?? 0
 
         return {
           name: appliance.name,
           userUsage: userDailyUsage,
           avgUsage: avgDailyUsage,
-          percentage,
+          efficiencyScore,
         }
       })
-      .sort((a, b) => b.percentage - a.percentage)
+      .sort((a, b) => b.efficiencyScore - a.efficiencyScore)
   }, [appliances, getApplianceTypeInfo])
 
-  const getComparisonIndicator = (percentage: number) => {
-    if (percentage > 10) return <ArrowUpRight className="h-5 w-5 text-red-500" />
-    if (percentage < -10) return <ArrowDownRight className="h-5 w-5 text-green-500" />
+  const getComparisonIndicator = (score: number) => {
+    if (score > 10) return <ArrowDownRight className="h-5 w-5 text-green-500" />
+    if (score < -10) return <ArrowUpRight className="h-5 w-5 text-red-500" />
     return <Minus className="h-5 w-5 text-gray-500" />
   }
 
@@ -166,10 +167,14 @@ export default function Compare() {
     // deliberately include totalDailyUsage & nationalAvg because localFallbackCommunity depends on them
   }, [token, settings.householdSize, totalDailyUsage, nationalAvg])
 
-  const pctPositive = (p: number) =>
-    p > 0
-      ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
-      : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+  const getEfficiencyPillClass = (score: number | null) => {
+    if (score === null) return 'bg-gray-100 text-gray-700 dark:bg-gray-900/20 dark:text-gray-300'
+    return score >= 0
+      ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+      : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+  }
+
+  const activeEfficiencyScore = compareWith === 'national' ? nationalEfficiencyScore : householdEfficiencyScore
 
   // when rendering community panel, prefer server-provided data if available
   const effectiveCommunityData = communityData ?? localFallbackCommunity
@@ -262,9 +267,10 @@ export default function Compare() {
                     </h3>
                     <p className="text-2xl font-semibold">{formatNumber(compareWith === 'national' ? nationalAvg : householdAvg, 1)} kWh</p>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-sm ${pctPositive(compareWith === 'national' ? nationalPercentage : householdPercentage)}`}>
-                    {Math.abs((compareWith === 'national' ? nationalPercentage : householdPercentage)).toFixed(0)}%
-                    {(compareWith === 'national' ? nationalPercentage : householdPercentage) > 0 ? ' Higher' : ' Lower'}
+                  <span className={`px-2 py-1 rounded-full text-sm ${getEfficiencyPillClass(activeEfficiencyScore)}`}>
+                    {activeEfficiencyScore === null
+                      ? 'Baseline unavailable'
+                      : `${activeEfficiencyScore > 0 ? '+' : ''}${activeEfficiencyScore.toFixed(1)}% ${activeEfficiencyScore >= 0 ? 'Better' : 'Worse'}`}
                   </span>
                 </div>
               </div>
@@ -280,14 +286,14 @@ export default function Compare() {
                       <div className="flex-1">
                         <div className="h-6 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                           <div
-                            className={`h-full ${item.percentage > 20 ? 'bg-red-500' : item.percentage > 0 ? 'bg-amber-500' : 'bg-green-500'}`}
-                            style={{ width: `${item.percentage > 100 ? 100 : item.percentage < -100 ? 0 : 50 + item.percentage / 2}%` }}
+                            className={`h-full ${item.efficiencyScore > 20 ? 'bg-green-500' : item.efficiencyScore > 0 ? 'bg-amber-500' : 'bg-red-500'}`}
+                            style={{ width: `${item.efficiencyScore > 100 ? 100 : item.efficiencyScore < -100 ? 0 : 50 + item.efficiencyScore / 2}%` }}
                           />
                         </div>
                       </div>
                       <div className="w-24 sm:w-28 flex items-center justify-end">
-                        <span className={`text-sm ${item.percentage > 20 ? 'text-red-600 dark:text-red-400' : item.percentage > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
-                          {getComparisonIndicator(item.percentage)}
+                        <span className={`text-sm ${item.efficiencyScore > 20 ? 'text-green-600 dark:text-green-400' : item.efficiencyScore > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                          {getComparisonIndicator(item.efficiencyScore)}
                         </span>
                         <span className="ml-1 text-sm">{formatNumber(item.userUsage, 1)} vs {formatNumber(item.avgUsage, 1)}</span>
                       </div>
@@ -317,12 +323,12 @@ export default function Compare() {
         <div className="flex items-center justify-center py-4">
           <div className="relative">
             <div className="w-40 h-40 rounded-full border-8 border-gray-200 dark:border-gray-700 flex items-center justify-center">
-              <div className="text-3xl font-bold">{householdPercentage < -20 ? 'A+' : householdPercentage < -10 ? 'A' : householdPercentage < 0 ? 'B' : householdPercentage < 10 ? 'C' : householdPercentage < 20 ? 'D' : 'E'}</div>
+              <div className="text-3xl font-bold">{(householdEfficiencyScore ?? 0) > 20 ? 'A+' : (householdEfficiencyScore ?? 0) > 10 ? 'A' : (householdEfficiencyScore ?? 0) > 0 ? 'B' : (householdEfficiencyScore ?? 0) > -10 ? 'C' : (householdEfficiencyScore ?? 0) > -20 ? 'D' : 'E'}</div>
             </div>
             <div className="absolute top-0 left-0 w-40 h-40 rounded-full border-8 border-t-transparent border-r-transparent" style={{
-              borderLeftColor: householdPercentage < -10 ? '#10b981' : householdPercentage < 10 ? '#f59e0b' : '#ef4444',
-              borderBottomColor: householdPercentage < -10 ? '#10b981' : householdPercentage < 10 ? '#f59e0b' : '#ef4444',
-              transform: `rotate(${Math.min(180, Math.max(0, (householdPercentage + 50) * 1.8))}deg)`,
+              borderLeftColor: (householdEfficiencyScore ?? 0) > 10 ? '#10b981' : (householdEfficiencyScore ?? 0) > -10 ? '#f59e0b' : '#ef4444',
+              borderBottomColor: (householdEfficiencyScore ?? 0) > 10 ? '#10b981' : (householdEfficiencyScore ?? 0) > -10 ? '#f59e0b' : '#ef4444',
+              transform: `rotate(${Math.min(180, Math.max(0, ((householdEfficiencyScore ?? 0) + 50) * 1.8))}deg)`,
               transition: 'transform 1s ease-out'
             }} />
           </div>
@@ -330,11 +336,11 @@ export default function Compare() {
 
         <div className="mt-4 text-center">
           <p className="font-medium">
-            {householdPercentage < -20 ? 'Excellent! Your energy usage is very efficient.' :
-             householdPercentage < -10 ? 'Great job! Your energy usage is better than most.' :
-             householdPercentage < 0 ? 'Good! Your energy usage is slightly better than average.' :
-             householdPercentage < 10 ? 'Average energy usage compared to similar households.' :
-             householdPercentage < 20 ? 'Your energy usage is somewhat higher than average.' :
+            {(householdEfficiencyScore ?? 0) > 20 ? 'Excellent! Your energy usage is very efficient.' :
+             (householdEfficiencyScore ?? 0) > 10 ? 'Great job! Your energy usage is better than most.' :
+             (householdEfficiencyScore ?? 0) > 0 ? 'Good! Your energy usage is slightly better than average.' :
+             (householdEfficiencyScore ?? 0) > -10 ? 'Average energy usage compared to similar households.' :
+             (householdEfficiencyScore ?? 0) > -20 ? 'Your energy usage is somewhat higher than average.' :
              'Your energy usage is significantly higher than average.'}
           </p>
         </div>
