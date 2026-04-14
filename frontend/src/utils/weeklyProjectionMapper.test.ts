@@ -1,4 +1,8 @@
-import { normalizeToMondayKey, toWeeklyProjectionMap } from './weeklyProjectionMapper'
+import {
+  normalizeToMondayKey,
+  toWeeklyProjectionKwhMap,
+  toWeeklyProjectionMap,
+} from './weeklyProjectionMapper'
 
 function assertEqual(actual: unknown, expected: unknown, message: string) {
   if (actual !== expected) {
@@ -29,16 +33,24 @@ const projections = [
     date: '2026-04-20',
     weekStart: '2026-04-20',
     weekEnd: '2026-04-26',
+    totalKwh: 52,
     totalCost: 25,
   },
 ]
 
 const projectionMap = toWeeklyProjectionMap(projections, value => value)
+const projectionKwhMap = toWeeklyProjectionKwhMap(projections)
 
 assertEqual(
   projectionMap.get('2026-04-20'),
   25,
   'toWeeklyProjectionMap should keep a known Monday weekStart keyed in yyyy-MM-dd'
+)
+
+assertEqual(
+  projectionKwhMap.get('2026-04-20'),
+  52,
+  'toWeeklyProjectionKwhMap should keep weekly usage keyed by Monday weekStart'
 )
 
 const cardLookupKey = cardWeekAnchorKey('2026-04-22')
@@ -47,5 +59,11 @@ assertEqual(cardLookupKey, '2026-04-20', 'Card week anchoring should normalize t
 assertEqual(
   cardLookupKey ? projectionMap.get(cardLookupKey) : undefined,
   25,
-  'Card lookup key should resolve the Monday weekStart projection'
+  'Card lookup key should resolve the Monday weekStart projection cost'
+)
+
+assertEqual(
+  cardLookupKey ? projectionKwhMap.get(cardLookupKey) : undefined,
+  52,
+  'Card lookup key should resolve the Monday weekStart projection kWh'
 )

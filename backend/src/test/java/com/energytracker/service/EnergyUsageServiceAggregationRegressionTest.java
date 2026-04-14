@@ -55,6 +55,10 @@ class EnergyUsageServiceAggregationRegressionTest {
         List<UsageProjectionDTO> result = service.getProjections(7L, "daily");
 
         assertEquals(30, result.size());
+
+        result.forEach(point ->
+            assertEquals(point.getTotalKwh() * 0.12, point.getTotalCost(), 0.000001,
+                "totalCost should remain a pure rate * totalKwh projection"));
         verify(logRepo, times(1)).countDistinctUsageDaysByUserId(7L);
         verify(logRepo, never()).findAllByUserId(anyLong());
     }

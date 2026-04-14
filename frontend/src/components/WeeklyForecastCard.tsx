@@ -3,12 +3,13 @@ import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext, Appliance } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
-import { normalizeToMondayKey, toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
+import { normalizeToMondayKey, toWeeklyProjectionKwhMap, toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
 
 type ProjectionDTO = {
   date: string // "yyyy-MM-dd" or "MMM yyyy"
   weekStart?: string
   weekEnd?: string
+  totalKwh?: number
   totalCost: number
   byAppCost?: Record<string, number>
 }
@@ -141,10 +142,12 @@ export default function WeeklyForecastCard() {
     }
   
     const projMap = toWeeklyProjectionMap(projections, convertCurrency)
+    const projKwhMap = toWeeklyProjectionKwhMap(projections)
   
     // Check for server projection for current week
     const currentWeekKey = normalizeToMondayKey(isoDate(currentWeekStart))
     const projVal = currentWeekKey ? projMap.get(currentWeekKey) : undefined
+    const projectedKwh = currentWeekKey ? projKwhMap.get(currentWeekKey) : undefined
   
     let forecastCost: number | null = null
     const visibleApps = appliances.filter(a => a.active !== false && a.deleted !== true)
@@ -176,6 +179,7 @@ export default function WeeklyForecastCard() {
       end: isoDate(currentWeekEnd),
       actualKwh: sum > 0 ? sum : null,
       forecastCost,
+      projectedKwh: typeof projectedKwh === 'number' && Number.isFinite(projectedKwh) ? projectedKwh : null,
     }
   }, [earliestDateStr, fallbackStart, usageByDate, projections, convertCurrency, appliances, costFromKwh])
   
@@ -204,6 +208,9 @@ export default function WeeklyForecastCard() {
           </div>
           <div className="text-xs text-gray-400">
             Actual: {weeklyRow.actualKwh !== null ? `${weeklyRow.actualKwh.toFixed(2)} kWh` : 'No data yet'}
+          </div>
+          <div className="text-xs text-gray-400">
+            Forecast: {weeklyRow.projectedKwh !== null ? `${weeklyRow.projectedKwh.toFixed(2)} kWh` : 'No usage forecast'}
           </div>
         </div>
         <div className="text-right">

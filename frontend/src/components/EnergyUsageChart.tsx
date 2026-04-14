@@ -39,7 +39,7 @@ export default function EnergyUsageChart({
   const [visibleApps, setVisibleApps] = useState<string[]>([])
   const [showAverage, setShowAverage] = useState(true)
   const [serverData, setServerData] = useState<
-    { date: string; totalCost: number; byAppCost: Record<string, number> }[]
+    { date: string; totalKwh: number; totalCost: number; byAppCost: Record<string, number> }[]
   >([])
 
   // pretty label helper (safe)

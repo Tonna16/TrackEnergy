@@ -358,6 +358,7 @@ public class EnergyUsageService {
                 UsageProjectionDTO weekly = projectPoint(apps, weekStart, periodDays, useForecast, rate);
                 dto = new UsageProjectionDTO(
                     weekStart.toString(),
+                    weekly.getTotalKwh(),
                     weekly.getTotalCost(),
                     weekly.getByAppCost(),
                     weekStart.toString(),
@@ -376,6 +377,7 @@ public class EnergyUsageService {
             if (periodDays < 0) {
                 dto = new UsageProjectionDTO(
                     date.format(fmt),
+                    dto.getTotalKwh(),
                     dto.getTotalCost(),
                     dto.getByAppCost()
                 );
@@ -402,6 +404,7 @@ public class EnergyUsageService {
         // Day-of-week factor for more accurate daily variations
         double dowFactor = getDayOfWeekFactor(date);
         
+        double totalKwh = 0;
         double totalCost = 0;
         Map<String, Double> byApp = new LinkedHashMap<>();
 
@@ -453,15 +456,16 @@ public class EnergyUsageService {
 
             double cost = kwh * rate;
             byApp.put(a.getName(), cost);
+            totalKwh += kwh;
             totalCost += cost;
 
             logger.debug("[ProjectPoint] Appliance: {}, fallback: {}, perDay: {}, season: {}, dow: {}, trend: {}, noise: {}, kwh: {}, cost: {}",
                 a.getName(), fallback, perDay, season, dowFactor, trend, noise, kwh, cost);
         }
 
-        logger.debug("[ProjectPoint] Date: {}, Days: {}, Total cost: {}", date, days, totalCost);
+        logger.debug("[ProjectPoint] Date: {}, Days: {}, Total kWh: {}, Total cost: {}", date, days, totalKwh, totalCost);
 
-        return new UsageProjectionDTO(date.toString(), totalCost, byApp);
+        return new UsageProjectionDTO(date.toString(), totalKwh, totalCost, byApp);
     }
 
     // ————————————————————————————————————————————————————————————————
