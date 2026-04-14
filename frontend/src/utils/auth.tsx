@@ -25,6 +25,11 @@ export const getCookie = (name: string): string | null => {
 
 export const getCsrfToken = () => getCookie('csrfToken')
 
+export const clearClientAuthState = () => {
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('user')
+}
+
 export const logout = () => {
   const csrfToken = getCsrfToken()
   if (csrfToken) {
@@ -36,8 +41,7 @@ export const logout = () => {
     })
   }
 
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('user')
+  clearClientAuthState()
   sessionStorage.clear()
   window.location.href = '/'
 }
@@ -60,6 +64,7 @@ export async function refreshAccessTokenIfNeeded(): Promise<string> {
 
   const csrfToken = getCsrfToken()
   if (!csrfToken) {
+    clearClientAuthState()
     throw new Error('No CSRF token available for refresh')
   }
 
