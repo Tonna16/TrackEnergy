@@ -39,7 +39,7 @@ class EnergyUsageServiceWeeklyProjectionTest {
 
         when(applianceRepo.findAllByUserIdAndActiveTrueAndDeletedFalse(anyLong())).thenReturn(List.of(appliance));
         when(userSettingsService.getSettingsByUserId(anyLong())).thenReturn(Optional.empty());
-        when(logRepo.findAllByUserId(anyLong())).thenReturn(List.of());
+        when(logRepo.countDistinctUsageDaysByUserId(anyLong())).thenReturn(10L);
 
         EnergyUsageService service = new EnergyUsageService(
             logRepo,
@@ -60,5 +60,6 @@ class EnergyUsageServiceWeeklyProjectionTest {
         assertEquals(expectedWeekStart.toString(), projections.get(0).getWeekStart());
         assertEquals(expectedWeekEnd.toString(), projections.get(0).getWeekEnd());
         assertEquals(expectedWeekStart.toString(), projections.get(0).getDate());
+        assertEquals(projections.get(0).getTotalKwh() * 0.12, projections.get(0).getTotalCost(), 0.000001);
     }
 }

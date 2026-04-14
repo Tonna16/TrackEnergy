@@ -11,7 +11,6 @@ import { formatCurrency } from '../utils/formatCurrency'
 import TopConsumers from '../components/TopConsumers'
 import WeeklyForecastCard from '../components/WeeklyForecastCard'
 const DEFAULT_CO2_FACTOR = 0.92 // kg CO₂ per kWh
-const GUEST_PROJECTION_RATE = 0.12 // server uses 0.12 USD/kWh for guest projections
 
 function formatNumber(num: number) {
   return num.toFixed(2)
@@ -28,7 +27,6 @@ function getStartOfWeek(): string {
 
 function useWeeklyComparison(
   appliances: Appliance[],
-  electricityRate: number,
   getApplianceTypeInfo?: (type: string) => { averageWattage?: number },
   isLoggedIn: boolean = false
 ): {
@@ -80,15 +78,14 @@ function useWeeklyComparison(
       }
 
       try {
-        const resProj = await api.get<{ totalCost?: number }[]>('energy-usage/projections', {
+        const resProj = await api.get<{ totalKwh?: number; totalCost?: number }[]>('energy-usage/projections', {
           params: { timeRange: 'weekly' },
         })
         if (cancelled) return
 
         const arr = Array.isArray(resProj.data) ? resProj.data : []
-        if (arr.length > 0 && typeof arr[0].totalCost === 'number' && electricityRate > 0) {
-          // backend totalCost likely in USD — convert to kWh by dividing by electricityRate
-          setPredicted(arr[0].totalCost / electricityRate)
+        if (arr.length > 0 && typeof arr[0].totalKwh === 'number') {
+          setPredicted(arr[0].totalKwh)
           setUsedFallback(false)
         } else {
           // fallback
@@ -109,7 +106,7 @@ function useWeeklyComparison(
     return () => {
       cancelled = true
     }
-  }, [appliances, electricityRate, getApplianceTypeInfo, isLoggedIn])
+  }, [appliances, getApplianceTypeInfo, isLoggedIn])
 
   return { actual, predicted, usedFallback }
 }
@@ -159,7 +156,6 @@ export default function Insights() {
   // Weekly comparison
   const { actual, predicted, usedFallback } = useWeeklyComparison(
     appliances,
-    settings.electricityRate,
     safeGetApplianceTypeInfo,
     isLoggedIn
   )

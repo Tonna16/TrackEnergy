@@ -2,6 +2,7 @@ export type WeeklyProjectionDTO = {
   date?: string
   weekStart?: string
   weekEnd?: string
+  totalKwh?: number
   totalCost: number
 }
 
@@ -60,6 +61,24 @@ export function toWeeklyProjectionMap(
 
     if (Number.isFinite(converted)) {
       map.set(weekStartKey, converted)
+    }
+  }
+
+  return map
+}
+
+export function toWeeklyProjectionKwhMap(projections: WeeklyProjectionDTO[]): Map<string, number> {
+  const map = new Map<string, number>()
+
+  for (const projection of projections) {
+    if (!projection.weekStart) continue
+
+    const weekStartKey = normalizeToMondayKey(projection.weekStart)
+    if (!weekStartKey) continue
+
+    const kwh = projection.totalKwh
+    if (typeof kwh === 'number' && Number.isFinite(kwh)) {
+      map.set(weekStartKey, kwh)
     }
   }
 
