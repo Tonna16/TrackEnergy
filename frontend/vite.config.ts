@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    globals: true,
+  },
   define: {
     // Opt-in to the v7 relativeSplatPath future flag
     'process.env.REACT_ROUTER_FUTURE_FLAGS': JSON.stringify({ v7_relativeSplatPath: true }),
