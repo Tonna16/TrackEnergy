@@ -107,6 +107,7 @@ type AppContextType = {
   authStatus: 'checking' | 'authenticated' | 'unauthenticated'
   authError: { kind: 'transient'; message: string } | null
   resolveAuthState(): Promise<void>
+  syncAuthModeWithToken(): Promise<void>
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -246,6 +247,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       })
     }
   }, [authReady])
+
+  const syncAuthModeWithToken = useCallback(async () => {
+    const hasToken = Boolean(getAuthToken())
+    setAppMode(hasToken ? 'live' : 'simulated')
+    await resolveAuthState()
+  }, [resolveAuthState])
 
   useEffect(() => {
     void resolveAuthState()
@@ -599,6 +606,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         authStatus,
         authError,
         resolveAuthState,
+        syncAuthModeWithToken,
       }}
     >
       {children}

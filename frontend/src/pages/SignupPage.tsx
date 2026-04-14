@@ -8,6 +8,7 @@ import {
   saveAuthToken,
   saveUser,
 } from '../utils/auth';
+import { useAppContext } from '../context/AppContext';
 
 interface LocationState {
   from?: { pathname: string };
@@ -25,6 +26,7 @@ const SignupPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const { syncAuthModeWithToken } = useAppContext();
 
   const passwordToggle = usePasswordToggle();
   const confirmToggle = usePasswordToggle();
@@ -47,6 +49,7 @@ const SignupPage: React.FC = () => {
 
       saveAuthToken(res.data.accessToken);
       saveUser(res.data.user);
+      await syncAuthModeWithToken();
 
       navigate(from, { replace: true });
     } catch (err: any) {

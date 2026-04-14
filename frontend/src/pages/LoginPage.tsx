@@ -8,6 +8,7 @@ import {
   saveAuthToken,
   saveUser,
 } from '../utils/auth';
+import { useAppContext } from '../context/AppContext';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const LoginPage: React.FC = () => {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const passwordToggle = usePasswordToggle();
+  const { syncAuthModeWithToken } = useAppContext();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +37,7 @@ const LoginPage: React.FC = () => {
       // Store tokens and user info
       saveAuthToken(res.data.accessToken);
       saveUser(res.data.user);
+      await syncAuthModeWithToken();
 
       // Redirect to where they came from, or dashboard
       navigate(from, { replace: true });
