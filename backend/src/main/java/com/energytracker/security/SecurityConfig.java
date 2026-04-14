@@ -50,11 +50,22 @@ public class SecurityConfig {
                 // Operational/docs endpoints (if enabled)
                 .requestMatchers("/actuator/health", "/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**")
                     .permitAll()
+                // Guest-safe read/fallback endpoints
+                .requestMatchers(HttpMethod.POST, "/api/energy-usage/projections")
+                    .permitAll()
+                .requestMatchers(
+                    "/api/energy-usage/summary",
+                    "/api/energy-usage/annual-cost",
+                    "/api/energy-usage/forecasted-daily-cost",
+                    "/api/comparisons",
+                    "/api/comparisons/**"
+                )
+                    .permitAll()
                 // Role-scoped API endpoints
                 .requestMatchers("/api/forecast/**")
                     .hasRole("USER")
                 // Authenticated API endpoints
-                .requestMatchers("/api/energy-usage/**", "/api/notifications/**", "/api/appliances/**", "/api/settings/**", "/api/profile", "/api/comparisons/**")
+                .requestMatchers("/api/energy-usage/**", "/api/notifications/**", "/api/appliances/**", "/api/settings/**", "/api/profile")
                     .authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/appliances")
                     .authenticated()
