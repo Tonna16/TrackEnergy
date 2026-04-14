@@ -7,8 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,57 +16,56 @@ import java.util.List;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
+
+    private final JwtUtil jwtUtil;
 
     public JwtAuthFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
-    
 
     @Override
-protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-        throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+            throws ServletException, IOException {
 
-    System.out.println("[JwtAuthFilter] 🔍 Filtering request to: " + req.getRequestURI());
+        String header = req.getHeader("Authorization");
+        boolean bearerTokenPresent = header != null && header.startsWith("Bearer ");
 
-    String header = req.getHeader("Authorization");
-    System.out.println("[JwtAuthFilter] Authorization header: " + header);
+        logger.debug("[JwtAuthFilter] Processing request (uri: {}, bearerTokenPresent: {})",
+            req.getRequestURI(),
+            bearerTokenPresent);
 
-    if (header == null || !header.startsWith("Bearer ")) {
-        System.out.println("[JwtAuthFilter] ⚠️ No bearer token found - allowing guest access");
+        if (!bearerTokenPresent) {
+            logger.debug("[JwtAuthFilter] No bearer token present; continuing as unauthenticated request");
+            chain.doFilter(req, res);
+            return;
+        }
+
+        String token = header.substring(7);
+        boolean valid = jwtUtil.validateAccessToken(token);
+        if (!valid) {
+            logger.warn("[JwtAuthFilter] Rejecting request due to invalid access token (uri: {})", req.getRequestURI());
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.getWriter().write("{\"error\":\"Invalid or expired token\"}");
+            return;
+        }
+
+        String email = jwtUtil.extractEmail(token);
+        if (email == null) {
+            logger.warn("[JwtAuthFilter] Rejecting request due to missing subject in validated token (uri: {})", req.getRequestURI());
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.getWriter().write("{\"error\":\"Invalid token\"}");
+            return;
+        }
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+            var auth = new UsernamePasswordAuthenticationToken(email, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            logger.info("[JwtAuthFilter] Authentication context established for request (uri: {})", req.getRequestURI());
+        }
+
         chain.doFilter(req, res);
-        return;
+        logger.debug("[JwtAuthFilter] Request processing completed (uri: {})", req.getRequestURI());
     }
-
-    String token = header.substring(7);
-    System.out.println("[JwtAuthFilter] Raw token: " + token);
-    System.out.println("[JwtAuthFilter] JwtAuthFilter engaged for URI: " + req.getRequestURI());
-
-    boolean valid = jwtUtil.validateAccessToken(token);
-    if (!valid) {
-        System.out.println("[JwtAuthFilter] ❌ JWT invalid or expired - sending 401 Unauthorized");
-        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        res.getWriter().write("{\"error\":\"Invalid or expired token\"}");
-        return; // Do NOT proceed further.
-    }
-
-    String email = jwtUtil.extractEmail(token);
-    if (email == null) {
-        System.out.println("[JwtAuthFilter] ❌ Failed to extract email from token - sending 401 Unauthorized");
-        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        res.getWriter().write("{\"error\":\"Invalid token\"}");
-        return;
-    }
-
-    if (SecurityContextHolder.getContext().getAuthentication() == null) {
-        var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        var auth = new UsernamePasswordAuthenticationToken(email, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        System.out.println("[JwtAuthFilter] ✅ Authenticated email: " + email);
-    }
-
-    chain.doFilter(req, res);
-    System.out.println("[JwtAuthFilter] ✅ Finished filtering " + req.getRequestURI());
-}
 }

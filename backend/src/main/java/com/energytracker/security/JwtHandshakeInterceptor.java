@@ -1,16 +1,19 @@
 package com.energytracker.security;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import java.util.Enumeration;
 import java.util.Map;
 
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtHandshakeInterceptor.class);
 
     private final JwtUtil jwtUtil;
 
@@ -22,63 +25,52 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     public boolean beforeHandshake(ServerHttpRequest request,
                                    ServerHttpResponse response,
                                    WebSocketHandler wsHandler,
-                                   Map<String, Object> attributes) throws Exception {
+                                   Map<String, Object> attributes) {
 
-        System.out.println("[JwtHandshakeInterceptor] Incoming WebSocket handshake request");
+        logger.debug("[JwtHandshakeInterceptor] WebSocket handshake started");
 
         String token = null;
 
         if (request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest httpServletRequest = servletRequest.getServletRequest();
 
-            System.out.println("[JwtHandshakeInterceptor] Request URI: " + httpServletRequest.getRequestURI());
-
-            // Print headers for debugging
-            Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                System.out.println("  " + headerName + ": " + httpServletRequest.getHeader(headerName));
-            }
-
-            // First try Authorization header (optional for fallback)
             String authHeader = httpServletRequest.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            boolean bearerTokenPresent = authHeader != null && authHeader.startsWith("Bearer ");
+            logger.debug("[JwtHandshakeInterceptor] Handshake auth material detected (uri: {}, authorizationBearerPresent: {})",
+                httpServletRequest.getRequestURI(),
+                bearerTokenPresent);
+
+            if (bearerTokenPresent) {
                 token = authHeader.substring(7);
-                System.out.println("[JwtHandshakeInterceptor] Found JWT in Authorization header.");
             }
 
-            // Then try query param — your frontend uses this!
-            if (token == null) {
+            if (token == null || token.isBlank()) {
                 token = httpServletRequest.getParameter("token");
-                if (token != null) {
-                    System.out.println("[JwtHandshakeInterceptor] Found JWT in query parameter.");
-                }
+                logger.debug("[JwtHandshakeInterceptor] Falling back to token query parameter (present: {})",
+                    token != null && !token.isBlank());
             }
 
-            // Final check
-            if (token != null) {
-                System.out.println("[JwtHandshakeInterceptor] Raw JWT token: " + token);
-            } else {
-                System.out.println("[JwtHandshakeInterceptor] ❌ No JWT token found in handshake. Rejecting.");
+            boolean tokenPresent = token != null && !token.isBlank();
+            if (!tokenPresent) {
+                logger.warn("[JwtHandshakeInterceptor] Rejecting handshake: token not present");
                 return false;
             }
 
-            // Validate and extract email
             String email;
             try {
                 email = jwtUtil.extractEmail(token);
             } catch (Exception e) {
-                System.out.println("[JwtHandshakeInterceptor] ❌ Invalid JWT token. " + e.getMessage());
+                logger.warn("[JwtHandshakeInterceptor] Rejecting handshake: token parsing failed");
                 return false;
             }
 
             if (email == null) {
-                System.out.println("[JwtHandshakeInterceptor] ❌ Could not extract email from token.");
+                logger.warn("[JwtHandshakeInterceptor] Rejecting handshake: token subject missing");
                 return false;
             }
 
             attributes.put("userEmail", email);
-            System.out.println("[JwtHandshakeInterceptor] ✅ WebSocket handshake authenticated for user: " + email);
+            logger.info("[JwtHandshakeInterceptor] Handshake authenticated successfully");
         }
 
         return true;
@@ -89,9 +81,10 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                ServerHttpResponse response,
                                WebSocketHandler wsHandler,
                                Exception ex) {
-        System.out.println("[JwtHandshakeInterceptor] Handshake completed.");
         if (ex != null) {
-            System.out.println("[JwtHandshakeInterceptor] Exception during handshake: " + ex.getMessage());
+            logger.warn("[JwtHandshakeInterceptor] Handshake completed with exception");
+        } else {
+            logger.debug("[JwtHandshakeInterceptor] Handshake completed");
         }
     }
 }
