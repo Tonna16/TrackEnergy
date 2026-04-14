@@ -92,13 +92,13 @@ class EnergyUsageServiceAggregationRegressionTest {
         UsageSummaryDTO overall = service.getUsageSummary(7L);
         UsageSummaryDTO range = service.getUsageSummaryForRange(7L, 7);
 
-        assertEquals(100.0, overall.getTotalKWh(), 0.0001);
+        assertEquals(100.0, overall.getTotalKwh(), 0.0001);
         assertEquals(20.0, overall.getTotalCost(), 0.0001);
-        assertEquals(2.0, overall.getAvgDailyCost(), 0.0001);
+        assertEquals(2.0, overall.getAverageDailyKwh(), 0.0001);
 
-        assertEquals(30.0, range.getTotalKWh(), 0.0001);
+        assertEquals(30.0, range.getTotalKwh(), 0.0001);
         assertEquals(6.0, range.getTotalCost(), 0.0001);
-        assertEquals(2.0, range.getAvgDailyCost(), 0.0001);
+        assertEquals(2.0, range.getAverageDailyKwh(), 0.0001);
 
         verify(logRepo, never()).findAllByUserId(anyLong());
     }
