@@ -8,10 +8,18 @@ import { useEffect, useState } from 'react'
 import api from '../utils/api'
 
 export default function Dashboard() {
-  const { appliances, dailyUsageSeries, convertCurrency } = useAppContext()
+  const {
+    appliances,
+    trackedAppliances,
+    activeApplianceCount,
+    inactiveApplianceCount,
+    dailyUsageSeries,
+    convertCurrency,
+  } = useAppContext()
   const navigate = useNavigate()
   const isLoggedIn = Boolean(localStorage.getItem('accessToken'))
   const hasLimitedData = dailyUsageSeries.length < 5
+  const [showInactive, setShowInactive] = useState(false)
 
   // State for average daily cost from chart
   const [avgDailyCost, setAvgDailyCost] = useState<number | null>(null)
@@ -32,7 +40,7 @@ export default function Dashboard() {
       return
     }
 
-    if (appliances.length === 0) {
+    if (trackedAppliances.length === 0) {
       setForecastedDailyCost(null)
       setCostAvailabilityMessage('Insufficient data')
       return
@@ -57,7 +65,9 @@ export default function Dashboard() {
         setForecastedDailyCost(null)
         setCostAvailabilityMessage('Unavailable')
       })
-  }, [isLoggedIn, appliances, convertCurrency])
+  }, [isLoggedIn, trackedAppliances, convertCurrency])
+
+  const applianceCards = showInactive ? appliances : trackedAppliances
 
 
   return (
@@ -89,10 +99,27 @@ export default function Dashboard() {
       </div>
 
       <div>
-        <h2 className="text-lg font-medium mb-4">Your Appliances</h2>
-        {appliances.length > 0 ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-medium">Your Appliances</h2>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+              Tracking {activeApplianceCount} active appliance{activeApplianceCount === 1 ? '' : 's'}
+            </span>
+            {inactiveApplianceCount > 0 && (
+              <label className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                <input
+                  type="checkbox"
+                  checked={showInactive}
+                  onChange={e => setShowInactive(e.target.checked)}
+                />
+                Show inactive ({inactiveApplianceCount})
+              </label>
+            )}
+          </div>
+        </div>
+        {applianceCards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {appliances.map((a) => (
+            {applianceCards.map((a) => (
               <ApplianceCard key={a.id} appliance={a} />
             ))}
           </div>
@@ -103,9 +130,13 @@ export default function Dashboard() {
               alt="Empty state"
               className="w-64 h-48 object-cover rounded-lg mb-4"
             />
-            <h3 className="text-lg font-medium">No appliances added yet</h3>
+            <h3 className="text-lg font-medium">
+              {appliances.length > 0 ? 'No active appliances are being tracked' : 'No appliances added yet'}
+            </h3>
             <p className="text-gray-500 text-center max-w-md mt-2 mb-4">
-              Start monitoring your energy usage by adding your first appliance.
+              {appliances.length > 0
+                ? 'Activate an appliance or enable “Show inactive” to review your full list.'
+                : 'Start monitoring your energy usage by adding your first appliance.'}
             </p>
             <button
               onClick={() => navigate('/add-appliance')}

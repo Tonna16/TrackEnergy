@@ -3,7 +3,6 @@ import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext, Appliance } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
-import { isVisibleAppliance } from '../utils/applianceVisibility'
 import { normalizeToMondayKey, toWeeklyProjectionKwhMap, toWeeklyProjectionMap } from '../utils/weeklyProjectionMapper'
 
 type ProjectionDTO = {
@@ -34,7 +33,7 @@ function isoDate(d: Date) {
  * - attaches server projection if starts match; otherwise uses client fallback estimate when appliances exist
  */
 export default function WeeklyForecastCard() {
-  const { appliances, convertCurrency, formatConvertedCost, costFromKwh } = useAppContext()
+  const { appliances, trackedAppliances, convertCurrency, formatConvertedCost, costFromKwh } = useAppContext()
   const token = getAuthToken()
 
   const [loading, setLoading] = useState(false)
@@ -151,7 +150,7 @@ export default function WeeklyForecastCard() {
     const projectedKwh = currentWeekKey ? projKwhMap.get(currentWeekKey) : undefined
   
     let forecastCost: number | null = null
-    const visibleApps = appliances.filter(a => isVisibleAppliance(a, false))
+    const visibleApps = trackedAppliances
   
     if (typeof projVal === 'number' && Number.isFinite(projVal)) {
       forecastCost = projVal
@@ -182,7 +181,7 @@ export default function WeeklyForecastCard() {
       forecastCost,
       projectedKwh: typeof projectedKwh === 'number' && Number.isFinite(projectedKwh) ? projectedKwh : null,
     }
-  }, [earliestDateStr, fallbackStart, usageByDate, projections, convertCurrency, appliances, costFromKwh])
+  }, [earliestDateStr, fallbackStart, usageByDate, projections, convertCurrency, trackedAppliances, costFromKwh])
   
   const fmtCost = (val: number | null | undefined) =>
     typeof val === 'number' && Number.isFinite(val) ? formatConvertedCost(val) : '—'

@@ -1,6 +1,6 @@
 // src/components/TopConsumers.tsx
 import React, { useMemo } from 'react'
-import { useAppContext, Appliance, isVisibleAppliance } from '../context/AppContext'
+import { useAppContext } from '../context/AppContext'
 
 type Props = {
   topN?: number
@@ -8,22 +8,16 @@ type Props = {
 
 export default function TopConsumers({ topN = 5 }: Props) {
   const {
-    appliances,
+    trackedAppliances,
     costFromKwh,
     formatConvertedCost,
-    getApplianceTypeInfo,
     forecastedDailyCost,
     symbol,
   } = useAppContext()
 
-  const visible = useMemo(
-    () => appliances.filter(a => isVisibleAppliance(a, false)),
-    [appliances]
-  )
-
   const rows = useMemo(() => {
     // compute per-appliance daily kWh
-    const appliancesWithKwh = visible.map(a => {
+    const appliancesWithKwh = trackedAppliances.map(a => {
       const dailyKwh =
         typeof a.estimatedDailyKWh === 'number' && !isNaN(a.estimatedDailyKWh)
           ? a.estimatedDailyKWh
@@ -52,7 +46,7 @@ export default function TopConsumers({ topN = 5 }: Props) {
       })
       .sort((a, b) => b.allocatedDailyCost - a.allocatedDailyCost)
       .slice(0, topN)
-  }, [visible, costFromKwh, forecastedDailyCost, topN])
+  }, [trackedAppliances, costFromKwh, forecastedDailyCost, topN])
 
   return (
     <div className="card">
