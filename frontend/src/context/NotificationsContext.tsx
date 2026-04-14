@@ -20,20 +20,32 @@ export interface Notification {
   createdAt: string;
   read: boolean;
   deleted: boolean;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+  category?: string;
+  actionUrl?: string;
+  dedupeKey?: string;
+  expiresAt?: string;
+}
+
+export interface NotificationPayload {
+  type: Notification['type'];
+  title: string;
+  message: string;
+  weekStartDate?: string;
+  actualUsage?: number;
+  forecastUsage?: number;
+  severity?: Notification['severity'];
+  category?: string;
+  actionUrl?: string;
+  dedupeKey?: string;
+  expiresAt?: string;
 }
 
 interface NotificationsContextType {
   notifications: Notification[];
   unreadCount: number;
   loading: boolean;
-  addNotification: (opts: {
-    type: Notification['type'];
-    title: string;
-    message: string;
-    weekStartDate?: string;
-    actualUsage?: number;
-    forecastUsage?: number;
-  }) => Promise<void>;
+  addNotification: (opts: NotificationPayload) => Promise<void>;
   markAsRead: (id: number) => Promise<void>;
   deleteNotification: (id: number) => Promise<void>;
   notifyForecastMode: (mode: string) => Promise<void>;
@@ -149,14 +161,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
   
 
   // Stub implementations—reuse your existing logic here:
-  const addNotification = async (opts: {
-    type: Notification['type'];
-    title: string;
-    message: string;
-    weekStartDate?: string;
-    actualUsage?: number;
-    forecastUsage?: number;
-  }) => {
+  const addNotification = async (opts: NotificationPayload) => {
     try {
       await api.post('notifications', opts);
     } catch (err) {
