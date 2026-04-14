@@ -5,6 +5,7 @@ import com.energytracker.model.*;
 import com.energytracker.repository.*;
 import com.energytracker.service.*;
 import com.util.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -294,16 +295,29 @@ public class EnergyUsageService {
         return dailyCost;
     }
 
+    private Long getAuthenticatedUserId() {
+        return SecurityUtils.getAuthenticatedUser().getId();
+    }
+
     @Transactional
     public EnergyUsageLog logUsage(Long applianceId, LocalDate date, double kWhUsed) {
-        logger.info("logUsage called with applianceId={}, date={}, kWhUsed={}", applianceId, date, kWhUsed);
+        Long authenticatedUserId = getAuthenticatedUserId();
+        logger.info("logUsage called with applianceId={}, userId={}, date={}, kWhUsed={}", applianceId, authenticatedUserId, date, kWhUsed);
 
-        var appOpt = applianceRepo.findById(applianceId)
-        .filter(a -> a.isActive() && !a.isDeleted());
+        boolean applianceOwnedByCaller = applianceRepo.existsByIdAndUserId(applianceId, authenticatedUserId);
+        if (!applianceOwnedByCaller) {
+            if (applianceRepo.existsById(applianceId)) {
+                logger.warn("Forbidden appliance write attempt by userId={} for applianceId={}", authenticatedUserId, applianceId);
+                throw new AccessDeniedException("Appliance is not owned by the authenticated user");
+            }
+            logger.warn("Appliance not found: applianceId={} requested by userId={}", applianceId, authenticatedUserId);
+            throw new NoSuchElementException("Appliance not found");
+        }
 
+        var appOpt = applianceRepo.findByIdAndUserIdAndActiveTrueAndDeletedFalse(applianceId, authenticatedUserId);
         if (appOpt.isEmpty()) {
-            logger.warn("Appliance not found or inactive: applianceId={}", applianceId);
-            throw new IllegalArgumentException("Appliance not found or inactive");
+            logger.warn("Owned appliance is inactive or deleted: applianceId={}, userId={}", applianceId, authenticatedUserId);
+            throw new NoSuchElementException("Appliance not found");
         }
 
         var app = appOpt.get();
