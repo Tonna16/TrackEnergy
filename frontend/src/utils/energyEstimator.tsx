@@ -1,5 +1,5 @@
 import type { Appliance } from '../context/AppContext'
-import { isVisibleAppliance } from '../context/AppContext'
+import { isVisibleAppliance } from './applianceVisibility'
 // 1. Static monthly seasonal multipliers
 const SEASONAL: Record<number, number> = {
   0: 1.05, 1: 1.02, 2: 0.98, 3: 0.95,
@@ -103,7 +103,7 @@ export function generateEstimate({
         !app.daysPerWeek
       ) return
     
-      if (!includeInactive && (!app.active || app.deleted)) return
+      if (!isVisibleAppliance(app, includeInactive)) return
 
       const baseDaily = getKwhPerDay(app, getApplianceTypeInfo)
       const intervalKwh = baseDaily * (monthly ? d.getDate() : daysPer)
@@ -142,7 +142,7 @@ export function estimateAnnualFromAppliances({
   let totalKwhPerDay = 0
 
   for (const app of appliances) {
-    if (!app.active || app.deleted) continue
+    if (!isVisibleAppliance(app, false)) continue
     totalKwhPerDay += getKwhPerDay(app, getApplianceTypeInfo)
   }
   

@@ -178,6 +178,8 @@ export default function ApplianceForm() {
           formData.estimatedDailyKWh !== ''
             ? +formData.estimatedDailyKWh
             : undefined,
+        active: true,
+        deleted: false,
       }
       // compute daily usage
       const newUsage =
