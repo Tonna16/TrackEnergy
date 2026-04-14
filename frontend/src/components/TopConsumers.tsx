@@ -1,6 +1,7 @@
 // src/components/TopConsumers.tsx
 import React, { useMemo } from 'react'
 import { useAppContext } from '../context/AppContext'
+import { getKwhPerDay } from '../utils/energyEstimator'
 
 type Props = {
   topN?: number
@@ -21,7 +22,7 @@ export default function TopConsumers({ topN = 5 }: Props) {
       const dailyKwh =
         typeof a.estimatedDailyKWh === 'number' && !isNaN(a.estimatedDailyKWh)
           ? a.estimatedDailyKWh
-          : (a.wattage * a.hoursPerDay * (a.daysPerWeek / 7)) / 1000
+          : getKwhPerDay(a)
       return { id: a.id, name: a.name, dailyKwh }
     })
 

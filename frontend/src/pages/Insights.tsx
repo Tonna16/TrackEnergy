@@ -6,7 +6,7 @@ import { Info } from 'lucide-react'
 import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useNotificationsCtx } from '../context/NotificationsContext'
-import { estimateAnnualFromAppliances } from '../utils/energyEstimator'
+import { estimateAnnualFromAppliances, getKwhPerDay, getKwhPerWeek } from '../utils/energyEstimator'
 import { formatCurrency } from '../utils/formatCurrency'
 import TopConsumers from '../components/TopConsumers'
 import WeeklyForecastCard from '../components/WeeklyForecastCard'
@@ -43,10 +43,7 @@ function useWeeklyComparison(
 
     const computeClientFallbackKwh = () =>
       appliances.reduce<number>((sum, a) => {
-        const avgW = getApplianceTypeInfo?.(a.type)?.averageWattage ?? a.wattage
-        const wattage = a.isHighEfficiency ? avgW * 0.8 : avgW
-        const dailyKwh = (wattage * a.hoursPerDay * a.daysPerWeek) / 7 / 1000
-        return sum + dailyKwh * 7
+        return sum + getKwhPerWeek(a, getApplianceTypeInfo)
       }, 0)
 
     const fetchData = async () => {
@@ -264,8 +261,11 @@ try {
       appliances
         .map(a => {
           const avgW = getApplianceTypeInfo(a.type)?.averageWattage ?? a.wattage
-          const usage = (a.wattage * a.hoursPerDay * a.daysPerWeek) / 7 / 1000
-          const avgUsage = (avgW * a.hoursPerDay * a.daysPerWeek) / 7 / 1000
+          const usage = getKwhPerDay(a)
+          const avgUsage = getKwhPerDay(
+            { ...a, isHighEfficiency: false },
+            () => ({ averageWattage: avgW })
+          )
           return { name: a.name, usage, avgUsage }
         })
         .sort((x, y) => y.usage - x.usage),
@@ -296,7 +296,7 @@ try {
     currentlyHigh.forEach(name => {
       if (!prevHighRef.current.includes(name)) {
         const app = appliances.find(a => a.name === name)!
-        const estKwh = (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000
+        const estKwh = getKwhPerDay(app, safeGetApplianceTypeInfo)
         notifyHighUsageAppliance(name, estKwh).catch(console.error)
       }
     })

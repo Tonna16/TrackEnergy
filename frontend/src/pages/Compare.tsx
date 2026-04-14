@@ -6,6 +6,7 @@ import { nationalAverages } from '../data/applianceDatabase'
 import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react'
 import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
+import { getKwhPerDay } from '../utils/energyEstimator'
 
 function formatNumber(n: number, digits = 1) {
   return Number.isFinite(n) ? n.toFixed(digits) : '0.0'
@@ -55,7 +56,7 @@ export default function Compare() {
     return appliances
       .map(appliance => {
         const applianceType = appliance.type
-        const userDailyUsage = (appliance.wattage * appliance.hoursPerDay * (appliance.daysPerWeek / 7)) / 1000
+        const userDailyUsage = getKwhPerDay(appliance)
 
         // Prefer national per-appliance daily average if available; else fallback to type average wattage -> daily kWh
         const dbAvgKwh =
@@ -69,7 +70,10 @@ export default function Compare() {
           const typeInfo = getApplianceTypeInfo(applianceType)
           const avgWatt = typeInfo?.averageWattage
           if (typeof avgWatt === 'number' && avgWatt > 0) {
-            avgDailyUsage = (avgWatt * appliance.hoursPerDay * (appliance.daysPerWeek / 7)) / 1000
+            avgDailyUsage = getKwhPerDay(
+              { ...appliance, isHighEfficiency: false },
+              () => ({ averageWattage: avgWatt })
+            )
           } else {
             avgDailyUsage = 1 // safe fallback
           }
