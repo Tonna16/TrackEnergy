@@ -63,6 +63,40 @@ public interface EnergyUsageLogRepository extends JpaRepository<EnergyUsageLog, 
     """)
     List<EnergyUsageLog> findAllByUserId(Long userId);
 
+    @Query("""
+      SELECT COUNT(DISTINCT u.date) FROM EnergyUsageLog u
+      JOIN u.appliance a
+      WHERE a.user.id = :userId
+        AND a.active = true
+        AND a.deleted = false
+    """)
+    long countDistinctUsageDaysByUserId(@Param("userId") Long userId);
+
+    @Query("""
+      SELECT COALESCE(SUM(u.kWhUsed), 0), COUNT(DISTINCT u.date)
+      FROM EnergyUsageLog u
+      JOIN u.appliance a
+      WHERE a.user.id = :userId
+        AND a.active = true
+        AND a.deleted = false
+    """)
+    Object[] summarizeUsageByUserId(@Param("userId") Long userId);
+
+    @Query("""
+      SELECT COALESCE(SUM(u.kWhUsed), 0), COUNT(DISTINCT u.date)
+      FROM EnergyUsageLog u
+      JOIN u.appliance a
+      WHERE a.user.id = :userId
+        AND a.active = true
+        AND a.deleted = false
+        AND u.date BETWEEN :start AND :end
+    """)
+    Object[] summarizeUsageByUserIdAndDateBetween(
+        @Param("userId") Long userId,
+        @Param("start") LocalDate start,
+        @Param("end") LocalDate end
+    );
+
     // Make this one explicit so inactive/deleted appliances are excluded when used
     @Query("""
       SELECT u FROM EnergyUsageLog u

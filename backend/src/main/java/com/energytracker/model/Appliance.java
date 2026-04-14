@@ -11,7 +11,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "appliances")
+@Table(
+    name = "appliances",
+    indexes = {
+        @Index(name = "idx_appliances_user_status", columnList = "user_id,active,deleted")
+    }
+)
 @EntityListeners(AuditingEntityListener.class) // Enables @CreatedDate & @LastModifiedDate
 public class Appliance {
 
