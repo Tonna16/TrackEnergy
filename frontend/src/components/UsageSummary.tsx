@@ -33,10 +33,12 @@ export default function UsageSummary({
     return bySize[sizeKey] ?? nationalAverages.daily
   }, [settings.householdSize])
 
-  // Efficiency % (match Compare.tsx: positive = worse, negative = better)
-  const efficiencyPercent = useMemo(() => {
-    if (!totalDailyUsage || !baselineDaily) return null
-    return Math.round(((totalDailyUsage - baselineDaily) / baselineDaily) * 100)
+  // Efficiency vs baseline: positive = better (lower usage), negative = worse (higher usage)
+  const efficiencyScore = useMemo(() => {
+    if (!Number.isFinite(totalDailyUsage) || !Number.isFinite(baselineDaily) || baselineDaily <= 0) return null
+    const rawScore = ((baselineDaily - totalDailyUsage) / baselineDaily) * 100
+    const clampedScore = Math.max(-999, Math.min(999, rawScore))
+    return Number(clampedScore.toFixed(1))
   }, [baselineDaily, totalDailyUsage])
 
   const [showTooltip, setShowTooltip] = useState(false)
@@ -69,11 +71,11 @@ export default function UsageSummary({
     }
   }, [canRenderNumericCost, displayedCost, settings?.currency, statusText])
 
-  const getEfficiencyColor = (percent: number | null) => {
-    if (percent === null) return 'text-gray-400'
-    if (percent < 0) return 'text-green-600 dark:text-green-400' // better than average
-    if (percent <= 20) return 'text-yellow-600 dark:text-yellow-400' // slightly worse
-    return 'text-red-600 dark:text-red-400' // much worse
+  const getEfficiencyColor = (score: number | null) => {
+    if (score === null) return 'text-gray-400'
+    if (score >= 10) return 'text-green-600 dark:text-green-400'
+    if (score >= 0) return 'text-yellow-600 dark:text-yellow-400'
+    return 'text-red-600 dark:text-red-400'
   }
 
   return (
@@ -111,7 +113,7 @@ export default function UsageSummary({
       <div className="relative bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center">
-            Efficiency (%)
+            Efficiency vs Baseline
             <Info
               className="h-4 w-4 ml-1 text-gray-400 cursor-pointer"
               tabIndex={0}
@@ -127,15 +129,18 @@ export default function UsageSummary({
         {showTooltip && (
           <div className="absolute top-8 left-0 bg-gray-700 text-white text-xs rounded px-3 py-2 w-52 z-10 shadow-lg">
             <div className="absolute -top-2 left-4 w-3 h-3 bg-gray-700 rotate-45" />
-            Efficiency compares your daily energy use to the national average for your household size.
+            Positive values mean you use less energy than baseline (better). Negative values mean you use more than baseline.
           </div>
         )}
 
-        {efficiencyPercent === null ? (
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No exact value</p>
+        {efficiencyScore === null ? (
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Baseline unavailable
+          </p>
         ) : (
-          <p className={`mt-2 text-2xl font-semibold ${getEfficiencyColor(efficiencyPercent)}`}>
-            {efficiencyPercent}%
+          <p className={`mt-2 text-2xl font-semibold ${getEfficiencyColor(efficiencyScore)}`}>
+            {efficiencyScore > 0 ? '+' : ''}
+            {efficiencyScore.toFixed(1)}%
           </p>
         )}
 
