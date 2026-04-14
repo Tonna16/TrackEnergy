@@ -5,6 +5,18 @@ import { refreshAccessTokenIfNeeded } from './auth'
 let client: Client | null = null
 let connectPromise: Promise<void> | null = null
 
+function buildSockJsUrl(token: string): string {
+  const configuredUrl = import.meta.env.VITE_WS_URL?.trim()
+  const wsUrl = configuredUrl && configuredUrl.length > 0 ? configuredUrl : '/ws'
+
+  const baseUrl = /^https?:\/\//i.test(wsUrl)
+    ? new URL(wsUrl)
+    : new URL(wsUrl.startsWith('/') ? wsUrl : `/${wsUrl}`, window.location.origin)
+
+  baseUrl.searchParams.set('token', token)
+  return baseUrl.toString()
+}
+
 export async function connectWebSocket(onConnected?: () => void): Promise<void> {
   if (client && client.connected) {
     onConnected?.()
@@ -17,7 +29,7 @@ export async function connectWebSocket(onConnected?: () => void): Promise<void> 
   const token = await refreshAccessTokenIfNeeded()
   if (!token) return Promise.reject(new Error('No valid token found for WebSocket connection'))
 
-  const sockJSUrl = `http://localhost:8080/ws?token=${encodeURIComponent(token)}`
+  const sockJSUrl = buildSockJsUrl(token)
 
   client = new Client({
     webSocketFactory: () => new SockJS(sockJSUrl),
