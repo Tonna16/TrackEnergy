@@ -4,7 +4,6 @@ import com.energytracker.model.Appliance;
 import com.energytracker.model.EnergyUsageLog;
 import com.energytracker.repository.EnergyUsageLogRepository;
 import com.energytracker.repository.ApplianceRepository;
-import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -23,10 +22,13 @@ public class TimeSeriesForecaster {
     private final ApplianceRepository applianceRepo;
     private static final Logger logger = LoggerFactory.getLogger(TimeSeriesForecaster.class);
 
-    // Optimized smoothing parameters (validated ranges)
-    private static final double ALPHA = 0.3;  // Level smoothing - lower for more stability
-    private static final double BETA = 0.1;   // Trend smoothing - lower to reduce trend overreaction
-    private static final double GAMMA = 0.15; // Seasonal smoothing - lower for stable seasonality
+    // Default smoothing parameters
+    private static final double DEFAULT_ALPHA = 0.3;
+    private static final double DEFAULT_BETA = 0.1;
+    private static final double DEFAULT_GAMMA = 0.15;
+    private static final double[] ALPHA_GRID = {0.1, 0.3, 0.5};
+    private static final double[] BETA_GRID = {0.05, 0.1, 0.2};
+    private static final double[] GAMMA_GRID = {0.1, 0.15, 0.2};
     private static final int SEASON_LENGTH = 7;
     private static final double AGGREGATE_TOLERANCE = 0.15;
     private static final int MIN_HISTORY_FOR_FORECAST = 3;
@@ -71,15 +73,19 @@ public class TimeSeriesForecaster {
         }
 
         if (series.size() < 2 * SEASON_LENGTH) {
-            double forecast = holtLinearForecast(series);
+            SmoothingParams tuned = tuneHoltLinearParameters(series);
+            double forecast = holtLinearForecast(series, tuned.alpha, tuned.beta);
             forecast = applyDayOfWeekAdjustment(forecast, LocalDate.now(), series);
-            logger.info("[Forecast] Using Holt linear forecast with day adjustment: {}", forecast);
+            logger.info("[Forecast] Using Holt linear forecast with day adjustment: {} (alpha={}, beta={})",
+                    forecast, tuned.alpha, tuned.beta);
             return Math.max(0, forecast);
         }
 
-        double forecast = holtWintersAdditiveForecast(series, SEASON_LENGTH);
+        SmoothingParams tuned = tuneHoltWintersParameters(series, SEASON_LENGTH);
+        double forecast = holtWintersAdditiveForecast(series, SEASON_LENGTH, tuned.alpha, tuned.beta, tuned.gamma);
         forecast = applyDayOfWeekAdjustment(forecast, LocalDate.now(), series);
-        logger.info("[Forecast] Forecasted kWh for appliance {} is {}", applianceId, forecast);
+        logger.info("[Forecast] Forecasted kWh for appliance {} is {} (alpha={}, beta={}, gamma={})",
+                applianceId, forecast, tuned.alpha, tuned.beta, tuned.gamma);
         return Math.max(0, forecast);
     }
 
@@ -115,11 +121,13 @@ public class TimeSeriesForecaster {
 
         if (series.size() < 2 * SEASON_LENGTH) {
             logger.debug("[📈 Forecast] <14 points. Using Holt Linear with adjustments.");
-            return holtLinearForecastMultiple(series, days);
+            SmoothingParams tuned = tuneHoltLinearParameters(series);
+            return holtLinearForecastMultiple(series, days, tuned.alpha, tuned.beta);
         }
 
         logger.debug("[📊 Forecast] Using Holt-Winters with seasonality.");
-        List<Double> forecasts = holtWintersMultipleForecast(series, SEASON_LENGTH, days);
+        SmoothingParams tuned = tuneHoltWintersParameters(series, SEASON_LENGTH);
+        List<Double> forecasts = holtWintersMultipleForecast(series, SEASON_LENGTH, days, tuned.alpha, tuned.beta, tuned.gamma);
 
         // Apply bounds checking
         double historicalMean = mean(series);
@@ -145,27 +153,58 @@ public class TimeSeriesForecaster {
         return result;
     }
 
-    // Fill missing days with interpolated values
+    // Fill missing days with linear interpolation
     private List<Double> fillMissingDays(Map<LocalDate, Double> dailyUsage, LocalDate start, LocalDate end) {
-        List<Double> series = new ArrayList<>();
-        List<Double> knownValues = new ArrayList<>(dailyUsage.values());
-        double defaultValue = knownValues.isEmpty() ? 0.0 : mean(knownValues);
-
-        LocalDate current = start;
-        Double lastKnown = null;
-        
-        while (!current.isAfter(end)) {
-            Double value = dailyUsage.get(current);
-            if (value != null) {
-                series.add(value);
-                lastKnown = value;
-            } else {
-                // Use last known value or default for interpolation
-                series.add(lastKnown != null ? lastKnown * 0.95 : defaultValue);
-            }
-            current = current.plusDays(1);
+        List<LocalDate> dates = new ArrayList<>();
+        for (LocalDate current = start; !current.isAfter(end); current = current.plusDays(1)) {
+            dates.add(current);
         }
-        return series;
+
+        List<Double> series = new ArrayList<>(Collections.nCopies(dates.size(), null));
+        for (int i = 0; i < dates.size(); i++) {
+            series.set(i, dailyUsage.get(dates.get(i)));
+        }
+
+        List<Double> knownValues = series.stream().filter(Objects::nonNull).toList();
+        if (knownValues.isEmpty()) {
+            return IntStream.range(0, dates.size()).mapToObj(i -> 0.0).collect(Collectors.toList());
+        }
+
+        int firstKnownIdx = IntStream.range(0, series.size()).filter(i -> series.get(i) != null).findFirst().orElse(0);
+        int lastKnownIdx = IntStream.iterate(series.size() - 1, i -> i - 1).limit(series.size())
+                .filter(i -> series.get(i) != null).findFirst().orElse(series.size() - 1);
+
+        // Edge fill for leading/trailing nulls
+        for (int i = 0; i < firstKnownIdx; i++) {
+            series.set(i, series.get(firstKnownIdx));
+        }
+        for (int i = lastKnownIdx + 1; i < series.size(); i++) {
+            series.set(i, series.get(lastKnownIdx));
+        }
+
+        // Linear interpolation for inner gaps
+        int i = firstKnownIdx;
+        while (i < lastKnownIdx) {
+            if (series.get(i) != null) {
+                i++;
+                continue;
+            }
+            int gapStart = i - 1;
+            int gapEnd = i;
+            while (gapEnd <= lastKnownIdx && series.get(gapEnd) == null) {
+                gapEnd++;
+            }
+            double left = series.get(gapStart);
+            double right = series.get(gapEnd);
+            int gapLength = gapEnd - gapStart;
+            for (int step = 1; step < gapLength; step++) {
+                double fraction = (double) step / gapLength;
+                series.set(gapStart + step, left + fraction * (right - left));
+            }
+            i = gapEnd + 1;
+        }
+
+        return series.stream().map(v -> v == null ? mean(knownValues) : v).collect(Collectors.toList());
     }
 
     // Check if all values are zeros
@@ -252,15 +291,15 @@ public class TimeSeriesForecaster {
     }
 
     // Holt Linear forecasting method with dampening
-    private double holtLinearForecast(List<Double> series) {
+    private double holtLinearForecast(List<Double> series, double alpha, double beta) {
         double level = series.get(0);
         double trend = (series.get(Math.min(series.size() - 1, SEASON_LENGTH)) - series.get(0)) / Math.min(series.size(), SEASON_LENGTH);
 
         for (int i = 1; i < series.size(); i++) {
             double value = series.get(i);
             double lastLevel = level;
-            level = ALPHA * value + (1 - ALPHA) * (level + trend);
-            trend = BETA * (level - lastLevel) + (1 - BETA) * trend;
+            level = alpha * value + (1 - alpha) * (level + trend);
+            trend = beta * (level - lastLevel) + (1 - beta) * trend;
         }
 
         // Dampen trend for longer forecasts
@@ -269,15 +308,15 @@ public class TimeSeriesForecaster {
     }
 
     // Holt Linear forecast for multiple days
-    private List<Double> holtLinearForecastMultiple(List<Double> series, int days) {
+    private List<Double> holtLinearForecastMultiple(List<Double> series, int days, double alpha, double beta) {
         double level = series.get(0);
         double trend = (series.get(Math.min(series.size() - 1, SEASON_LENGTH)) - series.get(0)) / Math.min(series.size(), SEASON_LENGTH);
 
         for (int i = 1; i < series.size(); i++) {
             double value = series.get(i);
             double lastLevel = level;
-            level = ALPHA * value + (1 - ALPHA) * (level + trend);
-            trend = BETA * (level - lastLevel) + (1 - BETA) * trend;
+            level = alpha * value + (1 - alpha) * (level + trend);
+            trend = beta * (level - lastLevel) + (1 - beta) * trend;
         }
 
         List<Double> forecasts = new ArrayList<>();
@@ -292,15 +331,16 @@ public class TimeSeriesForecaster {
     }
 
     // Holt-Winters additive forecasting for next day
-    private double holtWintersAdditiveForecast(List<Double> series, int seasonLength) {
-        HoltWintersComponents hw = initializeHoltWinters(series, seasonLength);
+    private double holtWintersAdditiveForecast(List<Double> series, int seasonLength, double alpha, double beta, double gamma) {
+        HoltWintersComponents hw = initializeHoltWinters(series, seasonLength, alpha, beta, gamma);
         int nextSeasonIndex = series.size() % seasonLength;
         return hw.level + hw.trend + hw.seasonal[nextSeasonIndex];
     }
 
     // Holt-Winters forecast for multiple days
-    private List<Double> holtWintersMultipleForecast(List<Double> series, int seasonLength, int days) {
-        HoltWintersComponents hw = initializeHoltWinters(series, seasonLength);
+    private List<Double> holtWintersMultipleForecast(List<Double> series, int seasonLength, int days,
+                                                     double alpha, double beta, double gamma) {
+        HoltWintersComponents hw = initializeHoltWinters(series, seasonLength, alpha, beta, gamma);
         List<Double> forecasts = new ArrayList<>(days);
 
         for (int i = 1; i <= days; i++) {
@@ -315,7 +355,8 @@ public class TimeSeriesForecaster {
     }
 
     // Initialize Holt-Winters components with improved initialization
-    private HoltWintersComponents initializeHoltWinters(List<Double> series, int seasonLength) {
+    private HoltWintersComponents initializeHoltWinters(List<Double> series, int seasonLength,
+                                                        double alpha, double beta, double gamma) {
         double[] seasonal = new double[seasonLength];
         
         // Calculate seasonal indices using multiple complete seasons
@@ -362,9 +403,9 @@ public class TimeSeriesForecaster {
             double lastLevel = level;
             double lastSeason = seasonal[seasonIndex];
 
-            level = ALPHA * (value - lastSeason) + (1 - ALPHA) * (level + trend);
-            trend = BETA * (level - lastLevel) + (1 - BETA) * trend;
-            seasonal[seasonIndex] = GAMMA * (value - level) + (1 - GAMMA) * lastSeason;
+            level = alpha * (value - lastSeason) + (1 - alpha) * (level + trend);
+            trend = beta * (level - lastLevel) + (1 - beta) * trend;
+            seasonal[seasonIndex] = gamma * (value - level) + (1 - gamma) * lastSeason;
         }
 
         return new HoltWintersComponents(level, trend, seasonal);
@@ -440,6 +481,68 @@ public class TimeSeriesForecaster {
                 .orElseThrow(() -> new IllegalArgumentException("Appliance not found or inactive: " + id));
     }
 
+    private SmoothingParams tuneHoltLinearParameters(List<Double> series) {
+        if (series.size() < MIN_HISTORY_FOR_FORECAST + 1) {
+            return new SmoothingParams(DEFAULT_ALPHA, DEFAULT_BETA, DEFAULT_GAMMA, 0, 0);
+        }
+        int holdout = Math.max(1, Math.min(7, series.size() / 4));
+        List<Double> train = series.subList(0, series.size() - holdout);
+        List<Double> actual = series.subList(series.size() - holdout, series.size());
+
+        SmoothingParams best = new SmoothingParams(DEFAULT_ALPHA, DEFAULT_BETA, DEFAULT_GAMMA, Double.MAX_VALUE, Double.MAX_VALUE);
+        for (double alpha : ALPHA_GRID) {
+            for (double beta : BETA_GRID) {
+                List<Double> predicted = holtLinearForecastMultiple(train, holdout, alpha, beta);
+                ErrorMetrics metrics = calculateErrorMetrics(actual, predicted);
+                if (metrics.mae < best.mae) {
+                    best = new SmoothingParams(alpha, beta, DEFAULT_GAMMA, metrics.mae, metrics.rmse);
+                }
+            }
+        }
+        logger.debug("[Forecast] Tuned Holt params alpha={}, beta={} => MAE={}, RMSE={}",
+                best.alpha, best.beta, best.mae, best.rmse);
+        return best;
+    }
+
+    private SmoothingParams tuneHoltWintersParameters(List<Double> series, int seasonLength) {
+        if (series.size() < 2 * seasonLength + 1) {
+            return new SmoothingParams(DEFAULT_ALPHA, DEFAULT_BETA, DEFAULT_GAMMA, 0, 0);
+        }
+        int holdout = Math.max(1, Math.min(7, series.size() / 4));
+        List<Double> train = series.subList(0, series.size() - holdout);
+        List<Double> actual = series.subList(series.size() - holdout, series.size());
+
+        SmoothingParams best = new SmoothingParams(DEFAULT_ALPHA, DEFAULT_BETA, DEFAULT_GAMMA, Double.MAX_VALUE, Double.MAX_VALUE);
+        for (double alpha : ALPHA_GRID) {
+            for (double beta : BETA_GRID) {
+                for (double gamma : GAMMA_GRID) {
+                    List<Double> predicted = holtWintersMultipleForecast(train, seasonLength, holdout, alpha, beta, gamma);
+                    ErrorMetrics metrics = calculateErrorMetrics(actual, predicted);
+                    if (metrics.mae < best.mae) {
+                        best = new SmoothingParams(alpha, beta, gamma, metrics.mae, metrics.rmse);
+                    }
+                }
+            }
+        }
+        logger.debug("[Forecast] Tuned Holt-Winters params alpha={}, beta={}, gamma={} => MAE={}, RMSE={}",
+                best.alpha, best.beta, best.gamma, best.mae, best.rmse);
+        return best;
+    }
+
+    private ErrorMetrics calculateErrorMetrics(List<Double> actual, List<Double> predicted) {
+        int n = Math.min(actual.size(), predicted.size());
+        if (n == 0) return new ErrorMetrics(0, 0);
+
+        double absError = 0;
+        double squaredError = 0;
+        for (int i = 0; i < n; i++) {
+            double error = actual.get(i) - predicted.get(i);
+            absError += Math.abs(error);
+            squaredError += error * error;
+        }
+        return new ErrorMetrics(absError / n, Math.sqrt(squaredError / n));
+    }
+
     private static class HoltWintersComponents {
         double level;
         double trend;
@@ -449,6 +552,32 @@ public class TimeSeriesForecaster {
             this.level = level;
             this.trend = trend;
             this.seasonal = seasonal;
+        }
+    }
+
+    private static class ErrorMetrics {
+        double mae;
+        double rmse;
+
+        ErrorMetrics(double mae, double rmse) {
+            this.mae = mae;
+            this.rmse = rmse;
+        }
+    }
+
+    private static class SmoothingParams {
+        double alpha;
+        double beta;
+        double gamma;
+        double mae;
+        double rmse;
+
+        SmoothingParams(double alpha, double beta, double gamma, double mae, double rmse) {
+            this.alpha = alpha;
+            this.beta = beta;
+            this.gamma = gamma;
+            this.mae = mae;
+            this.rmse = rmse;
         }
     }
 
