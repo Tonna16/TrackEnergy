@@ -59,13 +59,6 @@ export default function EnergyUsageChart({
     return String(label)
   }
 
-  // Initialize visibleApps
-  useEffect(() => {
-    if (visibleAppliances.length && visibleApps.length === 0) {
-      setVisibleApps([visibleAppliances[0].name])
-    }
-  }, [visibleAppliances, visibleApps])
-
   const dailyEst = useMemo(
     () => generateEstimate({ appliances: visibleAppliances, convertCost: costFromKwh, count: 30, daysPer: 1 }),
     [visibleAppliances, costFromKwh]
@@ -179,13 +172,38 @@ export default function EnergyUsageChart({
     })
   }, [serverData, dailyEst, weeklyEst, monthlyEst, timeRange, cumulative, convertCurrency])
 
+  const selectableApplianceKeys = useMemo(() => {
+    const keys = new Set<string>()
+    chartData.forEach(row => {
+      Object.keys(row).forEach(key => {
+        if (key !== 'date' && key !== 'total') {
+          keys.add(key)
+        }
+      })
+    })
+    return Array.from(keys)
+  }, [chartData])
+
+  // Keep the per-appliance selection valid and stable as data shape changes.
+  useEffect(() => {
+    const selected = visibleApps[0]
+    if (selectableApplianceKeys.length === 0) {
+      if (selected) setVisibleApps([])
+      return
+    }
+    if (!selected || !selectableApplianceKeys.includes(selected)) {
+      setVisibleApps([selectableApplianceKeys[0]])
+    }
+  }, [selectableApplianceKeys, visibleApps])
+
   // Average cost calculation
   const averageCost = useMemo(() => {
-    const key = viewMode === 'total' ? 'total' : visibleApps[0] || 'total'
+    const perAppKey = visibleApps[0]
+    const key = viewMode === 'total' ? 'total' : perAppKey && selectableApplianceKeys.includes(perAppKey) ? perAppKey : 'total'
     const values = chartData.map(row => row[key]).filter(v => typeof v === 'number') as number[]
     if (!values.length) return 0
     return values.reduce((s, v) => s + v, 0) / values.length
-  }, [chartData, viewMode, visibleApps])
+  }, [chartData, viewMode, visibleApps, selectableApplianceKeys])
 
   useEffect(() => {
     if (!onAverageCostChange) return
@@ -204,10 +222,19 @@ export default function EnergyUsageChart({
     )
   }
 
-  const activeKey = viewMode === 'total' ? 'total' : visibleApps[0]
+  const activePerApplianceKey = visibleApps[0]
+  const activeKey = viewMode === 'total' ? 'total' : activePerApplianceKey
   const COLORS = ['#10b981', '#6366f1', '#f59e0b', '#ef4444', '#3b82f6', '#14b8a6', '#8b5cf6']
   const colorIndex = viewMode === 'total' ? 0 : visibleAppliances.findIndex(a => a.name === activeKey) + 1
   const activeColor = COLORS[colorIndex % COLORS.length]
+  const hasPerApplianceData =
+    viewMode !== 'perAppliance' ||
+    Boolean(
+      activePerApplianceKey &&
+        chartData.some(
+          row => typeof row[activePerApplianceKey] === 'number' && Number.isFinite(row[activePerApplianceKey] as number)
+        )
+    )
 
   return (
     <div className="space-y-4 p-4 rounded-lg bg-white dark:bg-gray-900 shadow" style={{ height }}>
@@ -228,6 +255,25 @@ export default function EnergyUsageChart({
           <option value="total">Total Cost</option>
           <option value="perAppliance">Per Appliance</option>
         </select>
+        {viewMode === 'perAppliance' && (
+          <select
+            value={activePerApplianceKey || ''}
+            onChange={e => setVisibleApps(e.target.value ? [e.target.value] : [])}
+            className="border rounded px-2 py-1"
+            aria-label="Select appliance series"
+            disabled={!selectableApplianceKeys.length}
+          >
+            {selectableApplianceKeys.length ? (
+              selectableApplianceKeys.map(key => (
+                <option key={key} value={key}>
+                  {key}
+                </option>
+              ))
+            ) : (
+              <option value="">No appliance data</option>
+            )}
+          </select>
+        )}
 
         <label className="inline-flex items-center space-x-2">
           <input type="checkbox" checked={cumulative} onChange={() => setCumulative(c => !c)} />
@@ -254,7 +300,14 @@ export default function EnergyUsageChart({
 
           <YAxis
             stroke="currentColor"
-            domain={[0, (dataMax: number) => Math.ceil(dataMax / 0.05) * 0.05]}
+            domain={[
+              0,
+              (dataMax: number) => {
+                const safeMax = Number.isFinite(dataMax) && dataMax > 0 ? dataMax : 0
+                const computedMax = Math.ceil(safeMax / 0.05) * 0.05
+                return Math.max(0.05, computedMax)
+              },
+            ]}
             tickFormatter={v => v.toFixed(2)}
             label={{ value: `Cost (${symbol})`, angle: -90, position: 'insideLeft', dx: -10, dy: 25 }}
           />
@@ -271,12 +324,23 @@ export default function EnergyUsageChart({
 
           {viewMode === 'total' ? (
             <Line type="monotone" dataKey="total" stroke={COLORS[0]} dot={false} />
-          ) : (
-            visibleApps.map(name => {
+          ) : hasPerApplianceData ? (
+            visibleApps.filter(name => selectableApplianceKeys.includes(name)).map(name => {
               const idx = appliances.findIndex(a => a.name === name)
               const color = idx >= 0 ? COLORS[(idx + 1) % COLORS.length] : '#999'
               return <Line key={name} type="monotone" dataKey={name} stroke={color} dot={false} />
             })
+          ) : (
+            <text
+              x="50%"
+              y="50%"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="currentColor"
+              style={{ opacity: 0.75 }}
+            >
+              No per-appliance data available for this range.
+            </text>
           )}
         </LineChart>
       </ResponsiveContainer>
