@@ -15,6 +15,7 @@ type FormData = {
   hoursPerDay: string
   daysPerWeek: string
   isHighEfficiency: boolean
+  active: boolean
   location: string
   brand: string
   model: string
@@ -43,6 +44,7 @@ export default function ApplianceForm() {
     hoursPerDay: '2',
     daysPerWeek: '7',
     isHighEfficiency: false,
+    active: true,
     location: 'Other',
     brand: '',
     model: '',
@@ -76,6 +78,7 @@ export default function ApplianceForm() {
       hoursPerDay: existing.hoursPerDay.toString(),
       daysPerWeek: existing.daysPerWeek.toString(),
       isHighEfficiency: existing.isHighEfficiency,
+      active: existing.active ?? true,
       location: existing.location,
       brand: existing.brand ?? '',
       model: existing.model ?? '',
@@ -143,6 +146,10 @@ export default function ApplianceForm() {
         errs.estimatedDailyKWh = 'Must be ≥ 0'
       }
     }
+
+    if (typeof formData.active !== 'boolean') {
+      errs.active = 'Activity state is required'
+    }
   
     // ✅ New: Daily kWh usage limit (e.g., 30 kWh/day max)
     const MAX_KWH_PER_DAY = 30
@@ -171,6 +178,7 @@ export default function ApplianceForm() {
         hoursPerDay: +formData.hoursPerDay,
         daysPerWeek: +formData.daysPerWeek,
         isHighEfficiency: formData.isHighEfficiency,
+        active: formData.active,
         location: formData.location,
         brand: formData.brand.trim() || undefined,
         model: formData.model.trim() || undefined,
@@ -178,7 +186,6 @@ export default function ApplianceForm() {
           formData.estimatedDailyKWh !== ''
             ? +formData.estimatedDailyKWh
             : undefined,
-        active: true,
         deleted: false,
       }
       // compute daily usage
@@ -427,18 +434,33 @@ export default function ApplianceForm() {
         </div>
 
         {/* High-efficiency */}
-        <div className="flex items-center space-x-2">
-          <input
-            name="isHighEfficiency"
-            type="checkbox"
-            checked={formData.isHighEfficiency}
-            onChange={handleChange}
-            className="h-4 w-4 rounded border-gray-300"
-            disabled={loading}
-          />
-          <label className="text-sm dark:text-gray-300">
-            High-efficiency
-          </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <input
+              name="isHighEfficiency"
+              type="checkbox"
+              checked={formData.isHighEfficiency}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-gray-300"
+              disabled={loading}
+            />
+            <label className="text-sm dark:text-gray-300">
+              High-efficiency
+            </label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              name="active"
+              type="checkbox"
+              checked={formData.active}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-gray-300"
+              disabled={loading}
+            />
+            <label className="text-sm dark:text-gray-300">
+              Active in calculations
+            </label>
+          </div>
         </div>
 
         {/* Estimated kWh (add only) */}

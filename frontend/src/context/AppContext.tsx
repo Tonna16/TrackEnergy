@@ -81,6 +81,7 @@ type AppContextType = {
   appliances: Appliance[]
   addAppliance(input: ApplianceInput): Promise<Appliance | undefined>
   updateAppliance(updated: Appliance): Promise<void>
+  setApplianceActive(id: number, active: boolean): Promise<void>
   deleteAppliance(id: number): Promise<void>
   getAppliance(id: number): Appliance | undefined
   forecastedDailyCost: number
@@ -116,10 +117,9 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
-// Validate an appliance object and ensure it's not deleted/inactive
+// Validate appliance data shape and usage bounds.
 const isValidAppliance = (a: Appliance): boolean => {
   if (!a || typeof a !== 'object') return false
-  if (!isVisibleAppliance(a, false)) return false
   if (!a.name || typeof a.name !== 'string') return false
   if (isNaN(a.wattage) || a.wattage <= 0 || a.wattage > MAX_WATTAGE) return false
   if (isNaN(a.hoursPerDay) || a.hoursPerDay < 0 || a.hoursPerDay > 24) return false
@@ -128,6 +128,12 @@ const isValidAppliance = (a: Appliance): boolean => {
   if (dailyKwh > MAX_KWH_PER_DAY) return false
   return true
 }
+
+const normalizeApplianceList = (incoming: Appliance[]): Appliance[] =>
+  incoming
+    .map(a => withVisibilityDefaults(a))
+    .filter(a => a && isVisibleAppliance(a, true))
+    .filter(isValidAppliance)
 
 const isValidLog = (log: UsageLog): boolean => {
   return (
@@ -146,7 +152,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [appliances, setAppliances] = useState<Appliance[]>(() => {
     try {
       const saved = localStorage.getItem('appliances')
-      return saved ? JSON.parse(saved).filter(isValidAppliance) : []
+      return saved ? normalizeApplianceList(JSON.parse(saved)) : []
     } catch {
       return []
     }
@@ -338,11 +344,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       if (appMode === 'live') {
         try {
           const res = await api.get<Appliance[]>('appliances')
-          const visible = res.data
-            .map(a => withVisibilityDefaults(a))
-            .filter(a => a && isVisibleAppliance(a, false))
-            .filter(isValidAppliance)
-          setAppliances(visible)
+          setAppliances(normalizeApplianceList(res.data))
         } catch (err) {
           console.error('Failed to fetch appliances:', err)
         }
@@ -352,7 +354,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (saved) {
           try {
             const parsed = JSON.parse(saved)
-            setAppliances(parsed.filter(isValidAppliance))
+            setAppliances(normalizeApplianceList(parsed))
           } catch {
             setAppliances([])
           }
@@ -477,7 +479,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       try {
         const res = await api.post<Appliance>('appliances', normalizedInput) // backend assigns ID
         const normalizedResponse = withVisibilityDefaults(res.data)
-        if (normalizedResponse && isVisibleAppliance(normalizedResponse, false) && isValidAppliance(normalizedResponse)) {
+        if (normalizedResponse && isVisibleAppliance(normalizedResponse, true) && isValidAppliance(normalizedResponse)) {
           setAppliances(prev => [normalizedResponse, ...prev])
         }
         return normalizedResponse
@@ -511,6 +513,28 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     } else {
       setAppliances(prev => prev.map(a => (a.id === normalizedUpdated.id ? normalizedUpdated : a)))
+    }
+  }
+
+  const setApplianceActive = async (id: number, active: boolean) => {
+    const existing = appliances.find(a => a.id === id)
+    if (!existing) return
+
+    const updated = withVisibilityDefaults({ ...existing, active })
+    if (!isValidAppliance(updated)) {
+      console.warn('Rejected activity change due to invalid appliance state', updated)
+      return
+    }
+
+    if (appMode === 'live') {
+      try {
+        await api.put(`appliances/${id}`, updated)
+        setAppliances(prev => prev.map(a => (a.id === id ? updated : a)))
+      } catch (err) {
+        console.error('Failed to set appliance active state:', err)
+      }
+    } else {
+      setAppliances(prev => prev.map(a => (a.id === id ? updated : a)))
     }
   }
 
@@ -584,6 +608,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         appliances,
         addAppliance,
         updateAppliance,
+        setApplianceActive,
         deleteAppliance,
         getAppliance: id => appliances.find(a => a.id === id),
         forecastedDailyCost,
