@@ -5,7 +5,13 @@ import java.time.LocalDate;
 
 
 @Entity
-@Table(name = "energy_usage_logs")
+@Table(
+    name = "energy_usage_logs",
+    indexes = {
+        @Index(name = "idx_energy_usage_logs_appliance_date", columnList = "appliance_id,date"),
+        @Index(name = "idx_energy_usage_logs_date", columnList = "date")
+    }
+)
 public class EnergyUsageLog {
 
     @Id

@@ -141,18 +141,12 @@ public class EnergyUsageService {
     @Transactional(readOnly = true)
     public UsageSummaryDTO getUsageSummary(Long userId) {
         if (userId == null) return getFallbackUsageSummary(30);
-        List<EnergyUsageLog> entries = logRepo.findAllByUserId(userId).stream()
-            .filter(e -> e.getAppliance() != null && e.getAppliance().isActive() && !e.getAppliance().isDeleted())
-            .collect(Collectors.toList());
-
-        double rate = getRate(userId), totalKwh = 0, totalCost = 0;
-        Set<LocalDate> daysUsed = new HashSet<>();
-        for (var e : entries) {
-            totalKwh += e.getKWhUsed();
-            totalCost += e.getKWhUsed() * rate;
-            daysUsed.add(e.getDate());
-        }
-        double avgKwh = daysUsed.isEmpty() ? 0 : totalKwh / daysUsed.size();
+        Object[] aggregates = logRepo.summarizeUsageByUserId(userId);
+        double totalKwh = ((Number) aggregates[0]).doubleValue();
+        long distinctDays = ((Number) aggregates[1]).longValue();
+        double rate = getRate(userId);
+        double totalCost = totalKwh * rate;
+        double avgKwh = distinctDays == 0 ? 0 : totalKwh / distinctDays;
         return new UsageSummaryDTO(totalKwh, totalCost, avgKwh * rate);
     }
 
@@ -167,16 +161,12 @@ public class EnergyUsageService {
         if (userId == null) return getFallbackUsageSummary(days);
         LocalDate end   = LocalDate.now();
         LocalDate start = end.minusDays(days - 1);
-        Map<LocalDate, Double> daily = new HashMap<>();
-        logRepo.findAllByUserId(userId).stream()
-            .filter(e -> e.getAppliance() != null && e.getAppliance().isActive() && !e.getAppliance().isDeleted())
-            .filter(e -> !e.getDate().isBefore(start) && !e.getDate().isAfter(end))
-            .forEach(e -> daily.merge(e.getDate(), e.getKWhUsed(), Double::sum));
-
-        double totalKwh = daily.values().stream().mapToDouble(d -> d).sum();
+        Object[] aggregates = logRepo.summarizeUsageByUserIdAndDateBetween(userId, start, end);
+        double totalKwh = ((Number) aggregates[0]).doubleValue();
+        long distinctDays = ((Number) aggregates[1]).longValue();
         double rate     = getRate(userId);
         double totalCost= totalKwh * rate;
-        double avgCost  = daily.isEmpty() ? 0 : totalCost / daily.size();
+        double avgCost  = distinctDays == 0 ? 0 : totalCost / distinctDays;
         return new UsageSummaryDTO(totalKwh, totalCost, avgCost);
     }
 
@@ -191,11 +181,7 @@ public class EnergyUsageService {
     
         boolean forecast = false;
         if (userId != null) {
-            long hist = logRepo.findAllByUserId(userId).stream()
-                .filter(e -> e.getAppliance() != null && e.getAppliance().isActive() && !e.getAppliance().isDeleted())
-                .map(EnergyUsageLog::getDate)
-                .distinct()
-                .count();
+            long hist = logRepo.countDistinctUsageDaysByUserId(userId);
             forecast = hist >= MIN_HISTORY_DAYS;
             logger.info("getProjections - userId={}, historyDays={}, forecastEnabled={}", userId, hist, forecast);
         }
@@ -234,11 +220,7 @@ public class EnergyUsageService {
                          .getUserSettings(userId)
                          .getElectricityRatePerKWh();
 
-        long hist = logRepo.findAllByUserId(userId).stream()
-                    .filter(e -> e.getAppliance() != null && e.getAppliance().isActive() && !e.getAppliance().isDeleted())
-                    .map(EnergyUsageLog::getDate)
-                    .distinct()
-                    .count();
+        long hist = logRepo.countDistinctUsageDaysByUserId(userId);
         boolean forecast = hist >= MIN_HISTORY_DAYS;
         logger.info("UserId={} has {} days history, forecast={}", userId, hist, forecast);
 
@@ -280,11 +262,7 @@ public class EnergyUsageService {
                          .getUserSettings(userId)
                          .getElectricityRatePerKWh();
 
-        long hist = logRepo.findAllByUserId(userId).stream()
-                    .filter(e -> e.getAppliance() != null && e.getAppliance().isActive() && !e.getAppliance().isDeleted())
-                    .map(EnergyUsageLog::getDate)
-                    .distinct()
-                    .count();
+        long hist = logRepo.countDistinctUsageDaysByUserId(userId);
         boolean useForecast = hist >= MIN_HISTORY_DAYS;
         logger.info("UserId={} has {} days history, useForecast={}", userId, hist, useForecast);
 
