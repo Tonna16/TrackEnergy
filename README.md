@@ -51,6 +51,14 @@ This combination balances accuracy for frequent users, reasonable default behavi
 
 ---
 
+
+### Auth token storage model
+- **Refresh token** is now transported only via `HttpOnly`, `Secure`, `SameSite=Strict` cookie and rotated on every refresh call; it is not stored in browser storage.
+- **Access token** remains short-lived (`jwt.access-expiration-ms`, default 15 minutes) and is kept in localStorage/in-memory to balance UX and security.
+- **Trade-off:** storing access token in web storage improves reload persistence but increases XSS exposure. Keeping it only in memory reduces XSS blast radius but requires re-auth/refresh on reload.
+
+---
+
 ### Demo
 A 5‑minute demo video can be viewed on youtube with this link: https://www.youtube.com/watch?v=tlNz26ZmPZE 
 

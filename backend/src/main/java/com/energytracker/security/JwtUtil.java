@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
@@ -44,8 +45,24 @@ public class JwtUtil {
         return generateToken(email, accessTokenExpirationMs);
     }
 
-    public String generateRefreshToken(String email) {
-        return generateToken(email, refreshTokenExpirationMs);
+    public String generateRefreshToken(String email, String familyId, String tokenId) {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .setSubject(email)
+                .setId(tokenId)
+                .claim("familyId", familyId)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + refreshTokenExpirationMs))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String newTokenId() {
+        return UUID.randomUUID().toString();
+    }
+
+    public String newFamilyId() {
+        return UUID.randomUUID().toString();
     }
 
     public String generateToken(String email, long expirationMs) {
@@ -89,13 +106,29 @@ public class JwtUtil {
     }
 
     public String extractEmail(String token) {
+        return getClaimSafely(token, Claims::getSubject, "email");
+    }
+
+    public String extractTokenId(String token) {
+        return getClaimSafely(token, Claims::getId, "token id");
+    }
+
+    public String extractFamilyId(String token) {
+        return getClaimSafely(token, claims -> claims.get("familyId", String.class), "family id");
+    }
+
+    public long getRefreshTokenExpirationMs() {
+        return refreshTokenExpirationMs;
+    }
+
+    private String getClaimSafely(String token, java.util.function.Function<Claims, String> mapper, String claimName) {
         try {
             Claims claims = parseClaims(token);
-            return claims.getSubject();
+            return mapper.apply(claims);
         } catch (ExpiredJwtException e) {
-            logger.warn("[JwtUtil] Email extraction failed (reason: expired token)");
+            logger.warn("[JwtUtil] {} extraction failed (reason: expired token)", claimName);
         } catch (JwtException | IllegalArgumentException e) {
-            logger.warn("[JwtUtil] Email extraction failed (reason: invalid token)");
+            logger.warn("[JwtUtil] {} extraction failed (reason: invalid token)", claimName);
         }
         return null;
     }
