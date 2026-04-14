@@ -36,8 +36,6 @@ EnergyIQ prioritizes interpretability and responsiveness while handling sparse a
   - **Noise injection** to simulate realistic variance and avoid overconfidence.  
   - **Tolerance thresholds** to detect anomalies and cap unrealistic predictions.
 
-This combination balances accuracy for frequent users, reasonable default behavior for new users, and interpretability for explainable recommendations.
-
 ---
 
 ### Architecture & technologies
@@ -72,21 +70,6 @@ A 5‑minute demo video can be viewed on youtube with this link: https://www.you
 
 ---
 
-### Responsive QA checklist (sidebar/header)
-- **~768px (md breakpoint):**
-  - Confirm the sidebar can be opened from the header menu button and stays visible without overlapping main content.
-  - Confirm the main content shifts right when the sidebar is open and shifts back when closed.
-  - Confirm there is only one trigger path for mobile (`Header` menu) and no duplicate floating toggles.
-- **~1024px (lg breakpoint):**
-  - Confirm the desktop open control appears in the header when the sidebar is collapsed.
-  - Confirm the sidebar close control is available inside the sidebar on desktop.
-  - Confirm navigation links do not unexpectedly close the sidebar on desktop.
-- **Keyboard focus behavior (both widths):**
-  - Tab to the header sidebar trigger and activate it with `Enter`/`Space`.
-  - After opening, tab to the sidebar close button and activate it with `Enter`/`Space`.
-  - Verify focus order remains logical (header controls → main content when closed, sidebar controls included when open).
-
----
 
 ### Future goals / next steps
 - Improve Guest mode functionality to ensure access and proper usage for both authenticated and unauthenticated users.
@@ -102,66 +85,5 @@ I created a webpage that has the demo video, and explains the forecasting models
 **Author:** Tonna Agburu    
 **License:** MIT
 
----
-
----
-
-### Security hardening checklist
-
-#### 1) Use environment variables for secrets
-Backend secrets are read from environment variables:
-
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `JWT_SECRET`
-- `EIA_API_KEY`
-
-A safe template is tracked at `backend/src/main/resources/application.properties.example`.
-
-#### 2) Rotate/revoke exposed credentials immediately
-If secrets were ever committed, rotate them in their source systems right away:
-
-- **Database credentials**: create a new DB user/password, update grants, remove old user or revoke old password.
-- **JWT secret**: generate and deploy a new signing key, then invalidate all existing access/refresh tokens.
-- **EIA API key**: revoke old key in EIA account settings and issue a new one.
-
-#### 3) Purge leaked secrets from Git history
-Use `git filter-repo` from a clean clone and force-push rewritten history:
-
-```bash
-# install once (example)
-pip install git-filter-repo
-
-# rewrite known literal secrets (examples)
-git filter-repo \
-  --replace-text <(cat <<'REDACTIONS'
-literal:old_db_username==>REDACTED_DB_USER
-literal:old_db_password==>REDACTED_DB_PASSWORD
-literal:old_jwt_secret==>REDACTED_JWT_SECRET
-literal:old_eia_api_key==>REDACTED_EIA_API_KEY
-REDACTIONS
-)
-
-# force-push rewritten refs
-git push --force --all origin
-git push --force --tags origin
-```
-
-After rewrite, require contributors to re-clone or hard-reset to the new history.
-
-#### 4) Automated and local secret scanning
-- CI runs **gitleaks** on pushes/PRs via `.github/workflows/gitleaks.yml`.
-- Recommended local pre-commit hook:
-
-```bash
-# in repo root
-pre-commit install
-cat > .git/hooks/pre-commit <<'HOOK'
-#!/usr/bin/env bash
-set -euo pipefail
-gitleaks detect --source . --staged --redact
-HOOK
-chmod +x .git/hooks/pre-commit
-```
 
 (Alternatively, configure gitleaks through your shared `pre-commit` framework.)
