@@ -21,7 +21,7 @@ export default function UsageSummary({
   costAvailabilityMessage = null,
 }: UsageSummaryProps) {
   const {
-    appliances,
+    trackedAppliances,
     settings,
     totalDailyUsage,
   } = useAppContext()
@@ -43,7 +43,7 @@ export default function UsageSummary({
 
   const [showTooltip, setShowTooltip] = useState(false)
 
-  const hasValidatedApplianceInputs = appliances.length > 0
+  const hasValidatedApplianceInputs = trackedAppliances.length > 0
   const displayedCost =
     typeof avgDailyCostFromChart === 'number' && Number.isFinite(avgDailyCostFromChart)
       ? avgDailyCostFromChart

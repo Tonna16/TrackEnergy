@@ -79,6 +79,9 @@ type AppMode = 'simulated' | 'live'
 
 type AppContextType = {
   appliances: Appliance[]
+  trackedAppliances: Appliance[]
+  activeApplianceCount: number
+  inactiveApplianceCount: number
   addAppliance(input: ApplianceInput): Promise<Appliance | undefined>
   updateAppliance(updated: Appliance): Promise<void>
   setApplianceActive(id: number, active: boolean): Promise<void>
@@ -415,15 +418,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [])
 
+  const trackedAppliances = useMemo(
+    () => appliances.filter(a => isVisibleAppliance(a, false)),
+    [appliances]
+  )
+
+  const activeApplianceCount = trackedAppliances.length
+
+  const inactiveApplianceCount = useMemo(
+    () => appliances.filter(a => isVisibleAppliance(a, true) && a.active === false).length,
+    [appliances]
+  )
+
   const totalDailyUsage = useMemo(
     () =>
-      appliances
-        .filter(a => isVisibleAppliance(a, false))
+      trackedAppliances
         .reduce(
         (sum, app) => sum + (app.wattage * app.hoursPerDay * app.daysPerWeek) / 7 / 1000,
         0
       ),
-    [appliances]
+    [trackedAppliances]
   )
 
   const seasonalAdjust = true
@@ -434,10 +448,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       return forecastedDailyCostLive
     }
 
-    const visibleAppliances = appliances.filter(a => isVisibleAppliance(a, false))
-
     const points = generateEstimate({
-      appliances: visibleAppliances,
+      appliances: trackedAppliances,
       convertCost: costFromKwh,
       count: 30,
       daysPer: 1,
@@ -449,7 +461,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     const total = points.reduce((sum, p) => sum + (p.total ?? 0), 0)
     return total / 30
-  }, [appliances, costFromKwh, appMode, forecastedDailyCostLive])
+  }, [trackedAppliances, costFromKwh, appMode, forecastedDailyCostLive])
 
   const totalDailyCost = useMemo(() => costFromKwh(totalDailyUsage), [totalDailyUsage, costFromKwh])
 
@@ -606,6 +618,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider
       value={{
         appliances,
+        trackedAppliances,
+        activeApplianceCount,
+        inactiveApplianceCount,
         addAppliance,
         updateAppliance,
         setApplianceActive,

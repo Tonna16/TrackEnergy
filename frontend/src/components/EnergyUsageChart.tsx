@@ -15,7 +15,6 @@ import api from '../utils/api'
 import { getAuthToken } from '../utils/auth'
 import { useAppContext } from '../context/AppContext'
 import { generateEstimate } from '../utils/energyEstimator'
-import { isVisibleAppliance } from '../utils/applianceVisibility'
 import type { ChartPoint } from '../utils/energyEstimator'
 
 interface Props {
@@ -32,7 +31,7 @@ export default function EnergyUsageChart({
   onAverageCostChange,
   backendForecast,
 }: Props) {
-  const { appliances, symbol, settings, convertCurrency, costFromKwh } = useAppContext()
+  const { appliances, trackedAppliances, symbol, settings, convertCurrency, costFromKwh } = useAppContext()
 
   const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('daily')
   const [viewMode, setViewMode] = useState<'total' | 'perAppliance'>('total')
@@ -42,11 +41,6 @@ export default function EnergyUsageChart({
   const [serverData, setServerData] = useState<
     { date: string; totalKwh: number; totalCost: number; byAppCost: Record<string, number> }[]
   >([])
-  const visibleAppliances = useMemo(
-    () => appliances.filter(a => isVisibleAppliance(a, false)),
-    [appliances]
-  )
-
   // pretty label helper (safe)
   function prettyLabel(label: string) {
     if (!label && label !== '') return ''
@@ -60,23 +54,23 @@ export default function EnergyUsageChart({
   }
 
   const dailyEst = useMemo(
-    () => generateEstimate({ appliances: visibleAppliances, convertCost: costFromKwh, count: 30, daysPer: 1 }),
-    [visibleAppliances, costFromKwh]
+    () => generateEstimate({ appliances: trackedAppliances, convertCost: costFromKwh, count: 30, daysPer: 1 }),
+    [trackedAppliances, costFromKwh]
   )
   const weeklyEst = useMemo(
-    () => generateEstimate({ appliances: visibleAppliances, convertCost: costFromKwh, count: 4, daysPer: 7 }),
-    [visibleAppliances, costFromKwh]
+    () => generateEstimate({ appliances: trackedAppliances, convertCost: costFromKwh, count: 4, daysPer: 7 }),
+    [trackedAppliances, costFromKwh]
   )
   const monthlyEst = useMemo(
     () =>
       generateEstimate({
-        appliances: visibleAppliances,
+        appliances: trackedAppliances,
         convertCost: costFromKwh,
         count: 6,
         daysPer: 30,
         monthly: true,
       }),
-    [visibleAppliances, costFromKwh]
+    [trackedAppliances, costFromKwh]
   )
 
   useEffect(() => {
@@ -211,7 +205,7 @@ export default function EnergyUsageChart({
     else onAverageCostChange(averageCost)
   }, [backendForecast, averageCost, onAverageCostChange])
 
-  if (!visibleAppliances.length) {
+  if (!trackedAppliances.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 bg-offwhite-50 dark:bg-gray-800 rounded-lg">
         <p className="mb-4 text-gray-700 dark:text-offwhite-50">No appliances added.</p>
@@ -225,7 +219,7 @@ export default function EnergyUsageChart({
   const activePerApplianceKey = visibleApps[0]
   const activeKey = viewMode === 'total' ? 'total' : activePerApplianceKey
   const COLORS = ['#10b981', '#6366f1', '#f59e0b', '#ef4444', '#3b82f6', '#14b8a6', '#8b5cf6']
-  const colorIndex = viewMode === 'total' ? 0 : visibleAppliances.findIndex(a => a.name === activeKey) + 1
+  const colorIndex = viewMode === 'total' ? 0 : trackedAppliances.findIndex(a => a.name === activeKey) + 1
   const activeColor = COLORS[colorIndex % COLORS.length]
   const hasPerApplianceData =
     viewMode !== 'perAppliance' ||
