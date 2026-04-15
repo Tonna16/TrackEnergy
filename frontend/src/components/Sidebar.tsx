@@ -111,7 +111,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       {/* Overlay for mobile */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 md:hidden"
+          className="fixed inset-0 z-40 bg-gray-900/50 backdrop-blur-sm md:hidden"
           onClick={() => setOpen(false)}
           aria-hidden="true"
         />
@@ -120,8 +120,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-dark-bg
-          shadow-lg transform transition-transform duration-300
+          fixed inset-y-0 left-0 z-50 w-64 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-md
+          shadow-xl transform transition-transform duration-300
           ${open ? 'translate-x-0' : '-translate-x-full'}
           border-r border-gray-200 dark:border-dark-border
         `}
@@ -156,10 +156,10 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                   to={item.href}
                   onClick={closeOnMobileOnly}
                   className={`
-                    flex items-center px-2 py-3 text-sm font-medium rounded-lg
+                    flex items-center px-2 py-3 text-sm font-medium rounded-lg transition-all duration-200
                     ${active
-                      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/10 dark:text-emerald-400'
-                      : 'text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-dark-input'
+                      ? 'bg-emerald-50 text-emerald-600 shadow-sm dark:bg-emerald-900/10 dark:text-emerald-400'
+                      : 'text-gray-700 hover:bg-gray-100 hover:translate-x-0.5 dark:text-white dark:hover:bg-dark-input'
                     }
                   `}
                 >
@@ -176,7 +176,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
 
           {/* Current Usage */}
           <div className="p-4 mt-auto border-t border-gray-200 dark:border-dark-border">
-            <div className={`${cardColor} p-3 rounded-lg`}>
+            <div className={`${cardColor} p-3 rounded-lg transition-all duration-300 ${!loading ? 'pulse-soft' : ''}`}>
               <h4 className="text-sm font-medium text-gray-800 dark:text-white">
                 Current Usage
               </h4>

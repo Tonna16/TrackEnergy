@@ -71,26 +71,26 @@ export default function Dashboard() {
 
 
   return (
-    <div className="space-y-6 pb-16 sm:pb-0">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6 pb-16 sm:pb-0 fade-in-up">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <button
           onClick={() => navigate('/add-appliance')}
-          className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg"
+          className="inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-600 px-4 py-2 text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow"
         >
           <Plus className="w-5 h-5 mr-1" />
           Add Appliance
         </button>
       </div>
 
-      <div className="card">
+      <div className="card surface-glass">
         <UsageSummary
           avgDailyCostFromChart={dailyCostToShow}
           costAvailabilityMessage={costAvailabilityMessage}
         />
       </div>
 
-      <div className="card">
+      <div className="card surface-glass card-interactive">
         <h2 className="text-lg font-medium mb-4">Energy Usage Over Time</h2>
         <EnergyUsageChart
           useEstimate={hasLimitedData}
@@ -118,13 +118,13 @@ export default function Dashboard() {
           </div>
         </div>
         {applianceCards.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {applianceCards.map((a) => (
               <ApplianceCard key={a.id} appliance={a} />
             ))}
           </div>
         ) : (
-          <div className="card flex flex-col items-center py-8">
+          <div className="card surface-glass flex flex-col items-center py-8 fade-in-up">
             <img
               src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4"
               alt="Empty state"

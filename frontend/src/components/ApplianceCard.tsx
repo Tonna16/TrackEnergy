@@ -24,7 +24,7 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
 
   return (
     <div
-      className={`card hover:shadow-md transition-shadow dark:bg-black dark:border-dark-border ${
+      className={`card card-interactive fade-in-up dark:bg-black dark:border-dark-border ${
         appliance.active === false ? 'opacity-60' : ''
       }`}
     >
@@ -50,21 +50,21 @@ export default function ApplianceCard({ appliance }: ApplianceCardProps) {
         <div className="flex flex-col items-end space-y-1">
           <Link
             to={`/edit-appliance/${appliance.id}`}
-            className="p-1 text-gray-500 hover:text-gray-700 dark:text-emerald-500 dark:hover:text-emerald-400"
+            className="rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-emerald-500 dark:hover:bg-dark-input dark:hover:text-emerald-400"
             aria-label="Edit appliance"
           >
             <Edit className="h-5 w-5" />
           </Link>
           <button
             onClick={() => setApplianceActive(appliance.id, appliance.active === false)}
-            className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-dark-border dark:text-dark-text dark:hover:bg-dark-input"
+            className="text-xs px-2 py-1 rounded-md border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 dark:border-dark-border dark:text-dark-text dark:hover:bg-dark-input"
             aria-label={appliance.active === false ? 'Set appliance active' : 'Set appliance inactive'}
           >
             {appliance.active === false ? 'Inactive' : 'Active'}
           </button>
           <button
             onClick={() => deleteAppliance(appliance.id)}
-            className="p-1 text-gray-500 hover:text-red-600 dark:text-emerald-500 dark:hover:text-red-400"
+            className="rounded-md p-1 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-emerald-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
             aria-label="Delete appliance"
           >
             <Trash className="h-5 w-5" />
