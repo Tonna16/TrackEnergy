@@ -6,6 +6,7 @@ import com.energytracker.dto.UsageSummaryDTO;
 import com.energytracker.model.Appliance;
 import com.energytracker.model.EnergyUsageLog;
 import com.energytracker.model.User;
+import com.energytracker.service.EnergyReportPdfService;
 import com.energytracker.service.EnergyUsageService;
 import com.energytracker.service.UserService;
 import org.slf4j.Logger;
@@ -28,11 +29,14 @@ public class EnergyUsageController {
 
     private final EnergyUsageService usageService;
     private final UserService userService;
+    private final EnergyReportPdfService energyReportPdfService;
 
     public EnergyUsageController(EnergyUsageService usageService,
-                                 UserService userService) {
+                                 UserService userService,
+                                 EnergyReportPdfService energyReportPdfService) {
         this.usageService = usageService;
         this.userService = userService;
+        this.energyReportPdfService = energyReportPdfService;
     }
 
     private User getAuthenticatedUser() {
@@ -155,6 +159,46 @@ public ResponseEntity<?> getProjectionsGet(@RequestParam(defaultValue = "daily")
                 range.equals("monthly") ? "MMM yyyy" : "yyyy-MM-dd"
             );
             return ResponseEntity.ok(projections);
+        }
+    }
+
+
+    @GetMapping("/report")
+    public ResponseEntity<?> downloadUsageReport(@RequestParam String period) {
+        String normalizedPeriod = period.toLowerCase(Locale.ROOT);
+        if (!List.of("weekly", "monthly").contains(normalizedPeriod)) {
+            return ResponseEntity.badRequest().body("Invalid period. Allowed: weekly, monthly.");
+        }
+
+        try {
+            User user = getAuthenticatedUser();
+            int days = normalizedPeriod.equals("weekly") ? 7 : 30;
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(days - 1L);
+
+            UsageSummaryDTO summary = usageService.getUsageSummaryForRange(user.getId(), days);
+            List<EnergyUsageDTO> usageRows = usageService.getUsageDataByUser(user.getId(), startDate, endDate);
+
+            byte[] pdf = energyReportPdfService.generateReport(
+                normalizedPeriod,
+                user.getId(),
+                startDate,
+                endDate,
+                summary,
+                usageRows
+            );
+
+            String filename = "energy-report-" + normalizedPeriod + "-" + LocalDate.now() + ".pdf";
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(pdf);
+        } catch (RuntimeException authEx) {
+            return unauthorized();
+        } catch (Exception ex) {
+            logger.error("Failed to generate {} report", normalizedPeriod, ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Failed to generate report");
         }
     }
 

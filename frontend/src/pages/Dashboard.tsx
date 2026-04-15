@@ -4,6 +4,7 @@ import { useAppContext } from '../context/AppContext'
 import ApplianceCard from '../components/ApplianceCard'
 import EnergyUsageChart from '../components/EnergyUsageChart'
 import UsageSummary from '../components/UsageSummary'
+import UsageReportDownloads from '../components/UsageReportDownloads'
 import { useEffect, useState } from 'react'
 import api from '../utils/api'
 
@@ -89,6 +90,8 @@ export default function Dashboard() {
           costAvailabilityMessage={costAvailabilityMessage}
         />
       </div>
+
+      <UsageReportDownloads />
 
       <div className="card surface-glass card-interactive">
         <h2 className="text-lg font-medium mb-4">Energy Usage Over Time</h2>
