@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class AuthService {
@@ -33,22 +34,37 @@ public class AuthService {
     }
 
     public User register(String email, String fullName, String password, String username) {
-        if (userRepo.existsByEmail(email)) {
+        String normalizedEmail = normalizeEmail(email);
+        String normalizedUsername = username == null ? null : username.trim();
+        String normalizedFullName = fullName == null ? null : fullName.trim();
+
+        if (normalizedEmail == null || normalizedEmail.isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (normalizedUsername == null || normalizedUsername.isBlank()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+        if (normalizedFullName == null || normalizedFullName.isBlank()) {
+            throw new IllegalArgumentException("Full name is required");
+        }
+
+        if (userRepo.existsByEmail(normalizedEmail)) {
             throw new IllegalArgumentException("Email already in use");
         }
-        if (userRepo.existsByUsername(username)) {
+        if (userRepo.existsByUsername(normalizedUsername)) {
             throw new IllegalArgumentException("Username already taken");
         }
         User u = new User();
-        u.setEmail(email);
-        u.setFullName(fullName);
-        u.setUsername(username);
+        u.setEmail(normalizedEmail);
+        u.setFullName(normalizedFullName);
+        u.setUsername(normalizedUsername);
         u.setPassword(passwordEncoder.encode(password));
         return userRepo.save(u);
     }
 
     public User login(String email, String rawPassword) {
-        User u = userRepo.findByEmail(email)
+        String normalizedEmail = normalizeEmail(email);
+        User u = userRepo.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("No account found for that email"));
         if (!passwordEncoder.matches(rawPassword, u.getPassword())) {
             throw new IllegalArgumentException("Incorrect password");
@@ -58,10 +74,11 @@ public class AuthService {
 
     @Transactional
     public String issueRefreshToken(String email) {
+        String normalizedEmail = normalizeEmail(email);
         String familyId = jwtUtil.newFamilyId();
         String tokenId = jwtUtil.newTokenId();
-        persistRefreshTokenSession(email, familyId, tokenId);
-        return jwtUtil.generateRefreshToken(email, familyId, tokenId);
+        persistRefreshTokenSession(normalizedEmail, familyId, tokenId);
+        return jwtUtil.generateRefreshToken(normalizedEmail, familyId, tokenId);
     }
 
     @Transactional
@@ -81,7 +98,7 @@ public class AuthService {
         RefreshTokenSession current = refreshTokenSessionRepository.findByTokenId(tokenId)
             .orElseThrow(() -> new IllegalArgumentException("Refresh token session not found"));
 
-        if (!email.equals(current.getUserEmail()) || !familyId.equals(current.getFamilyId())) {
+        if (!normalizeEmail(email).equals(normalizeEmail(current.getUserEmail())) || !familyId.equals(current.getFamilyId())) {
             revokeFamily(familyId);
             throw new IllegalArgumentException("Refresh token family mismatch");
         }
@@ -133,5 +150,9 @@ public class AuthService {
                 refreshTokenSessionRepository.save(tokenSession);
             }
         }
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 }

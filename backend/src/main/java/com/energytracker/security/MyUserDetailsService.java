@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Collections;
+import java.util.Locale;
 
 @Service("myUserDetailsService")
 public class MyUserDetailsService implements UserDetailsService {
@@ -26,7 +26,8 @@ public class MyUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        String normalizedEmail = email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+        User user = userRepository.findByEmail(normalizedEmail)
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
         return new org.springframework.security.core.userdetails.User(
@@ -48,6 +49,7 @@ public class MyUserDetailsService implements UserDetailsService {
      * Check if a user exists by email.
      */
     public boolean existsByEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
+        String normalizedEmail = email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+        return userRepository.findByEmail(normalizedEmail).isPresent();
     }
 }

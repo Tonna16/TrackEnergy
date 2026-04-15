@@ -22,6 +22,7 @@ import com.energytracker.repository.UserRepository;
 import com.energytracker.repository.ApplianceRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -151,6 +152,26 @@ public class ApplianceController {
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             logger.warn("Delete appliance failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/active")
+    public ResponseEntity<?> setActive(
+        @PathVariable Long id,
+        @RequestBody Map<String, Boolean> payload
+    ) {
+        User user = requireAuthenticatedUser();
+        Boolean active = payload.get("active");
+        if (active == null) {
+            return ResponseEntity.badRequest().body("Field 'active' is required");
+        }
+
+        try {
+            Appliance updated = applianceService.setApplianceActive(user.getId(), id, active);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Set appliance active failed: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
