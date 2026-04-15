@@ -81,7 +81,7 @@ export default function UsageSummary({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Daily Usage */}
-      <div className="bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
+      <div className="card card-interactive fade-in-up stagger-1 bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Daily Usage
@@ -97,7 +97,7 @@ export default function UsageSummary({
       </div>
 
       {/* Forecasted Daily Cost */}
-      <div className="bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
+      <div className="card card-interactive fade-in-up stagger-2 bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Forecasted Daily Cost
@@ -110,7 +110,7 @@ export default function UsageSummary({
       </div>
 
       {/* Efficiency */}
-      <div className="relative bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
+      <div className="relative card card-interactive fade-in-up stagger-3 bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center">
             Efficiency vs Baseline
@@ -150,7 +150,7 @@ export default function UsageSummary({
       </div>
 
       {/* Energy Tip */}
-      <div className="bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
+      <div className="card card-interactive fade-in-up stagger-4 bg-white dark:bg-gray-800 border rounded-lg p-4 flex flex-col">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Energy-Saving Tip

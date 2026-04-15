@@ -44,22 +44,22 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   }
 
   return (
-    <header className="bg-offwhite-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <header className="surface-glass border-b border-gray-200/80 dark:border-gray-700/70">
       <div className="px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
         {/* Sidebar & Brand */}
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="md:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open sidebar"
-          >
+            <button
+              type="button"
+              className="md:hidden rounded-full p-2 text-gray-500 transition-colors hover:bg-white/80 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
             <Menu className="h-6 w-6" />
           </button>
           {!sidebarOpen && (
             <button
               type="button"
-              className="hidden md:inline-flex text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="hidden md:inline-flex rounded-full p-2 text-gray-500 transition-colors hover:bg-white/80 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open sidebar"
               title="Open sidebar"
@@ -80,7 +80,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
           {/* Dark Mode */}
           <button
             type="button"
-            className="rounded-full p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="rounded-full p-2 text-gray-500 transition-all hover:-translate-y-0.5 hover:bg-white dark:hover:bg-gray-700"
             onClick={toggleDarkMode}
             aria-label="Toggle dark mode"
           >
@@ -94,7 +94,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
           {/* Settings */}
           <Link
             to="/settings"
-            className="rounded-full p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="rounded-full p-2 text-gray-500 transition-all hover:-translate-y-0.5 hover:bg-white dark:hover:bg-gray-700"
             aria-label="Settings"
           >
             <Settings className="h-5 w-5" />
@@ -104,7 +104,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
           {isLoggedIn ? (
             <Link
               to="/profile"
-              className="ml-2 rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="ml-2 rounded-full p-2 transition-all hover:-translate-y-0.5 hover:bg-white dark:hover:bg-gray-700"
               aria-label="Profile"
             >
               <UserIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
@@ -113,13 +113,13 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
             <>
               <Link
                 to="/login"
-                className="ml-2 px-3 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 text-sm"
+                className="ml-2 px-3 py-1.5 rounded-md bg-emerald-600 text-white text-sm shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow"
               >
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="ml-2 px-3 py-1 rounded-md border border-emerald-600 text-emerald-600 hover:bg-emerald-100 text-sm"
+                className="ml-2 px-3 py-1.5 rounded-md border border-emerald-600 text-emerald-700 text-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-100 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
               >
                 Sign Up
               </Link>
