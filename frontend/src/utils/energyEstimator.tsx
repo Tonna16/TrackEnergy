@@ -96,6 +96,11 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value))
 }
 
+function deterministicVariation(seedText: string, spread = 0.015) {
+  const random = mulberry32(xfnv1a(seedText))()
+  return 1 + (random * 2 * spread - spread)
+}
+
 function recencyWeight(date: Date, today: Date) {
   const ageDays = Math.max(
     0,
@@ -295,7 +300,7 @@ export function generateEstimate({
 
       const season = seasonalAdjust ? (SEASONAL[d.getMonth()] ?? 1) : 1
       const noise = disableNoise
-        ? 1
+        ? deterministicVariation(`${app.id}-${label}-fallback-stability`, 0.0125)
         : mode === 'simulated'
         ? 1 + (mulberry32(xfnv1a(`${app.id}-${label}`))() * 2 * NOISE_BOUND - NOISE_BOUND)
         : 1

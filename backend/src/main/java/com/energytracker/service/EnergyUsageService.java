@@ -142,8 +142,8 @@ public class EnergyUsageService {
     public UsageSummaryDTO getUsageSummary(Long userId) {
         if (userId == null) return getFallbackUsageSummary(30);
         Object[] aggregates = logRepo.summarizeUsageByUserId(userId);
-        double totalKwh = ((Number) aggregates[0]).doubleValue();
-        long distinctDays = ((Number) aggregates[1]).longValue();
+        double totalKwh = safeDouble(aggregates, 0);
+        long distinctDays = safeLong(aggregates, 1);
         double rate = getRate(userId);
         double totalCost = totalKwh * rate;
         double avgKwh = distinctDays == 0 ? 0 : totalKwh / distinctDays;
@@ -162,12 +162,26 @@ public class EnergyUsageService {
         LocalDate end   = LocalDate.now();
         LocalDate start = end.minusDays(days - 1);
         Object[] aggregates = logRepo.summarizeUsageByUserIdAndDateBetween(userId, start, end);
-        double totalKwh = ((Number) aggregates[0]).doubleValue();
-        long distinctDays = ((Number) aggregates[1]).longValue();
+        double totalKwh = safeDouble(aggregates, 0);
+        long distinctDays = safeLong(aggregates, 1);
         double rate     = getRate(userId);
         double totalCost= totalKwh * rate;
         double avgCost  = distinctDays == 0 ? 0 : totalCost / distinctDays;
         return new UsageSummaryDTO(totalKwh, totalCost, avgCost);
+    }
+
+    private double safeDouble(Object[] aggregates, int index) {
+        if (aggregates == null || aggregates.length <= index || !(aggregates[index] instanceof Number n)) {
+            return 0;
+        }
+        return n.doubleValue();
+    }
+
+    private long safeLong(Object[] aggregates, int index) {
+        if (aggregates == null || aggregates.length <= index || !(aggregates[index] instanceof Number n)) {
+            return 0;
+        }
+        return n.longValue();
     }
 
     // ————————————————————————————————————————————————————————————————

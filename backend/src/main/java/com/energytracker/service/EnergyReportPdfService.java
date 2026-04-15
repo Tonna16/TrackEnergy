@@ -70,12 +70,17 @@ public class EnergyReportPdfService {
 
             cursor.spacer(8);
             cursor.writeLine(13, "Daily Breakdown");
-            for (EnergyUsageDTO row : usageRows.stream().sorted(Comparator.comparing(EnergyUsageDTO::getDate)).toList()) {
-                cursor.writeLine(10,
-                    String.format(Locale.US, "%s | %-20s | %.2f kWh",
-                        row.getDate().format(DATE_FORMATTER),
-                        row.getApplianceName() == null ? "Unknown" : row.getApplianceName(),
-                        row.getkWhUsed()));
+            List<EnergyUsageDTO> sortedRows = usageRows.stream().sorted(Comparator.comparing(EnergyUsageDTO::getDate)).toList();
+            if (sortedRows.isEmpty()) {
+                cursor.writeLine(10, "No daily usage entries were found for this period.");
+            } else {
+                for (EnergyUsageDTO row : sortedRows) {
+                    cursor.writeLine(10,
+                        String.format(Locale.US, "%s | %-20s | %.2f kWh",
+                            row.getDate().format(DATE_FORMATTER),
+                            row.getApplianceName() == null ? "Unknown" : row.getApplianceName(),
+                            row.getkWhUsed()));
+                }
             }
 
             cursor.close();
@@ -113,9 +118,18 @@ public class EnergyReportPdfService {
             content.beginText();
             content.setFont(PDType1Font.HELVETICA, fontSize);
             content.newLineAtOffset(MARGIN, y);
-            content.showText(text);
+            content.showText(sanitizeText(text));
             content.endText();
             y -= (fontSize + 6);
+        }
+
+        private String sanitizeText(String text) {
+            if (text == null) return "";
+            return text
+                .replace("—", "-")
+                .replace("–", "-")
+                .replace("•", "*")
+                .replace("\t", "    ");
         }
 
         private void newPage() throws IOException {

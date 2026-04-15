@@ -13,6 +13,45 @@ function formatNumber(n: number, digits = 1) {
 }
 
 type Bucket = { name: string; value: number }
+type HouseholdProfileKey = 'balanced' | 'remote-work' | 'large-family' | 'frugal'
+type HouseholdScenario = {
+  key: HouseholdProfileKey
+  label: string
+  description: string
+  baseKwhPerPerson: number
+  householdMultiplier: number
+}
+
+const HOUSEHOLD_SCENARIOS: HouseholdScenario[] = [
+  {
+    key: 'balanced',
+    label: 'Balanced Home',
+    description: 'Typical weekday + weekend usage for mixed schedules.',
+    baseKwhPerPerson: 3.4,
+    householdMultiplier: 1,
+  },
+  {
+    key: 'remote-work',
+    label: 'Remote Work Family',
+    description: 'Higher daytime HVAC, lighting, and device loads.',
+    baseKwhPerPerson: 3.9,
+    householdMultiplier: 1.08,
+  },
+  {
+    key: 'large-family',
+    label: 'Large Active Family',
+    description: 'More laundry, cooking, and evening peak demand.',
+    baseKwhPerPerson: 4.2,
+    householdMultiplier: 1.15,
+  },
+  {
+    key: 'frugal',
+    label: 'Efficiency Focused',
+    description: 'Conservation habits and efficient appliances.',
+    baseKwhPerPerson: 2.9,
+    householdMultiplier: 0.86,
+  },
+]
 
 export default function Compare() {
   const { totalDailyUsage, appliances, settings, getApplianceTypeInfo } = useAppContext()
@@ -23,6 +62,8 @@ export default function Compare() {
   const [communityError, setCommunityError] = useState<string | null>(null)
   const [communityData, setCommunityData] = useState<Bucket[] | null>(null)
   const [communityHouseholdAvg, setCommunityHouseholdAvg] = useState<number | null>(null)
+  const [scenarioHouseholdSize, setScenarioHouseholdSize] = useState<number>(2)
+  const [scenarioProfile, setScenarioProfile] = useState<HouseholdProfileKey>('balanced')
 
   const token = Boolean(getAuthToken())
 
@@ -179,9 +220,21 @@ export default function Compare() {
   }
 
   const activeEfficiencyScore = compareWith === 'national' ? nationalEfficiencyScore : householdEfficiencyScore
+  const selectedScenario = HOUSEHOLD_SCENARIOS.find(scenario => scenario.key === scenarioProfile) ?? HOUSEHOLD_SCENARIOS[0]
+  const generatedScenarioDailyKwh = useMemo(() => {
+    const sizeFactor = 1 + Math.max(0, scenarioHouseholdSize - 1) * 0.12
+    const weekendFactor = selectedScenario.key === 'remote-work' ? 1.03 : 1
+    return selectedScenario.baseKwhPerPerson * scenarioHouseholdSize * selectedScenario.householdMultiplier * sizeFactor * weekendFactor
+  }, [scenarioHouseholdSize, selectedScenario])
+  const generatedScenarioMonthlyKwh = generatedScenarioDailyKwh * 30
+  const scenarioDifference = generatedScenarioDailyKwh - totalDailyUsage
 
   // when rendering community panel, prefer server-provided data if available
   const effectiveCommunityData = communityData ?? localFallbackCommunity
+
+  useEffect(() => {
+    setScenarioHouseholdSize(Math.max(1, frontendHouseholdSize))
+  }, [frontendHouseholdSize])
 
   return (
     <div className="space-y-6 pb-16 sm:pb-0">
@@ -310,6 +363,67 @@ export default function Compare() {
             </div>
           </>
         )}
+      </div>
+
+      <div className="card">
+        <h2 className="text-lg font-medium mb-4">Household Scenario Explorer</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Generate a realistic household profile to preview how different family sizes and lifestyles change projected usage.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="flex flex-col gap-1 text-sm">
+            Household Size
+            <select
+              value={scenarioHouseholdSize}
+              onChange={e => setScenarioHouseholdSize(Number(e.target.value))}
+              className="border rounded-md px-3 py-2 bg-white dark:bg-gray-900"
+            >
+              {Array.from({ length: 8 }, (_, index) => index + 1).map(size => (
+                <option key={size} value={size}>
+                  {size} {size === 1 ? 'person' : 'people'}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="md:col-span-2 flex flex-col gap-1 text-sm">
+            Household Type
+            <select
+              value={scenarioProfile}
+              onChange={e => setScenarioProfile(e.target.value as HouseholdProfileKey)}
+              className="border rounded-md px-3 py-2 bg-white dark:bg-gray-900"
+            >
+              {HOUSEHOLD_SCENARIOS.map(profile => (
+                <option key={profile.key} value={profile.key}>
+                  {profile.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="mt-4 rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
+          <p className="font-medium">{selectedScenario.label}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{selectedScenario.description}</p>
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="rounded-md bg-white dark:bg-gray-900 p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Scenario Daily Usage</p>
+              <p className="text-xl font-semibold">{formatNumber(generatedScenarioDailyKwh, 2)} kWh/day</p>
+            </div>
+            <div className="rounded-md bg-white dark:bg-gray-900 p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Scenario Monthly Usage</p>
+              <p className="text-xl font-semibold">{formatNumber(generatedScenarioMonthlyKwh, 0)} kWh/mo</p>
+            </div>
+            <div className="rounded-md bg-white dark:bg-gray-900 p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Difference vs You</p>
+              <p className={`text-xl font-semibold ${scenarioDifference <= 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                {scenarioDifference > 0 ? '+' : ''}
+                {formatNumber(scenarioDifference, 2)} kWh/day
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Historical Comparison */}
