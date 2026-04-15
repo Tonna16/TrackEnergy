@@ -41,9 +41,9 @@ const SignupPage: React.FC = () => {
     setError(null);
     try {
       const res = await api.post('auth/signup', {
-        username,
-        fullName,
-        email,
+        username: username.trim(),
+        fullName: fullName.trim(),
+        email: email.trim().toLowerCase(),
         password,
       });
 

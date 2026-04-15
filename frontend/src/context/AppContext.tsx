@@ -540,7 +540,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     if (appMode === 'live') {
       try {
-        await api.put(`appliances/${id}`, updated)
+        await api.patch(`appliances/${id}/active`, { active })
         setAppliances(prev => prev.map(a => (a.id === id ? updated : a)))
       } catch (err) {
         console.error('Failed to set appliance active state:', err)

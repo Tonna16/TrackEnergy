@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
     try {
       // POST to /api/auth/login
       const res = await api.post('auth/login', {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         remember,
       });

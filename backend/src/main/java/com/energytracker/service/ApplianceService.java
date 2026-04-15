@@ -138,5 +138,27 @@ public class ApplianceService {
         return applianceRepo.findAllByUserIdAndActiveTrueAndDeletedFalse(userId);
     }
 
+    @Transactional
+    public Appliance setApplianceActive(Long userId, Long applianceId, boolean active) {
+        logger.info("Setting active state for appliance id={} userId={} active={}", applianceId, userId, active);
+        Appliance existing = applianceRepo.findById(applianceId)
+            .orElseThrow(() -> new IllegalArgumentException("Appliance not found: id=" + applianceId));
+
+        if (userId != null) {
+            if (existing.getUser() == null || !existing.getUser().getId().equals(userId)) {
+                throw new IllegalArgumentException("Not authorized to update this appliance.");
+            }
+        } else if (existing.getUser() != null) {
+            throw new IllegalArgumentException("Not authorized to update this appliance.");
+        }
+
+        existing.setActive(active);
+        if (active) {
+            existing.setDeleted(false);
+        }
+        existing.setUpdatedAt(LocalDateTime.now());
+        return applianceRepo.save(existing);
+    }
+
 
 }
