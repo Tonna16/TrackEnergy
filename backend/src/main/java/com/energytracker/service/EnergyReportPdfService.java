@@ -6,11 +6,14 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -24,6 +27,7 @@ public class EnergyReportPdfService {
     private static final float MARGIN = 50f;
     private static final float MIN_Y = 75f;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.US);
+    private static final String PDFBOX_LIBERATION_FONT_PATH = "/org/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf";
 
     public byte[] generateReport(String reportType,
                                  Long userId,
@@ -93,12 +97,14 @@ public class EnergyReportPdfService {
 
     private static class PdfCursor {
         private final PDDocument document;
+        private final PDFont font;
         private PDPage page;
         private PDPageContentStream content;
         private float y;
 
         private PdfCursor(PDDocument document) throws IOException {
             this.document = document;
+            this.font = loadFont(document);
             newPage();
         }
 
@@ -111,11 +117,47 @@ public class EnergyReportPdfService {
                 newPage();
             }
             content.beginText();
-            content.setFont(PDType1Font.HELVETICA, fontSize);
+            content.setFont(font, fontSize);
             content.newLineAtOffset(MARGIN, y);
-            content.showText(text);
+            content.showText(prepareText(text));
             content.endText();
             y -= (fontSize + 6);
+        }
+
+        private String prepareText(String text) {
+            String normalized = text == null ? "" : text.replaceAll("[\\r\\n\\t]+", " ");
+            if (font instanceof PDType0Font) {
+                return normalized;
+            }
+
+            StringBuilder safeText = new StringBuilder(normalized.length());
+            normalized.codePoints().forEach(codePoint -> {
+                String candidate = new String(Character.toChars(codePoint));
+                if (canEncode(candidate)) {
+                    safeText.append(candidate);
+                } else {
+                    safeText.append('?');
+                }
+            });
+            return safeText.toString();
+        }
+
+        private boolean canEncode(String candidate) {
+            try {
+                font.encode(candidate);
+                return true;
+            } catch (IllegalArgumentException | IOException ex) {
+                return false;
+            }
+        }
+
+        private PDFont loadFont(PDDocument document) throws IOException {
+            try (InputStream fontStream = EnergyReportPdfService.class.getResourceAsStream(PDFBOX_LIBERATION_FONT_PATH)) {
+                if (fontStream != null) {
+                    return PDType0Font.load(document, fontStream, true);
+                }
+            }
+            return PDType1Font.HELVETICA;
         }
 
         private void newPage() throws IOException {
