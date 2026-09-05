@@ -67,7 +67,15 @@ npm run build
 npm run preview
 ```
 
-The production files are written to `frontend/dist` and can be deployed to a static host. Browser-local demo history is intentionally not synchronized into H2 when changing modes.
+For a production static demo build:
+
+```powershell
+cd frontend
+npm ci
+npm run build
+```
+
+Deploy only the generated contents of `frontend/dist` to the static host. The default build uses hash routing, needs no backend, and keeps demo data in that browser's localStorage. Browser-local demo history is intentionally not synchronized into H2 when changing modes.
 
 Runtime mode resolution is fail-safe:
 
@@ -105,14 +113,32 @@ The backend defaults to:
 - Port: `8080`
 - Allowed frontend origin: `http://localhost:5173`
 
-Set `JWT_SECRET` for any non-local deployment. Database and CORS settings can be overridden with `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DRIVER`, and `CORS_ALLOWED_ORIGINS`.
+Set `JWT_SECRET` for any non-local deployment. Database and CORS settings can be overridden with `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DRIVER`, and `CORS_ALLOWED_ORIGINS`. `CORS_ALLOWED_ORIGINS` is a comma-separated list used for both HTTP API requests and WebSocket handshakes, for example `https://energyiq.example,http://localhost:5173`.
 
-Run backend verification with:
+## Tests and production builds
+
+Run the complete frontend verification from a dependency-lock clean install:
+
+```powershell
+cd frontend
+npm ci
+npm run lint
+npm test
+npm run build
+npm run build:fullstack
+```
+
+Run the Java 21 backend tests and create the executable Spring Boot package:
 
 ```powershell
 cd backend
 .\mvnw.cmd test
+.\mvnw.cmd clean package
 ```
+
+`npm run build` creates the server-free static demo. `npm run build:fullstack` creates a browser-routing frontend that expects the Spring application at the configured `/api` and `/ws` routes. The backend package is written under `backend/target`; run it with `java -jar target/backend-0.0.1-SNAPSHOT.jar`. H2 remains a local runtime database under `backend/data`.
+
+Generated dependencies, build output, local databases, operating-system metadata, and logs are deliberately ignored. Do not add `frontend/node_modules`, `frontend/dist`, `backend/target`, `backend/data`, `.DS_Store`, database files, or `installation_summary.log` to source commits or archives.
 
 ## Projection and forecast modes
 

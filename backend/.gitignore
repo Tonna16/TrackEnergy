@@ -1,0 +1,7 @@
+target/
+data/
+*.mv.db
+*.trace.db
+.classpath
+.project
+.settings/

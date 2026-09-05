@@ -14,9 +14,11 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtUtil jwtUtil;
+    private final CorsOriginConfiguration corsOrigins;
 
-    public WebSocketConfig(JwtUtil jwtUtil) {
+    public WebSocketConfig(JwtUtil jwtUtil, CorsOriginConfiguration corsOrigins) {
         this.jwtUtil = jwtUtil;
+        this.corsOrigins = corsOrigins;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
             .addEndpoint("/ws")
             .addInterceptors(new JwtHandshakeInterceptor(jwtUtil), new HttpSessionHandshakeInterceptor())
-            .setAllowedOriginPatterns("http://localhost:5173")
+            .setAllowedOriginPatterns(corsOrigins.allowedOrigins().toArray(String[]::new))
             .withSockJS();
     }
 }
