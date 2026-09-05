@@ -1,0 +1,14 @@
+
+Installation Directory: /Users/adannaa/Downloads/EnergyTracker
+Server Installation Directory: /Users/adannaa/Downloads/EnergyTracker
+Data Directory: /Users/adannaa/Downloads/data
+Database Port: 5432
+Database Superuser: postgres
+Operating System Account: postgres
+Database Service: postgresql-17
+Command Line Tools Installation Directory: /Users/adannaa/Downloads/EnergyTracker
+pgAdmin4 Installation Directory: /Users/adannaa/Downloads/EnergyTracker/pgAdmin 4
+Stack Builder Installation Directory: /Users/adannaa/Downloads/EnergyTracker/stackbuilder
+Installation Log: /tmp/install-postgresql.log
+===== Installation completed at: 2025-05-30(YYYY-MM-DD) - 10:21:00(HH:MM:SS) =====
+                            

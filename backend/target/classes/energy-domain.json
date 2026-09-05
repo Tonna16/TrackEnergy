@@ -1,0 +1,56 @@
+{
+  "defaults": {
+    "currency": "USD",
+    "electricityRate": 0.17
+  },
+  "carbon": {
+    "kgCo2PerKwh": 0.394,
+    "label": "Estimated emissions",
+    "sourceName": "U.S. EPA Greenhouse Gas Equivalencies Calculator",
+    "sourceUrl": "https://www.epa.gov/energy/greenhouse-gas-equivalencies-calculator-calculations-and-references",
+    "notice": "This national electricity-consumption factor is an estimate. Regional electricity emissions vary."
+  },
+  "calculationExamples": [
+    {
+      "name": "daily-seven-days",
+      "wattage": 100,
+      "hoursPerDay": 4,
+      "daysPerWeek": 7,
+      "estimatedDailyKWh": null,
+      "expectedDailyKwh": 0.4
+    },
+    {
+      "name": "daily-five-days",
+      "wattage": 1200,
+      "hoursPerDay": 1,
+      "daysPerWeek": 5,
+      "estimatedDailyKWh": null,
+      "expectedDailyKwh": 0.8571428571428571
+    },
+    {
+      "name": "manual-override",
+      "wattage": 150,
+      "hoursPerDay": 8,
+      "daysPerWeek": 7,
+      "estimatedDailyKWh": 1.1,
+      "expectedDailyKwh": 1.1
+    },
+    {
+      "name": "zero-manual-override",
+      "wattage": 1500,
+      "hoursPerDay": 8,
+      "daysPerWeek": 7,
+      "estimatedDailyKWh": 0,
+      "expectedDailyKwh": 0
+    }
+  ],
+  "historyForecastExamples": [
+    {
+      "name": "constant-sixty-day-series",
+      "historyDays": 60,
+      "repeatPattern": [2.0],
+      "forecastDays": 7,
+      "expectedForecastKwh": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+@tailwind   base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 16 185 129;
+    --color-secondary: 99 102 241;
+    --bg-gradient-start: 236 253 245;
+    --bg-gradient-end: 224 231 255;
+  }
+  
+   body {
+    @apply bg-gray-50 text-gray-800 min-h-screen antialiased;
+    background-image: radial-gradient(circle at top left, rgba(var(--bg-gradient-start), 0.45), transparent 55%),
+      radial-gradient(circle at bottom right, rgba(var(--bg-gradient-end), 0.45), transparent 50%);
+  } 
+  
+   .dark body {
+    @apply bg-dark-bg text-dark-text;
+    background-image: radial-gradient(circle at top left, rgba(16, 185, 129, 0.12), transparent 55%),
+      radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.12), transparent 50%);
+  }
+  
+  .dark input, 
+  .dark select, 
+  .dark textarea {
+    @apply bg-dark-input border-dark-border text-dark-text;
+  } 
+} 
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-emerald-500 text-white hover:bg-emerald-600;
+  }
+  
+  .btn-secondary {
+    @apply bg-indigo-500 text-white hover:bg-indigo-600;
+  }
+  
+  .btn-outline {
+    @apply border border-gray-300 hover:bg-gray-100;
+  }
+  
+   .card {
+    @apply bg-white rounded-xl shadow-sm p-4 border border-gray-100 dark:bg-black dark:border-dark-border transition-all duration-300;
+   } 
+
+   .surface-glass {
+    @apply bg-white/80 dark:bg-black/70 backdrop-blur-md border border-white/60 dark:border-white/10;
+   }
+
+   .card-interactive {
+    @apply hover:-translate-y-1 hover:shadow-lg;
+   }
+
+   .fade-in-up {
+    animation: fade-in-up 600ms ease-out both;
+   }
+
+   .pulse-soft {
+    animation: pulse-soft 2.5s ease-in-out infinite;
+   }
+
+   .stagger-1 { animation-delay: 60ms; }
+   .stagger-2 { animation-delay: 120ms; }
+   .stagger-3 { animation-delay: 180ms; }
+   .stagger-4 { animation-delay: 240ms; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .pulse-soft {
+    animation: none !important;
+  }
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body,
+  .app-shell,
+  .app-main {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+    background-image: none !important;
+  }
+
+  .app-chrome,
+  .print-hidden {
+    display: none !important;
+  }
+
+  .app-main {
+    padding: 0 !important;
+  }
+
+  .print-report {
+    max-width: none !important;
+    color: #111827 !important;
+  }
+
+  .print-report .card {
+    break-inside: avoid;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    background: white !important;
+    color: #111827 !important;
+  }
+}
+ 
