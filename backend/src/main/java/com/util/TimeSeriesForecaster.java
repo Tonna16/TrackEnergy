@@ -57,6 +57,7 @@ public class TimeSeriesForecaster {
         LocalDate start = end.minusDays(Math.max(historyDays, OPTIMAL_HISTORY_DAYS) - 1);
 
         Map<LocalDate, Double> dailyUsage = logRepo.findByApplianceIdAndDateBetween(applianceId, start, end).stream()
+                .filter(entry -> Double.isFinite(entry.getKWhUsed()) && entry.getKWhUsed() >= 0)
                 .collect(Collectors.groupingBy(EnergyUsageLog::getDate, Collectors.summingDouble(EnergyUsageLog::getKWhUsed)));
 
         // Fill missing days with interpolated values
@@ -103,6 +104,7 @@ public class TimeSeriesForecaster {
         LocalDate start = end.minusDays(OPTIMAL_HISTORY_DAYS - 1);
 
         Map<LocalDate, Double> dailyUsage = logRepo.findByApplianceIdAndDateBetween(applianceId, start, end).stream()
+                .filter(entry -> Double.isFinite(entry.getKWhUsed()) && entry.getKWhUsed() >= 0)
                 .collect(Collectors.groupingBy(EnergyUsageLog::getDate, Collectors.summingDouble(EnergyUsageLog::getKWhUsed)));
 
         List<Double> series = fillMissingDays(dailyUsage, start, end);

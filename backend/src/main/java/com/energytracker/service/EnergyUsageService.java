@@ -218,20 +218,32 @@ public class EnergyUsageService {
     @Transactional(readOnly = true)
     public HistoryForecastDTO getHistoryForecast(Long userId, String timeRange) {
         List<Appliance> appliances = getAppliances(userId);
-        long historyDays = appliances.isEmpty()
-            ? 0L
-            : appliances.stream()
-                .mapToLong(appliance -> logRepo.countDistinctValidUsageDaysByApplianceId(appliance.getId()))
-                .min()
-                .orElse(0L);
+        LocalDate end = LocalDate.now(clock).minusDays(1);
+        LocalDate coverageStart = end.minusDays(89);
+        LocalDate trainingStart = end.minusDays(REQUIRED_HISTORY_DAYS - 1L);
+        long historyDays = appliances.isEmpty() ? 0L : 90L;
+        long recentHistoryDays = appliances.isEmpty() ? 0L : REQUIRED_HISTORY_DAYS;
+        for (Appliance appliance : appliances) {
+            List<LocalDate> dates = logRepo.findByApplianceIdAndDateBetween(appliance.getId(), coverageStart, end)
+                .stream()
+                .filter(entry -> entry.getDate() != null && !entry.getDate().isBefore(coverageStart)
+                    && !entry.getDate().isAfter(end) && Double.isFinite(entry.getKWhUsed()) && entry.getKWhUsed() >= 0)
+                .map(EnergyUsageLog::getDate).distinct().toList();
+            historyDays = Math.min(historyDays, dates.size());
+            recentHistoryDays = Math.min(recentHistoryDays,
+                dates.stream().filter(date -> !date.isBefore(trainingStart)).count());
+        }
+        String dataCoverage = historyDays + "/90 completed days recorded; " + recentHistoryDays
+            + "/60 in the latest training window";
 
-        if (appliances.isEmpty() || historyDays < REQUIRED_HISTORY_DAYS) {
+        if (appliances.isEmpty() || recentHistoryDays < REQUIRED_HISTORY_DAYS) {
             return new HistoryForecastDTO(
                 "insufficient_history",
-                null,
+                dataCoverage,
                 historyDays,
+                recentHistoryDays,
                 REQUIRED_HISTORY_DAYS,
-                "History-Based Forecast requires at least 60 valid daily observations for every active appliance. Showing Formula Projection instead.",
+                "History-Based Forecast requires an observation on each of the latest 60 completed days for every active appliance. Showing Formula Projection instead.",
                 Collections.emptyList()
             );
         }
@@ -272,10 +284,11 @@ public class EnergyUsageService {
 
         return new HistoryForecastDTO(
             "available",
-            historyDays >= 90 ? "high" : "medium",
+            dataCoverage,
             historyDays,
+            recentHistoryDays,
             REQUIRED_HISTORY_DAYS,
-            "Deterministic Holt/Holt-Winters forecast from recorded daily history.",
+            "Deterministic Holt/Holt-Winters forecast from the latest 60 completed days. Data coverage describes observations, not forecast accuracy.",
             projections
         );
     }

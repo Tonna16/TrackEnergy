@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+declare const __ENERGYIQ_BACKEND_ENABLED__: boolean;
 
 interface ImportMetaEnv {
   readonly VITE_DEMO_MODE?: string;

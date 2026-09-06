@@ -10,8 +10,6 @@ import {
 
 export { getKwhPerDay, getKwhPerMonth, getKwhPerWeek } from './energyCalculations';
 
-export type ConfidenceTier = 'high' | 'medium' | 'low';
-
 export type UsageHistoryPoint = {
   date: string;
   kWhUsed: number;
@@ -23,7 +21,6 @@ export type UsageHistoryPoint = {
 export type ChartPoint = {
   date: string;
   total?: number;
-  confidence?: ConfidenceTier;
   isEstimated?: boolean;
   daysInPeriod?: number;
 } & Record<string, number | string | boolean | undefined>;
@@ -90,7 +87,6 @@ export function generateEstimate({
       date: isoDate(date),
       total,
       ...values,
-      confidence: 'high',
       isEstimated: true,
       daysInPeriod: periodDays,
     };

@@ -3,6 +3,7 @@ package com.energytracker.service;
 import com.energytracker.dto.HistoryForecastDTO;
 import com.energytracker.dto.UsageProjectionDTO;
 import com.energytracker.model.Appliance;
+import com.energytracker.model.EnergyUsageLog;
 import com.energytracker.model.UserSettings;
 import com.energytracker.repository.ApplianceRepository;
 import com.energytracker.repository.EnergyUsageLogRepository;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,34 +69,94 @@ class EnergyUsageProjectionContractTest {
     }
 
     @Test
-    void historyAvailabilityAndConfidenceNeverMixFormulaData() {
+    void historyAvailabilityAndCoverageNeverMixFormulaData() {
         Appliance first = appliance(1L, "One", 1000, 1, 7, null);
         Appliance second = appliance(2L, "Two", 1000, 1, 7, null);
         Fixture fixture = fixture(List.of(first, second));
-        when(fixture.logRepo.countDistinctValidUsageDaysByApplianceId(1L)).thenReturn(90L);
-        when(fixture.logRepo.countDistinctValidUsageDaysByApplianceId(2L)).thenReturn(59L);
+        stubHistory(fixture, 1L, history(90, 0));
+        stubHistory(fixture, 2L, history(59, 0));
 
         HistoryForecastDTO insufficient = fixture.service.getHistoryForecast(7L, "daily");
         assertEquals("insufficient_history", insufficient.getStatus());
         assertTrue(insufficient.getProjections().isEmpty());
         verify(fixture.forecaster, never()).forecastNextNDays(anyLong(), anyInt());
 
-        when(fixture.logRepo.countDistinctValidUsageDaysByApplianceId(2L)).thenReturn(60L);
+        stubHistory(fixture, 2L, history(60, 0));
         when(fixture.forecaster.forecastNextNDays(anyLong(), anyInt())).thenAnswer(invocation -> {
             int days = invocation.getArgument(1);
             long applianceId = invocation.getArgument(0);
             return new ArrayList<>(Collections.nCopies(days, applianceId == 1L ? 1.0 : 2.0));
         });
-        HistoryForecastDTO medium = fixture.service.getHistoryForecast(7L, "monthly");
-        assertEquals("available", medium.getStatus());
-        assertEquals("medium", medium.getConfidence());
-        assertEquals(60, medium.getHistoryDays());
-        assertEquals("history-based", medium.getProjections().get(0).getSource());
-        assertEquals(87.0, medium.getProjections().get(0).getTotalKwh(), 1e-12);
+        HistoryForecastDTO available = fixture.service.getHistoryForecast(7L, "monthly");
+        assertEquals("available", available.getStatus());
+        assertEquals("60/90 completed days recorded; 60/60 in the latest training window", available.getDataCoverage());
+        assertEquals(60, available.getHistoryDays());
+        assertEquals(60, available.getRecentHistoryDays());
+        assertEquals("history-based", available.getProjections().get(0).getSource());
+        assertEquals(87.0, available.getProjections().get(0).getTotalKwh(), 1e-12);
 
-        when(fixture.logRepo.countDistinctValidUsageDaysByApplianceId(2L)).thenReturn(90L);
-        HistoryForecastDTO high = fixture.service.getHistoryForecast(7L, "daily");
-        assertEquals("high", high.getConfidence());
+        stubHistory(fixture, 2L, history(120, 0));
+        assertEquals("90/90 completed days recorded; 60/60 in the latest training window",
+            fixture.service.getHistoryForecast(7L, "daily").getDataCoverage());
+    }
+
+    @Test
+    void sixtyObservationsOverAYearOldNeverUnlockAZeroForecast() {
+        Fixture fixture = fixture(List.of(appliance(1L, "One", 1000, 1, 7, null)));
+        List<EnergyUsageLog> old = history(60, 400);
+        stubHistory(fixture, 1L, old);
+        HistoryForecastDTO result = fixture.service.getHistoryForecast(7L, "daily");
+        assertEquals("insufficient_history", result.getStatus());
+        assertEquals(0, result.getHistoryDays());
+        assertTrue(result.getProjections().isEmpty());
+        old.addAll(history(1, 0));
+        result = fixture.service.getHistoryForecast(7L, "daily");
+        assertEquals("insufficient_history", result.getStatus());
+        assertEquals(1, result.getRecentHistoryDays());
+        assertTrue(result.getProjections().isEmpty());
+        verify(fixture.forecaster, never()).forecastNextNDays(anyLong(), anyInt());
+    }
+
+    @Test
+    void sparseDuplicateInvalidCurrentAndFutureDaysCannotQualify() {
+        Fixture fixture = fixture(List.of(appliance(1L, "One", 1000, 1, 7, null)));
+        List<EnergyUsageLog> sparse = history(90, 0).stream()
+            .filter(entry -> java.time.temporal.ChronoUnit.DAYS.between(entry.getDate(), LocalDate.now(CLOCK)) % 3 != 0)
+            .toList();
+        assertEquals(60, sparse.size());
+        stubHistory(fixture, 1L, sparse);
+        assertEquals("insufficient_history", fixture.service.getHistoryForecast(7L, "daily").getStatus());
+
+        List<EnergyUsageLog> incomplete = history(59, 0);
+        incomplete.addAll(history(59, 0));
+        incomplete.addAll(history(2, -2)); // today and tomorrow
+        EnergyUsageLog invalid = history(1, 59).getFirst();
+        for (double kwh : new double[] {Double.NaN, Double.POSITIVE_INFINITY, -1.0}) {
+            invalid.setKWhUsed(kwh);
+            List<EnergyUsageLog> entries = new ArrayList<>(incomplete);
+            entries.add(invalid);
+            stubHistory(fixture, 1L, entries);
+            HistoryForecastDTO result = fixture.service.getHistoryForecast(7L, "daily");
+            assertEquals("insufficient_history", result.getStatus());
+            assertEquals(59, result.getRecentHistoryDays());
+        }
+        verify(fixture.forecaster, never()).forecastNextNDays(anyLong(), anyInt());
+    }
+
+    private List<EnergyUsageLog> history(int days, int age) {
+        List<EnergyUsageLog> entries = new ArrayList<>();
+        for (int index = 1; index <= days; index++) {
+            EnergyUsageLog entry = new EnergyUsageLog();
+            entry.setDate(LocalDate.now(CLOCK).minusDays(age + index));
+            entry.setKWhUsed(2.0);
+            entries.add(entry);
+        }
+        return entries;
+    }
+
+    private void stubHistory(Fixture fixture, Long applianceId, List<EnergyUsageLog> entries) {
+        when(fixture.logRepo.findByApplianceIdAndDateBetween(applianceId,
+            LocalDate.now(CLOCK).minusDays(90), LocalDate.now(CLOCK).minusDays(1))).thenReturn(entries);
     }
 
     private Fixture fixture(List<Appliance> appliances) {

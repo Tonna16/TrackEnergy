@@ -1,7 +1,12 @@
 import { jwtDecode } from 'jwt-decode'
-import axios from 'axios'
+import { BACKEND_ENABLED } from '../config/runtime'
 
-export const getAuthToken = () => localStorage.getItem('accessToken')
+export const getAuthToken = () => BACKEND_ENABLED ? localStorage.getItem('accessToken') : null
+
+async function loadAxios() {
+  if (!BACKEND_ENABLED) throw new Error('Accounts require local full-stack mode.')
+  return (await import('axios')).default
+}
 
 export const saveAuthToken = (token: string) => {
   localStorage.setItem('accessToken', token)
@@ -32,14 +37,15 @@ export const clearClientAuthState = () => {
 }
 
 export const logout = () => {
+  if (!BACKEND_ENABLED) return
   const csrfToken = getCsrfToken()
   if (csrfToken) {
-    void axios.post('/api/auth/logout', {}, {
+    void loadAxios().then(axios => axios.post('/api/auth/logout', {}, {
       withCredentials: true,
       headers: {
         'X-CSRF-Token': csrfToken,
       },
-    })
+    })).catch(() => undefined)
   }
 
   clearClientAuthState()
@@ -48,6 +54,7 @@ export const logout = () => {
 }
 
 export function isTokenExpired(token: string): boolean {
+  if (!BACKEND_ENABLED) return true
   try {
     const { exp } = jwtDecode<{ exp: number }>(token)
     return exp * 1000 < Date.now()
@@ -57,6 +64,7 @@ export function isTokenExpired(token: string): boolean {
 }
 
 export async function refreshAccessTokenIfNeeded(): Promise<string> {
+  if (!BACKEND_ENABLED) throw new Error('Accounts require local full-stack mode.')
   const accessToken = getAuthToken()
 
   if (accessToken && !isTokenExpired(accessToken)) {
@@ -69,6 +77,7 @@ export async function refreshAccessTokenIfNeeded(): Promise<string> {
     throw new Error('No CSRF token available for refresh')
   }
 
+  const axios = await loadAxios()
   const response = await axios.post('/api/auth/refresh', {}, {
     withCredentials: true,
     headers: {

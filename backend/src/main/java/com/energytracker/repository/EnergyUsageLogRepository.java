@@ -73,13 +73,6 @@ public interface EnergyUsageLogRepository extends JpaRepository<EnergyUsageLog, 
     long countDistinctUsageDaysByUserId(@Param("userId") Long userId);
 
     @Query("""
-      SELECT COUNT(DISTINCT u.date) FROM EnergyUsageLog u
-      WHERE u.appliance.id = :applianceId
-        AND u.kWhUsed >= 0
-    """)
-    long countDistinctValidUsageDaysByApplianceId(@Param("applianceId") Long applianceId);
-
-    @Query("""
       SELECT COALESCE(SUM(u.kWhUsed), 0), COUNT(DISTINCT u.date)
       FROM EnergyUsageLog u
       JOIN u.appliance a

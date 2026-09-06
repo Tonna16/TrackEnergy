@@ -1,11 +1,14 @@
 import  { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import MobileNav from './MobileNav';
+import { useAppContext } from '../context/AppContext';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { authError, resolveAuthState } = useAppContext();
+  const location = useLocation();
   
   return (
     <div className="app-shell relative flex h-screen overflow-hidden bg-gray-50 dark:bg-black">
@@ -21,6 +24,10 @@ export default function Layout() {
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         <main className="app-main flex-1 overflow-auto p-4 md:p-6 fade-in-up">
+          {authError && !location.pathname.startsWith('/profile') && <div role="alert" className="mb-4 rounded bg-amber-50 p-3 text-amber-800">
+            {authError.message}{' '}
+            <button className="underline" onClick={() => void resolveAuthState()}>Retry</button>
+          </div>}
           <Outlet />
         </main>
 

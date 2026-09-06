@@ -50,16 +50,46 @@ describe('local deterministic history forecasts', () => {
     expect(forecastHistorySeries(series, fixture.forecastDays)).toEqual(fixture.expectedForecastKwh);
   });
 
-  it('enforces 60/90-day availability and confidence thresholds', () => {
+  it('requires complete recent training coverage and reports coverage without confidence claims', () => {
     expect(getLocalHistoryStatus([appliance], history(59), today)).toMatchObject({ available: false, historyDays: 59 });
-    expect(getLocalHistoryStatus([appliance], history(60), today)).toMatchObject({ available: true, confidence: 'medium', granularity: 'appliance' });
-    expect(getLocalHistoryStatus([appliance], history(90), today)).toMatchObject({ available: true, confidence: 'high', granularity: 'appliance' });
+    expect(getLocalHistoryStatus([appliance], history(60), today)).toMatchObject({ available: true, historyDays: 60, recentHistoryDays: 60, granularity: 'appliance' });
+    expect(getLocalHistoryStatus([appliance], history(120), today)).toMatchObject({ available: true, historyDays: 90, recentHistoryDays: 60, granularity: 'appliance', dataCoverage: '90/90 completed days recorded; 60/60 in the latest training window' });
   });
 
   it('prefers complete appliance history and otherwise falls back to household totals', () => {
     const combined = [...history(59), ...history(90, 'household', 3)];
-    expect(getLocalHistoryStatus([appliance], combined, today)).toMatchObject({ granularity: 'household', confidence: 'high' });
+    expect(getLocalHistoryStatus([appliance], combined, today)).toMatchObject({ granularity: 'household', historyDays: 90 });
     expect(getLocalHistoryStatus([appliance], [...history(60), ...history(90, 'household')], today)).toMatchObject({ granularity: 'appliance' });
+  });
+
+  it.each(['appliance', 'household'] as const)('rejects 60 observations over a year old for %s forecasts', scope => {
+    const old = history(60, scope).map(entry => ({
+      ...entry, date: isoDate(new Date(new Date(`${entry.date}T00:00:00`).getTime() - 400 * 86_400_000)),
+    }));
+    for (const entries of [old, [...old, ...history(1, scope)]]) {
+      const result = generateLocalHistoryForecast({ appliances: [appliance], history: entries, range: 'daily', electricityRate: 0.2, currency: 'USD', today });
+      expect(result.status).toBe('insufficient_history');
+      expect(result.historyDays).toBe(entries.length - 60);
+      expect(result.projections).toEqual([]);
+    }
+  });
+
+  it('rejects sparse, duplicate, invalid, current and future observations even with 60 older qualifying days', () => {
+    const sparse = history(90).filter((_, index) => index % 3 !== 0);
+    expect(sparse).toHaveLength(60);
+    expect(getLocalHistoryStatus([appliance], sparse, today)).toMatchObject({ available: false, historyDays: 60, recentHistoryDays: 40 });
+    const incomplete = history(60).slice(0, -1);
+    const invalid = ['2024-01-15', '2024-01-16', '2023-11-31'].map(date => ({ ...incomplete[0], date }));
+    expect(getLocalHistoryStatus([appliance], [...incomplete, ...incomplete, ...invalid], today)).toMatchObject({ available: false, recentHistoryDays: 59 });
+    expect(getLocalHistoryStatus([appliance], history(60).map((entry, index) => index === 0 ? { ...entry, kwh: NaN } : entry), today).available).toBe(false);
+  });
+
+  it('allows an explicit zero forecast only with complete recent observations', () => {
+    const result = generateLocalHistoryForecast({ appliances: [appliance], history: history(60, 'appliance', 0), range: 'daily', electricityRate: 0.2, currency: 'USD', today });
+    expect(result.status).toBe('available');
+    expect(result.projections).toHaveLength(30);
+    expect(result.projections.every(point => point.totalKwh === 0)).toBe(true);
+    expect(result).not.toHaveProperty('confidence');
   });
 
   it('uses explicit household totals instead of double-counting appliance entries', () => {

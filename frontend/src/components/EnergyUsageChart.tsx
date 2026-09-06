@@ -37,8 +37,9 @@ interface ProjectionResponse {
 interface HistoryForecastResponse {
   status: 'available' | 'insufficient_history';
   source: 'history-based';
-  confidence: 'medium' | 'high' | null;
+  dataCoverage: string;
   historyDays: number;
+  recentHistoryDays: number;
   requiredHistoryDays: number;
   explanation?: string;
   projections: ProjectionResponse[];
@@ -71,7 +72,7 @@ export default function EnergyUsageChart({
   const [showAverage, setShowAverage] = useState(true);
   const [serverData, setServerData] = useState<ProjectionResponse[]>([]);
   const [historyMessage, setHistoryMessage] = useState<string | null>(null);
-  const [historyConfidence, setHistoryConfidence] = useState<'medium' | 'high' | null>(null);
+  const [historyCoverage, setHistoryCoverage] = useState<string | null>(null);
 
   const localData = useMemo(() => generateEstimate({
     appliances: trackedAppliances,
@@ -92,11 +93,11 @@ export default function EnergyUsageChart({
   useEffect(() => {
     if (!demoMode || forecastSource !== 'history') return;
     if (localHistory.status === 'available') {
-      setHistoryConfidence(localHistory.confidence);
+      setHistoryCoverage(localHistory.dataCoverage);
       setHistoryMessage(null);
       if (localHistory.granularity === 'household') setViewMode('total');
     } else {
-      setHistoryConfidence(null);
+      setHistoryCoverage(null);
       setHistoryMessage(`${localHistory.explanation} Showing Formula Projection instead.`);
       setForecastSource('formula');
     }
@@ -124,14 +125,14 @@ export default function EnergyUsageChart({
           const history = response.data;
           if (history.status === 'available') {
             setServerData(history.projections);
-            setHistoryConfidence(history.confidence);
+            setHistoryCoverage(history.dataCoverage);
             setHistoryMessage(null);
           } else {
             setServerData([]);
-            setHistoryConfidence(null);
+            setHistoryCoverage(null);
             setHistoryMessage(
               history.explanation ??
-              `History-Based Forecast needs ${history.requiredHistoryDays} valid daily observations for every active appliance.`,
+              `History-Based Forecast needs an observation on each of the latest ${history.requiredHistoryDays} completed days for every active appliance.`,
             );
             setForecastSource('formula');
           }
@@ -227,7 +228,7 @@ export default function EnergyUsageChart({
   const colorIndex = viewMode === 'total' ? 0 : trackedAppliances.findIndex(appliance => appliance.name === activeKey) + 1;
   const activeColor = colors[colorIndex % colors.length];
   const sourceLabel = forecastSource === 'history' && hasProjectionData
-    ? `History-Based Forecast${historyConfidence ? ` · ${historyConfidence} confidence` : ''}${
+    ? `History-Based Forecast${historyCoverage ? ` · ${historyCoverage}` : ''}${
         demoMode && historyEntries?.some(entry => entry.isSample) ? ' · sample data' : ''
       }`
     : 'Formula Projection';
@@ -236,9 +237,13 @@ export default function EnergyUsageChart({
     <div className="space-y-4 p-4 rounded-lg bg-white dark:bg-gray-900 shadow" style={{ height }}>
       <div className="bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200 px-4 py-2 rounded">
         {sourceLabel}. {forecastSource === 'history' && hasProjectionData
-          ? 'This deterministic forecast uses recorded history only; Formula Projection values are not blended into it.'
+          ? 'This deterministic forecast uses recorded history only; Formula Projection values are not blended into it. Data coverage does not measure forecast accuracy.'
           : useEstimate && 'Future values are projections based on appliance schedules and the configured electricity rate.'}
       </div>
+      {backendEnabled && <p className="text-sm text-gray-500">
+        Server history forecast (API-only): enter history through the authenticated local API.
+        Usage History entry is available in Local Demo; browser history is not synchronized to the server.
+      </p>}
       {historyMessage && (
         <div role="status" className="bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 px-4 py-2 rounded">
           {historyMessage}
@@ -260,8 +265,8 @@ export default function EnergyUsageChart({
             <option value="formula">Formula Projection</option>
             <option value="history" disabled={demoMode && localHistory.status !== 'available'}>
               {demoMode && localHistory.status !== 'available'
-                ? `History-Based Forecast (${localHistory.historyDays}/60 days)`
-                : 'History-Based Forecast'}
+                ? `History-Based Forecast (${localHistory.recentHistoryDays}/60 days)`
+                : backendEnabled ? 'History-Based Forecast (API-only history)' : 'History-Based Forecast'}
             </option>
           </select>
         )}

@@ -2,7 +2,6 @@ import type { Appliance } from '../context/AppContext';
 import type { UsageHistoryEntry } from '../types';
 import { calculateCarbonKg, calculateCost } from './energyCalculations';
 
-export type HistoryConfidence = 'medium' | 'high';
 export type HistoryGranularity = 'appliance' | 'household';
 export type HistoryTimeRange = 'daily' | 'weekly' | 'monthly';
 
@@ -23,8 +22,9 @@ export type HistoryProjection = {
 export type LocalHistoryForecast = {
   status: 'available' | 'insufficient_history';
   source: 'history-based';
-  confidence: HistoryConfidence | null;
+  dataCoverage: string;
   historyDays: number;
+  recentHistoryDays: number;
   requiredHistoryDays: 60;
   granularity: HistoryGranularity | null;
   explanation: string;
@@ -60,9 +60,15 @@ const standardDeviation = (values: number[]) => {
   return Math.sqrt(values.reduce((sum, value) => sum + (value - average) ** 2, 0) / values.length);
 };
 
-const validPastEntries = (history: UsageHistoryEntry[], today: Date) => {
+const validPastEntries = (history: UsageHistoryEntry[], today: Date, windowDays = 90) => {
   const yesterday = isoDate(addDays(startOfDay(today), -1));
-  return history.filter(entry => entry.date <= yesterday && Number.isFinite(entry.kwh) && entry.kwh >= 0);
+  const start = isoDate(addDays(startOfDay(today), -windowDays));
+  return history.filter(entry => {
+    const date = new Date(`${entry.date}T00:00:00`);
+    return /^\d{4}-\d{2}-\d{2}$/.test(entry.date) && !Number.isNaN(date.getTime()) &&
+      isoDate(date) === entry.date && entry.date >= start && entry.date <= yesterday &&
+      Number.isFinite(entry.kwh) && entry.kwh >= 0;
+  });
 };
 
 export function observedDailyTotals(history: UsageHistoryEntry[]): ObservedDailyTotal[] {
@@ -253,20 +259,30 @@ export function getLocalHistoryStatus(
 ) {
   const active = appliances.filter(appliance => appliance.active !== false && !appliance.deleted);
   const valid = validPastEntries(history, today);
-  const householdDays = new Set(valid.filter(entry => entry.scope === 'household').map(entry => entry.date)).size;
-  const applianceDays = active.map(appliance =>
-    new Set(valid.filter(entry => entry.scope === 'appliance' && entry.applianceId === appliance.id).map(entry => entry.date)).size);
-  const minimumApplianceDays = applianceDays.length ? Math.min(...applianceDays) : 0;
-  const granularity: HistoryGranularity | null = active.length && minimumApplianceDays >= 60
+  const recentStart = isoDate(addDays(startOfDay(today), -60));
+  const coverage = (entries: UsageHistoryEntry[]) => ({
+    historyDays: new Set(entries.map(entry => entry.date)).size,
+    recentHistoryDays: new Set(entries.filter(entry => entry.date >= recentStart).map(entry => entry.date)).size,
+  });
+  const household = coverage(valid.filter(entry => entry.scope === 'household'));
+  const perAppliance = active.map(appliance => coverage(valid.filter(entry =>
+    entry.scope === 'appliance' && entry.applianceId === appliance.id)));
+  const applianceCoverage = {
+    historyDays: perAppliance.length ? Math.min(...perAppliance.map(value => value.historyDays)) : 0,
+    recentHistoryDays: perAppliance.length ? Math.min(...perAppliance.map(value => value.recentHistoryDays)) : 0,
+  };
+  // The model trains on the latest 60 completed days. Every day must be observed;
+  // older records and interpolation must never unlock an otherwise sparse series.
+  const granularity: HistoryGranularity | null = active.length && applianceCoverage.recentHistoryDays === 60
     ? 'appliance'
-    : householdDays >= 60 ? 'household' : null;
-  const historyDays = granularity === 'appliance' ? minimumApplianceDays : granularity === 'household'
-    ? householdDays : Math.max(minimumApplianceDays, householdDays);
+    : household.recentHistoryDays === 60 ? 'household' : null;
+  const selected = granularity === 'appliance' ? applianceCoverage : granularity === 'household'
+    ? household : applianceCoverage.recentHistoryDays > household.recentHistoryDays ? applianceCoverage : household;
   return {
     available: granularity !== null,
     granularity,
-    historyDays,
-    confidence: granularity ? (historyDays >= 90 ? 'high' : 'medium') as HistoryConfidence : null,
+    ...selected,
+    dataCoverage: `${selected.historyDays}/90 completed days recorded; ${selected.recentHistoryDays}/60 in the latest training window`,
   };
 }
 
@@ -290,11 +306,12 @@ export function generateLocalHistoryForecast({
     return {
       status: 'insufficient_history',
       source: 'history-based',
-      confidence: null,
+      dataCoverage: status.dataCoverage,
       historyDays: status.historyDays,
+      recentHistoryDays: status.recentHistoryDays,
       requiredHistoryDays: 60,
       granularity: null,
-      explanation: `History-Based Forecast needs 60 valid past daily observations. ${status.historyDays} available.`,
+      explanation: `History-Based Forecast needs an observation on each of the latest 60 completed days. ${status.recentHistoryDays}/60 available.`,
       projections: [],
     };
   }
@@ -351,11 +368,12 @@ export function generateLocalHistoryForecast({
   return {
     status: 'available',
     source: 'history-based',
-    confidence: status.confidence,
+    dataCoverage: status.dataCoverage,
     historyDays: status.historyDays,
+    recentHistoryDays: status.recentHistoryDays,
     requiredHistoryDays: 60,
     granularity: status.granularity,
-    explanation: `Deterministic Holt/Holt-Winters forecast from ${status.historyDays} days of ${status.granularity} history.`,
+    explanation: `Deterministic Holt/Holt-Winters forecast from the latest 60 completed days of ${status.granularity} history. Data coverage describes observations, not forecast accuracy.`,
     projections,
   };
 }

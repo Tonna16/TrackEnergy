@@ -87,7 +87,7 @@ describe('EnergyUsageChart source behavior', () => {
           data: {
             status: 'insufficient_history',
             source: 'history-based',
-            confidence: null,
+            dataCoverage: '12/90 completed days recorded; 12/60 in the latest training window',
             historyDays: 12,
             requiredHistoryDays: 60,
             explanation: 'History-Based Forecast needs 60 valid days for every active appliance.',
@@ -116,7 +116,7 @@ describe('EnergyUsageChart source behavior', () => {
           data: {
             status: 'available',
             source: 'history-based',
-            confidence: 'high',
+            dataCoverage: '90/90 completed days recorded; 60/60 in the latest training window',
             historyDays: 90,
             requiredHistoryDays: 60,
             projections: [{ date: '2099-01-01', totalKwh: 2, totalCost: 0.4, byAppCost: {} }],
@@ -128,7 +128,8 @@ describe('EnergyUsageChart source behavior', () => {
     const selector = await screen.findByLabelText('Projection or forecast source');
     fireEvent.change(selector, { target: { value: 'history' } });
 
-    expect(await screen.findByText(/History-Based Forecast · high confidence/)).toBeInTheDocument();
+    expect(await screen.findByText(/History-Based Forecast · 90\/90 completed days recorded/)).toBeInTheDocument();
+    expect(screen.getByText(/Server history forecast \(API-only\)/)).toBeInTheDocument();
     expect(screen.getByText(/deterministic forecast uses recorded history only/)).toBeInTheDocument();
   });
 });

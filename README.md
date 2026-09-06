@@ -105,7 +105,9 @@ npm ci
 npm run dev:fullstack
 ```
 
-Open `http://localhost:5173`. Full-stack mode uses browser routing and enables accounts, authenticated persistence, server reports, WebSocket notifications, formula APIs, and the separate server History-Based Forecast option. `.env.fullstack` sets `VITE_DEMO_MODE=false` and `VITE_BACKEND_ENABLED=true` for both full-stack scripts.
+Open `http://localhost:5173`. Full-stack mode uses browser routing and enables accounts, authenticated persistence, server reports, WebSocket notifications, formula APIs, and the separate server History-Based Forecast option. Existing appliances and settings load as part of authentication, before login navigation completes. `.env.fullstack` sets `VITE_DEMO_MODE=false` and `VITE_BACKEND_ENABLED=true` for both full-stack scripts.
+
+**Server history forecast (API-only):** full-stack mode has no Usage History editor. Enter appliance observations through authenticated `POST /api/energy-usage` with `applianceId`, `date`, and `kWhUsed` query parameters. The chart reads `GET /api/energy-usage/history-forecast?timeRange=daily` (also `weekly` or `monthly`). The Local Demo Usage History editor stores records only in the browser and does not synchronize them to H2. Server PDF reports remain available through the authenticated report controls.
 
 The backend defaults to:
 
@@ -138,12 +140,15 @@ cd backend
 
 `npm run build` creates the server-free static demo. `npm run build:fullstack` creates a browser-routing frontend that expects the Spring application at the configured `/api` and `/ws` routes. The backend package is written under `backend/target`; run it with `java -jar target/backend-0.0.1-SNAPSHOT.jar`. H2 remains a local runtime database under `backend/data`.
 
+Major pages load on demand. Production mode constants remove account routes, Axios request interceptors, JWT decoding, and STOMP/SockJS dependencies from the default client build; those dependencies remain available in the full-stack build.
+
 Generated dependencies, build output, local databases, operating-system metadata, and logs are deliberately ignored. Do not add `frontend/node_modules`, `frontend/dist`, `backend/target`, `backend/data`, `.DS_Store`, database files, or `installation_summary.log` to source commits or archives.
 
 ## Projection and forecast modes
 
 - **Formula Projection** is deterministic and is always available. Daily periods begin tomorrow, weekly periods begin next Monday, and monthly periods begin with the next complete calendar month.
-- **History-Based Forecast** is available client-side from local history in Local Demo and from authenticated H2 history in full-stack mode. Local forecasting prefers per-appliance history when every active appliance qualifies, otherwise it uses a qualifying household-total series. It is available with 60 valid completed days: 60–89 days produces medium confidence and 90 or more produces high confidence. Household-only forecasts disable the per-appliance chart breakdown. If history is insufficient, the UI returns to Formula Projection and never mixes the two data sources.
+- **History-Based Forecast** uses local history in Local Demo or authenticated H2 history entered through the API in full-stack mode. Local forecasting prefers per-appliance history when every active appliance qualifies, otherwise it uses a qualifying household-total series. Eligibility requires a finite, non-negative observation on **each of the latest 60 completed calendar days**, ending yesterday, for the household series or every active appliance. Duplicate dates count once; old records, gaps, invalid values, today, and future observations cannot unlock a forecast. The model trains on that same 60-day window. Coverage also reports distinct observed days in the latest 90 completed days (at most 90), using the minimum across active appliances. Coverage is an observation count, not an accuracy or confidence rating; holdout error is used only for parameter tuning. Household-only forecasts disable the per-appliance chart breakdown. If history is insufficient, the UI returns to Formula Projection and never mixes the two data sources.
+- Forecast API metadata uses `dataCoverage`, `historyDays` (latest 90 completed days), and `recentHistoryDays` (latest 60 completed days); the unsupported `confidence` rating has been removed.
 - Holt and Holt-Winters calculations are deterministic: identical history produces identical output, with no injected random noise or static seasonal adjustment.
 
 ## Technology

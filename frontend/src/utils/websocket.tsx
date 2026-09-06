@@ -1,5 +1,6 @@
 import type { Client as StompClient } from '@stomp/stompjs'
 import { refreshAccessTokenIfNeeded } from './auth'
+import { BACKEND_ENABLED } from '../config/runtime'
 
 let client: StompClient | null = null
 let connectPromise: Promise<void> | null = null
@@ -17,6 +18,7 @@ function buildSockJsUrl(token: string): string {
 }
 
 export async function connectWebSocket(onConnected?: () => void): Promise<void> {
+  if (!BACKEND_ENABLED) return
   if (client && client.connected) {
     onConnected?.()
     return Promise.resolve()

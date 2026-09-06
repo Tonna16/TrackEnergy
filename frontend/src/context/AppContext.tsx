@@ -199,7 +199,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [authError, setAuthError] = useState<{ kind: 'transient'; message: string } | null>(null);
   const [appMode, setAppModeState] = useState<AppMode>(BACKEND_ENABLED && getAuthToken() ? 'live' : 'simulated');
   const settingsRef = useRef(settings);
-  const authRequestRef = useRef<Promise<void> | null>(null);
+  const authRequestRef = useRef<{ token: string; promise: Promise<void> } | null>(null);
+  const authVersionRef = useRef(0);
+  const authInitializationRef = useRef<Promise<unknown> | null>(null);
 
   useEffect(() => { settingsRef.current = settings; }, [settings]);
 
@@ -211,7 +213,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!BACKEND_ENABLED) return;
     let mounted = true;
-    void refreshAccessTokenIfNeeded().catch(() => undefined).finally(() => {
+    authInitializationRef.current = refreshAccessTokenIfNeeded().catch(() => undefined).finally(() => {
       if (mounted) setAuthReady(true);
     });
     return () => { mounted = false; };
@@ -224,23 +226,41 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setAuthError(null);
       return;
     }
-    if (!authReady) {
-      setAuthStatus('checking');
+    const token = getAuthToken();
+    if (!token) {
+      authVersionRef.current += 1;
+      authRequestRef.current = null;
+      setAuthStatus('unauthenticated');
+      setAuthError(null);
+      setAppliances([]);
+      setSettings(sanitizeSettings());
       return;
     }
-    if (authRequestRef.current) return authRequestRef.current;
+    if (authRequestRef.current?.token === token) return authRequestRef.current.promise;
+    const authVersion = ++authVersionRef.current;
     const request = (async () => {
-      const token = getAuthToken();
-      if (!token) {
-        setAuthStatus('unauthenticated');
-        setAuthError(null);
-        return;
-      }
+      let profileVerified = false;
       try {
         await api.get('profile');
+        profileVerified = true;
+        const [applianceResponse, settingsResponse] = await Promise.all([
+          api.get<Appliance[]>('appliances'), api.get('settings'),
+        ]);
+        if (authVersionRef.current !== authVersion || !getAuthToken()) return;
+        setAppliances(normalizeApplianceList(applianceResponse.data));
+        const hydratedSettings = sanitizeSettings({
+          ...settingsRef.current,
+          currency: settingsResponse.data?.currency,
+          householdSize: settingsResponse.data?.householdSize,
+          electricityRate: settingsResponse.data?.electricityRatePerKWh ?? settingsResponse.data?.electricityRate,
+        });
+        settingsRef.current = hydratedSettings;
+        setSettings(hydratedSettings);
+        setAppModeState('live');
         setAuthStatus('authenticated');
         setAuthError(null);
       } catch (error) {
+        if (authVersionRef.current !== authVersion) return;
         const status = (error as AxiosError | undefined)?.response?.status;
         if (status === 401 || status === 403) {
           logout();
@@ -249,36 +269,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setAuthError(null);
         } else {
           setAuthStatus('authenticated');
-          setAuthError({ kind: 'transient', message: 'Could not verify your session. Check your connection and retry.' });
+          setAuthError({ kind: 'transient', message: profileVerified
+            ? 'Could not load your account appliances and settings. Check your connection and retry.'
+            : 'Could not verify your session. Check your connection and retry.' });
         }
       }
     })();
-    authRequestRef.current = request;
-    try { await request; } finally { authRequestRef.current = null; }
-  }, [authReady]);
+    authRequestRef.current = { token, promise: request };
+    try { await request; } finally {
+      if (authRequestRef.current?.promise === request) authRequestRef.current = null;
+    }
+  }, []);
 
   const syncAuthModeWithToken = useCallback(async () => {
+    await authInitializationRef.current;
     const live = BACKEND_ENABLED && Boolean(getAuthToken());
     setAppModeState(live ? 'live' : 'simulated');
     await resolveAuthState();
   }, [resolveAuthState]);
 
   useEffect(() => { if (authReady) void resolveAuthState(); }, [authReady, resolveAuthState]);
-
-  useEffect(() => {
-    if (!BACKEND_ENABLED || !authReady || !getAuthToken()) return;
-    void Promise.all([api.get<Appliance[]>('appliances'), api.get('settings')])
-      .then(([applianceResponse, settingsResponse]) => {
-        setAppliances(normalizeApplianceList(applianceResponse.data));
-        setSettings(previous => sanitizeSettings({
-          ...previous,
-          currency: settingsResponse.data?.currency,
-          householdSize: settingsResponse.data?.householdSize,
-          electricityRate: settingsResponse.data?.electricityRatePerKWh ?? settingsResponse.data?.electricityRate,
-        }));
-      })
-      .catch(() => undefined);
-  }, [authReady]);
 
   const trackedAppliances = useMemo(() => appliances.filter(appliance => isVisibleAppliance(appliance, false)), [appliances]);
   const activeApplianceCount = trackedAppliances.length;

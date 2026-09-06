@@ -13,7 +13,7 @@ vi.mock('../context/AppContext', () => ({
     historyEntries: [{ id: 'appliance:99:2024-01-01', date: '2024-01-01', scope: 'appliance', applianceId: 99, kwh: 1.25, isSample: true }],
     upsertHistoryEntry: state.upsert,
     deleteHistoryEntry: state.remove,
-    historyStatus: { available: false, historyDays: 1, confidence: null, granularity: null },
+    historyStatus: { available: false, historyDays: 1, recentHistoryDays: 1, dataCoverage: '1/90 completed days recorded; 1/60 in the latest training window', granularity: null },
   }),
 }));
 

@@ -156,12 +156,12 @@ export default function UsageHistory() {
 
         <div className="card">
           <h2 className="font-semibold">Forecast readiness</h2>
-          <p className="mt-3 text-3xl font-bold text-emerald-600">{historyStatus.historyDays}/60</p>
-          <p className="text-sm text-gray-500">valid past days</p>
+          <p className="mt-3 text-3xl font-bold text-emerald-600">{historyStatus.recentHistoryDays}/60</p>
+          <p className="text-sm text-gray-500">latest completed days recorded</p>
           <p className="mt-3 text-sm">
             {historyStatus.available
-              ? `${historyStatus.confidence} confidence · ${historyStatus.granularity} history`
-              : 'Add more history to unlock the separate History-Based Forecast.'}
+              ? `${historyStatus.dataCoverage} · ${historyStatus.granularity} history. Coverage does not measure forecast accuracy.`
+              : 'Record each of the latest 60 completed days to unlock the separate History-Based Forecast.'}
           </p>
           {historyEntries.some(entry => entry.isSample) && (
             <p className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">

@@ -119,7 +119,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
     const base = [
       { name: 'Dashboard', icon: Home, href: '/' },
       { name: 'Add Appliance', icon: Plus, href: '/add-appliance' },
-      ...(backendEnabled ? [] : [{ name: 'Usage History', icon: History, href: '/history' }]),
+      { name: backendEnabled ? 'History Forecast (API-only)' : 'Usage History', icon: History, href: '/history' },
       { name: 'Compare', icon: BarChart2, href: '/compare' },
       { name: 'Insights', icon: Activity, href: '/insights' },
       { name: 'Settings', icon: Settings, href: '/settings' },

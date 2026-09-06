@@ -42,7 +42,7 @@ function Harness() {
     <div>
       <span data-testid="count">{appliances.length}</span>
       <span data-testid="history-count">{historyEntries.length}</span>
-      <span data-testid="history-confidence">{historyStatus.confidence ?? 'none'}</span>
+      <span data-testid="history-coverage">{historyStatus.dataCoverage}</span>
       <span data-testid="rate">{settings.electricityRate}</span>
       {appliances.map(item => <span key={item.id}>{item.name}{item.isSample ? ' sample' : ''}</span>)}
       <button onClick={removeSampleData}>Remove samples</button>
@@ -66,7 +66,7 @@ describe('versioned client demo data', () => {
     render(<AppProvider><Harness /></AppProvider>);
     expect(screen.getByTestId('count')).toHaveTextContent('5');
     expect(screen.getByTestId('history-count')).toHaveTextContent('450');
-    expect(screen.getByTestId('history-confidence')).toHaveTextContent('high');
+    expect(screen.getByTestId('history-coverage')).toHaveTextContent('90/90 completed days recorded');
     expect(screen.getByText('Sample Refrigerator sample')).toBeInTheDocument();
     await waitFor(() => {
       expect(localStorage.getItem(DEMO_STORE_KEY)).not.toBeNull();
